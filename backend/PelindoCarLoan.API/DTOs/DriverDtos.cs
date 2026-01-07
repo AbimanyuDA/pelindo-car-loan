@@ -10,9 +10,9 @@ namespace PelindoCarLoan.API.DTOs
         public string? DriverName { get; set; }
         public string LicenseNumber { get; set; } = string.Empty;
         public DateTime LicenseExpiry { get; set; }
-        public string? PhoneNumber { get; set; }
         public string Status { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
+        public int? ExperienceYears { get; set; }
+        public decimal? Rating { get; set; }
     }
 
     /// <summary>
@@ -23,7 +23,7 @@ namespace PelindoCarLoan.API.DTOs
         public int? UserId { get; set; }
         public string LicenseNumber { get; set; } = string.Empty;
         public DateTime LicenseExpiry { get; set; }
-        public string? PhoneNumber { get; set; }
+        public int? ExperienceYears { get; set; }
     }
 
     /// <summary>

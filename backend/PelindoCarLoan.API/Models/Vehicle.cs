@@ -9,10 +9,12 @@ namespace PelindoCarLoan.API.Models
         public string PlateNumber { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        public string? Model { get; set; }
+        public int? Year { get; set; }
         public int Capacity { get; set; } = 4;
         public string Status { get; set; } = VehicleStatus.Available;
-        public string? Notes { get; set; }
-        public bool IsActive { get; set; } = true;
+        public DateTime? LastMaintenance { get; set; }
+        public DateTime? NextMaintenance { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

@@ -142,8 +142,9 @@ namespace PelindoCarLoan.API.Validators
                 .NotEmpty().WithMessage("License expiry is required")
                 .GreaterThan(DateTime.Now).WithMessage("License must not be expired");
 
-            RuleFor(x => x.PhoneNumber)
-                .MaximumLength(20).WithMessage("Phone number cannot exceed 20 characters");
+            RuleFor(x => x.ExperienceYears)
+                .GreaterThanOrEqualTo(0).When(x => x.ExperienceYears.HasValue)
+                .WithMessage("Experience years cannot be negative");
         }
     }
 }

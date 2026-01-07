@@ -28,13 +28,13 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<Approval?> GetByIdAsync(int id)
         {
             const string sql = @"
-                SELECT a.id, a.loan_request_id AS LoanRequestId, a.approver_id AS ApproverId,
+                SELECT a.approval_id AS Id, a.loan_request_id AS LoanRequestId, a.approver_id AS ApproverId,
                        a.approval_level AS ApprovalLevel, a.status, a.notes, 
                        a.approved_at AS ApprovedAt,
-                       u.id, u.name, u.email, u.role, u.division
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
                 FROM approvals a
-                INNER JOIN users u ON a.approver_id = u.id
-                WHERE a.id = :Id";
+                INNER JOIN users u ON a.approver_id = u.user_id
+                WHERE a.approval_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var result = await connection.QueryAsync<Approval, User, Approval>(
@@ -45,7 +45,7 @@ namespace PelindoCarLoan.API.Repositories
                     return a;
                 },
                 new { Id = id },
-                splitOn: "id"
+                splitOn: "Id"
             );
 
             return result.FirstOrDefault();
@@ -54,12 +54,12 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<Approval>> GetByLoanRequestIdAsync(int loanRequestId)
         {
             const string sql = @"
-                SELECT a.id, a.loan_request_id AS LoanRequestId, a.approver_id AS ApproverId,
+                SELECT a.approval_id AS Id, a.loan_request_id AS LoanRequestId, a.approver_id AS ApproverId,
                        a.approval_level AS ApprovalLevel, a.status, a.notes, 
                        a.approved_at AS ApprovedAt,
-                       u.id, u.name, u.email, u.role, u.division
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
                 FROM approvals a
-                INNER JOIN users u ON a.approver_id = u.id
+                INNER JOIN users u ON a.approver_id = u.user_id
                 WHERE a.loan_request_id = :LoanRequestId
                 ORDER BY a.approval_level";
 
@@ -72,7 +72,7 @@ namespace PelindoCarLoan.API.Repositories
                     return a;
                 },
                 new { LoanRequestId = loanRequestId },
-                splitOn: "id"
+                splitOn: "Id"
             );
 
             return result;
@@ -81,7 +81,7 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<Approval?> GetByLoanRequestAndLevelAsync(int loanRequestId, int level)
         {
             const string sql = @"
-                SELECT id, loan_request_id AS LoanRequestId, approver_id AS ApproverId,
+                SELECT approval_id AS Id, loan_request_id AS LoanRequestId, approver_id AS ApproverId,
                        approval_level AS ApprovalLevel, status, notes, approved_at AS ApprovedAt
                 FROM approvals
                 WHERE loan_request_id = :LoanRequestId AND approval_level = :Level";
@@ -94,9 +94,9 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<int> CreateAsync(Approval approval)
         {
             const string sql = @"
-                INSERT INTO approvals (loan_request_id, approver_id, approval_level, status, notes)
-                VALUES (:LoanRequestId, :ApproverId, :ApprovalLevel, :Status, :Notes)
-                RETURNING id INTO :Id";
+                INSERT INTO approvals (approval_id, loan_request_id, approver_id, approval_level, status, notes)
+                VALUES (seq_approvals.NEXTVAL, :LoanRequestId, :ApproverId, :ApprovalLevel, :Status, :Notes)
+                RETURNING approval_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
             var parameters = new DynamicParameters();
@@ -115,15 +115,16 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE approvals
-                SET status = :Status, notes = :Notes
-                WHERE id = :Id";
+                SET status = :Status, notes = :Notes, approved_at = :ApprovedAt
+                WHERE approval_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new
             {
                 approval.Id,
                 approval.Status,
-                approval.Notes
+                approval.Notes,
+                approval.ApprovedAt
             });
             return rowsAffected > 0;
         }

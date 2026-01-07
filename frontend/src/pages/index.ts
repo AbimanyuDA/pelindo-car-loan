@@ -1,10 +1,10 @@
-export { default as LoginPage } from './LoginPage'
-export { default as DashboardPage } from './DashboardPage'
-export { default as LoanRequestsPage } from './LoanRequestsPage'
-export { default as LoanRequestFormPage } from './LoanRequestFormPage'
-export { default as LoanRequestDetailPage } from './LoanRequestDetailPage'
-export { ApprovalL1Page, ApprovalL2Page } from './ApprovalPage'
-export { default as DriverSchedulePage } from './DriverSchedulePage'
-export { default as AdminSchedulePage } from './AdminSchedulePage'
-export { default as VehiclesPage } from './VehiclesPage'
-export { default as DriversPage } from './DriversPage'
+export { default as LoginPage } from "./LoginPage";
+export { default as DashboardPage } from "./DashboardPage";
+export { default as LoanRequestsPage } from "./LoanRequestsPage";
+export { default as LoanRequestFormPage } from "./LoanRequestFormPage";
+export { default as LoanRequestDetailPage } from "./LoanRequestDetailPage";
+export { ApprovalL1Page, ApprovalL2Page } from "./ApprovalPage";
+export { default as DriverSchedulePage } from "./DriverSchedulePage";
+export { default as AdminSchedulePage } from "./AdminSchedulePage";
+export { default as VehiclesPage } from "./VehiclesPage";
+export { default as DriversPage } from "./DriversPage";

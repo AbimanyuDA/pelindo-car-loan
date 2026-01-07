@@ -34,12 +34,12 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<LoanRequest?> GetByIdAsync(int id)
         {
             const string sql = @"
-                SELECT id, user_id AS UserId, request_number AS RequestNumber, purpose, destination,
+                SELECT loan_request_id AS Id, user_id AS UserId, NULL AS RequestNumber, purpose, destination,
                        passenger_count AS PassengerCount, start_datetime AS StartDatetime, 
-                       end_datetime AS EndDatetime, status, notes, 
+                       end_datetime AS EndDatetime, status, NULL AS Notes, 
                        created_at AS CreatedAt, updated_at AS UpdatedAt
                 FROM loan_requests
-                WHERE id = :Id";
+                WHERE loan_request_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<LoanRequest>(sql, new { Id = id });
@@ -48,14 +48,14 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<LoanRequest?> GetByIdWithDetailsAsync(int id)
         {
             const string sql = @"
-                SELECT lr.id, lr.user_id AS UserId, lr.request_number AS RequestNumber, lr.purpose, 
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, lr.purpose, 
                        lr.destination, lr.passenger_count AS PassengerCount, 
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
-                       lr.status, lr.notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.id, u.name, u.email, u.role, u.division
+                       lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
                 FROM loan_requests lr
-                INNER JOIN users u ON lr.user_id = u.id
-                WHERE lr.id = :Id";
+                INNER JOIN users u ON lr.user_id = u.user_id
+                WHERE lr.loan_request_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var result = await connection.QueryAsync<LoanRequest, User, LoanRequest>(
@@ -66,7 +66,7 @@ namespace PelindoCarLoan.API.Repositories
                     return lr;
                 },
                 new { Id = id },
-                splitOn: "id"
+                splitOn: "Id"
             );
 
             return result.FirstOrDefault();
@@ -75,13 +75,13 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<LoanRequest>> GetAllAsync(int? userId = null, string? status = null)
         {
             var sql = @"
-                SELECT lr.id, lr.user_id AS UserId, lr.request_number AS RequestNumber, lr.purpose, 
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, lr.purpose, 
                        lr.destination, lr.passenger_count AS PassengerCount, 
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
-                       lr.status, lr.notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.id, u.name, u.email, u.role, u.division
+                       lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
                 FROM loan_requests lr
-                INNER JOIN users u ON lr.user_id = u.id
+                INNER JOIN users u ON lr.user_id = u.user_id
                 WHERE 1=1";
 
             if (userId.HasValue)
@@ -100,7 +100,7 @@ namespace PelindoCarLoan.API.Repositories
                     return lr;
                 },
                 new { UserId = userId, Status = status },
-                splitOn: "id"
+                splitOn: "Id"
             );
 
             return result;
@@ -111,13 +111,13 @@ namespace PelindoCarLoan.API.Repositories
             var status = approvalLevel == 1 ? LoanRequestStatus.Submitted : LoanRequestStatus.ApprovedL1;
 
             const string sql = @"
-                SELECT lr.id, lr.user_id AS UserId, lr.request_number AS RequestNumber, lr.purpose, 
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, lr.purpose, 
                        lr.destination, lr.passenger_count AS PassengerCount, 
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
-                       lr.status, lr.notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.id, u.name, u.email, u.role, u.division
+                       lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
                 FROM loan_requests lr
-                INNER JOIN users u ON lr.user_id = u.id
+                INNER JOIN users u ON lr.user_id = u.user_id
                 WHERE lr.status = :Status
                 ORDER BY lr.created_at ASC";
 
@@ -130,7 +130,7 @@ namespace PelindoCarLoan.API.Repositories
                     return lr;
                 },
                 new { Status = status },
-                splitOn: "id"
+                splitOn: "Id"
             );
 
             return result;
@@ -144,23 +144,21 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<int> CreateAsync(LoanRequest loanRequest)
         {
             const string sql = @"
-                INSERT INTO loan_requests (user_id, request_number, purpose, destination, 
-                                          passenger_count, start_datetime, end_datetime, status, notes)
-                VALUES (:UserId, :RequestNumber, :Purpose, :Destination, 
-                        :PassengerCount, :StartDatetime, :EndDatetime, :Status, :Notes)
-                RETURNING id INTO :Id";
+                INSERT INTO loan_requests (loan_request_id, user_id, purpose, destination, 
+                                          passenger_count, start_datetime, end_datetime, status)
+                VALUES (seq_loan_requests.NEXTVAL, :UserId, :Purpose, :Destination, 
+                        :PassengerCount, :StartDatetime, :EndDatetime, :Status)
+                RETURNING loan_request_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
             var parameters = new DynamicParameters();
             parameters.Add("UserId", loanRequest.UserId);
-            parameters.Add("RequestNumber", loanRequest.RequestNumber);
             parameters.Add("Purpose", loanRequest.Purpose);
             parameters.Add("Destination", loanRequest.Destination);
             parameters.Add("PassengerCount", loanRequest.PassengerCount);
             parameters.Add("StartDatetime", loanRequest.StartDatetime);
             parameters.Add("EndDatetime", loanRequest.EndDatetime);
             parameters.Add("Status", loanRequest.Status);
-            parameters.Add("Notes", loanRequest.Notes);
             parameters.Add("Id", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
 
             await connection.ExecuteAsync(sql, parameters);
@@ -173,8 +171,8 @@ namespace PelindoCarLoan.API.Repositories
                 UPDATE loan_requests
                 SET purpose = :Purpose, destination = :Destination, passenger_count = :PassengerCount,
                     start_datetime = :StartDatetime, end_datetime = :EndDatetime, 
-                    status = :Status, notes = :Notes
-                WHERE id = :Id";
+                    status = :Status, updated_at = SYSTIMESTAMP
+                WHERE loan_request_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new
@@ -185,15 +183,14 @@ namespace PelindoCarLoan.API.Repositories
                 loanRequest.PassengerCount,
                 loanRequest.StartDatetime,
                 loanRequest.EndDatetime,
-                loanRequest.Status,
-                loanRequest.Notes
+                loanRequest.Status
             });
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateStatusAsync(int id, string status)
         {
-            const string sql = "UPDATE loan_requests SET status = :Status WHERE id = :Id";
+            const string sql = "UPDATE loan_requests SET status = :Status, updated_at = SYSTIMESTAMP WHERE loan_request_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id, Status = status });
@@ -202,7 +199,7 @@ namespace PelindoCarLoan.API.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            const string sql = "UPDATE loan_requests SET status = 'CANCELLED' WHERE id = :Id";
+            const string sql = "UPDATE loan_requests SET status = 'CANCELLED', updated_at = SYSTIMESTAMP WHERE loan_request_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -211,15 +208,12 @@ namespace PelindoCarLoan.API.Repositories
 
         public async Task<string> GenerateRequestNumberAsync()
         {
-            const string sql = @"
-                SELECT 'LR-' || TO_CHAR(SYSDATE, 'YYYYMMDD') || '-' || 
-                       LPAD(NVL(MAX(TO_NUMBER(SUBSTR(request_number, -6))), 0) + 1, 6, '0')
-                FROM loan_requests
-                WHERE request_number LIKE 'LR-' || TO_CHAR(SYSDATE, 'YYYYMMDD') || '%'";
+            // Generate request number based on sequence
+            const string sql = @"SELECT seq_loan_requests.NEXTVAL FROM DUAL";
 
             using var connection = _dbContext.CreateConnection();
-            var result = await connection.QueryFirstAsync<string>(sql);
-            return result ?? $"LR-{DateTime.Now:yyyyMMdd}-000001";
+            var seqVal = await connection.QueryFirstAsync<int>(sql);
+            return $"LR-{DateTime.Now:yyyyMMdd}-{seqVal:D6}";
         }
 
         public async Task<int> GetCountByStatusAsync(string status)

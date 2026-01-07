@@ -39,40 +39,52 @@ namespace PelindoCarLoan.API.Services
 
         public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto request)
         {
-            var user = await _userRepository.GetByEmailAsync(request.Email);
-            
-            if (user == null)
+            try
             {
-                _logger.LogWarning("Login attempt failed - user not found: {Email}", request.Email);
-                return null;
-            }
-
-            if (!ValidatePassword(request.Password, user.PasswordHash))
-            {
-                _logger.LogWarning("Login attempt failed - invalid password for user: {Email}", request.Email);
-                return null;
-            }
-
-            var token = GenerateJwtToken(user);
-            var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationMinutes"] ?? "480");
-
-            _logger.LogInformation("User logged in successfully: {Email}", request.Email);
-
-            return new LoginResponseDto
-            {
-                Token = token,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes),
-                User = new UserDto
+                _logger.LogInformation("Login attempt for email: {Email}", request.Email);
+                
+                var user = await _userRepository.GetByEmailAsync(request.Email);
+                
+                if (user == null)
                 {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Email = user.Email,
-                    Role = user.Role,
-                    Division = user.Division,
-                    IsActive = user.IsActive,
-                    CreatedAt = user.CreatedAt
+                    _logger.LogWarning("Login attempt failed - user not found: {Email}", request.Email);
+                    return null;
                 }
-            };
+
+                _logger.LogInformation("User found: {Name}, PasswordHash length: {Length}", user.Name, user.PasswordHash?.Length ?? 0);
+
+                if (!ValidatePassword(request.Password, user.PasswordHash))
+                {
+                    _logger.LogWarning("Login attempt failed - invalid password for user: {Email}", request.Email);
+                    return null;
+                }
+
+                var token = GenerateJwtToken(user);
+                var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationMinutes"] ?? "480");
+
+                _logger.LogInformation("User logged in successfully: {Email}", request.Email);
+
+                return new LoginResponseDto
+                {
+                    Token = token,
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes),
+                    User = new UserDto
+                    {
+                        Id = user.Id,
+                        Name = user.Name,
+                        Email = user.Email,
+                        Role = user.Role,
+                        Division = user.Division,
+                        IsActive = user.IsActive,
+                        CreatedAt = user.CreatedAt
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
+                throw;
+            }
         }
 
         public async Task<UserDto?> RegisterAsync(RegisterUserDto request)

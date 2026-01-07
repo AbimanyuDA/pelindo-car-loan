@@ -1,56 +1,58 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { LogIn } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Alert } from '@/components/ui/Alert'
-import { useAuthStore } from '@/store/authStore'
-import { authService } from '@/services'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { LogIn } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Alert } from "@/components/ui/Alert";
+import { useAuthStore } from "@/store/authStore";
+import { authService } from "@/services";
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username wajib diisi'),
-  password: z.string().min(1, 'Password wajib diisi')
-})
+  email: z.string().email("Email tidak valid").min(1, "Email wajib diisi"),
+  password: z.string().min(1, "Password wajib diisi"),
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const { login } = useAuthStore()
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema)
-  })
+    resolver: zodResolver(loginSchema),
+  });
 
   const onSubmit = async (data: LoginFormData) => {
-    setError(null)
-    setIsLoading(true)
+    setError(null);
+    setIsLoading(true);
 
     try {
-      const response = await authService.login(data)
-      
+      const response = await authService.login(data);
+
       if (response.success && response.data) {
-        login(response.data.user, response.data.token)
-        navigate('/dashboard')
+        login(response.data.user, response.data.token);
+        navigate("/dashboard");
       } else {
-        setError(response.message || 'Login gagal')
+        setError(response.message || "Login gagal");
       }
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } }
-      setError(error.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.')
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(
+        error.response?.data?.message || "Terjadi kesalahan. Silakan coba lagi."
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -67,10 +69,11 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Input
-          label="Username"
-          placeholder="Masukkan username"
-          error={errors.username?.message}
-          {...register('username')}
+          label="Email"
+          type="email"
+          placeholder="Masukkan email"
+          error={errors.email?.message}
+          {...register("email")}
         />
 
         <Input
@@ -78,7 +81,7 @@ export default function LoginPage() {
           label="Password"
           placeholder="Masukkan password"
           error={errors.password?.message}
-          {...register('password')}
+          {...register("password")}
         />
 
         <Button
@@ -92,16 +95,31 @@ export default function LoginPage() {
       </form>
 
       {/* Demo Credentials */}
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <p className="text-xs font-medium text-gray-600 mb-2">Demo Credentials:</p>
-        <div className="text-xs text-gray-500 space-y-1">
-          <p><span className="font-medium">Pemohon:</span> pemohon1 / password123</p>
-          <p><span className="font-medium">PIC L1:</span> pic_l1 / password123</p>
-          <p><span className="font-medium">PIC L2:</span> pic_l2 / password123</p>
-          <p><span className="font-medium">Driver:</span> driver1 / password123</p>
-          <p><span className="font-medium">Admin:</span> admin / password123</p>
+      <div className="mt-8 p-4 bg-primary-50 rounded-lg border border-primary-200">
+        <p className="text-xs font-semibold text-primary-700 mb-2">
+          Demo Credentials:
+        </p>
+        <div className="text-xs text-gray-600 space-y-1">
+          <p>
+            <span className="font-medium">Admin:</span> admin@pelindo.co.id
+          </p>
+          <p>
+            <span className="font-medium">Pemohon:</span> pemohon1@pelindo.co.id
+          </p>
+          <p>
+            <span className="font-medium">PIC L1:</span> approver.l1.1@pelindo.co.id
+          </p>
+          <p>
+            <span className="font-medium">PIC L2:</span> approver.l2@pelindo.co.id
+          </p>
+          <p>
+            <span className="font-medium">Driver:</span> driver1@pelindo.co.id
+          </p>
+          <p className="mt-2 text-primary-600 font-medium">
+            Password: Password123!
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

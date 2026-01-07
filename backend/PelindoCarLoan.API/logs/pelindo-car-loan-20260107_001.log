@@ -1,0 +1,416 @@
+2026-01-07 16:54:18.062 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 16:54:18.114 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 16:54:18.164 +07:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5000: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+ ---> System.Net.Sockets.SocketException (10048): Only one usage of each socket address (protocol/network address/port) is normally permitted.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.DefaultAddressStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2026-01-07 16:56:07.697 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 16:56:07.741 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 16:56:07.786 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 16:56:07.789 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 16:56:07.789 +07:00 [INF] Hosting environment: Production
+2026-01-07 16:56:07.790 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 16:56:27.247 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/auth/hash/Password123! - null null
+2026-01-07 16:56:27.269 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-01-07 16:56:27.289 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API)'
+2026-01-07 16:56:27.304 +07:00 [INF] Route matched with {action = "GenerateHash", controller = "Auth"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GenerateHash(System.String) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 16:56:27.618 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-07 16:56:27.640 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API) in 332.4745ms
+2026-01-07 16:56:27.644 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API)'
+2026-01-07 16:56:27.646 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/auth/hash/Password123! - 200 null application/json; charset=utf-8 399.5542ms
+2026-01-07 16:57:10.913 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 16:57:10.919 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 16:57:10.924 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 16:57:11.380 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 453.9217ms
+2026-01-07 16:57:11.383 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 16:57:11.385 +07:00 [ERR] An unhandled exception occurred
+BCrypt.Net.SaltParseException: Invalid salt version
+   at BCrypt.Net.BCrypt.HashPassword(String inputKey, String salt, Boolean enhancedEntropy, HashType hashType)
+   at BCrypt.Net.BCrypt.Verify(String text, String hash, Boolean enhancedEntropy, HashType hashType)
+   at PelindoCarLoan.API.Services.AuthService.ValidatePassword(String password, String passwordHash) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 168
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 50
+   at PelindoCarLoan.API.Controllers.AuthController.Login(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Controllers\AuthController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at PelindoCarLoan.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Middleware\ExceptionMiddleware.cs:line 22
+2026-01-07 16:57:11.404 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 500 null application/json 490.9333ms
+2026-01-07 16:57:54.795 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 16:57:54.847 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 16:57:54.902 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 16:57:54.903 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 16:57:54.904 +07:00 [INF] Hosting environment: Production
+2026-01-07 16:57:54.904 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 16:58:19.848 +07:00 [INF] Application is shutting down...
+2026-01-07 16:58:58.152 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 16:58:58.196 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 16:58:58.284 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 16:58:58.287 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 16:58:58.289 +07:00 [INF] Hosting environment: Development
+2026-01-07 16:58:58.290 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 16:59:20.632 +07:00 [INF] Application is shutting down...
+2026-01-07 16:59:42.588 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 16:59:42.647 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 16:59:42.710 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 16:59:42.713 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 16:59:42.715 +07:00 [INF] Hosting environment: Development
+2026-01-07 16:59:42.716 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:00:05.902 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:00:05.929 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-01-07 17:00:05.949 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:00:05.965 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:00:06.015 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:00:07.320 +07:00 [ERR] Error during login for email: admin@pelindo.co.id
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+2026-01-07 17:00:07.344 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 1373.9313ms
+2026-01-07 17:00:07.349 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:00:07.352 +07:00 [ERR] An unhandled exception occurred
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+   at PelindoCarLoan.API.Controllers.AuthController.Login(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Controllers\AuthController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at PelindoCarLoan.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Middleware\ExceptionMiddleware.cs:line 22
+2026-01-07 17:00:07.376 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 500 null application/json 1474.6835ms
+2026-01-07 17:00:09.281 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:00:09.287 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:00:09.288 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:00:09.291 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:00:10.321 +07:00 [ERR] Error during login for email: admin@pelindo.co.id
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+2026-01-07 17:00:10.328 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 1038.6262ms
+2026-01-07 17:00:10.329 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:00:10.330 +07:00 [ERR] An unhandled exception occurred
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+   at PelindoCarLoan.API.Controllers.AuthController.Login(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Controllers\AuthController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at PelindoCarLoan.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Middleware\ExceptionMiddleware.cs:line 22
+2026-01-07 17:00:10.339 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 500 null application/json 1057.7665ms
+2026-01-07 17:00:58.837 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 17:00:58.886 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 17:00:58.942 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 17:00:58.946 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 17:00:58.947 +07:00 [INF] Hosting environment: Development
+2026-01-07 17:00:58.947 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:01:23.780 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:01:23.809 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-01-07 17:01:23.829 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:01:23.845 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:01:23.894 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:01:25.184 +07:00 [ERR] Error during login for email: admin@pelindo.co.id
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+2026-01-07 17:01:25.197 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 1346.4547ms
+2026-01-07 17:01:25.201 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:01:25.203 +07:00 [ERR] An unhandled exception occurred
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+   at PelindoCarLoan.API.Controllers.AuthController.Login(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Controllers\AuthController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at PelindoCarLoan.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Middleware\ExceptionMiddleware.cs:line 22
+2026-01-07 17:01:25.226 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 500 null application/json 1447.1033ms
+2026-01-07 17:01:25.324 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:01:25.330 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:01:25.331 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:01:25.336 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:01:26.384 +07:00 [ERR] Error during login for email: admin@pelindo.co.id
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+2026-01-07 17:01:26.394 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 1061.1979ms
+2026-01-07 17:01:26.396 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:01:26.397 +07:00 [ERR] An unhandled exception occurred
+Oracle.ManagedDataAccess.Client.OracleException (0x80004005): ORA-01017: invalid username/password; logon denied
+https://docs.oracle.com/error-help/db/ora-01017/
+   at OracleInternal.ConnectionPool.PoolManager`3.GetAsync(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.GetAsync(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.GetAsync(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString securedPassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenInternalAsync(Boolean bAsync)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsyncHelper(CancellationToken cancellationToken)
+   at Oracle.ManagedDataAccess.Client.OracleConnectionInternal.OpenAsync(CancellationToken cancellationToken)
+   at Dapper.SqlMapper.QueryRowAsync[T](IDbConnection cnn, Row row, Type effectiveType, CommandDefinition command) in /_/Dapper/SqlMapper.Async.cs:line 488
+   at PelindoCarLoan.API.Repositories.UserRepository.GetByEmailAsync(String email) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Repositories\UserRepository.cs:line 68
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 46
+   at PelindoCarLoan.API.Controllers.AuthController.Login(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Controllers\AuthController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at PelindoCarLoan.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Middleware\ExceptionMiddleware.cs:line 22
+2026-01-07 17:01:26.406 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 500 null application/json 1081.5793ms
+2026-01-07 17:04:29.751 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 17:04:29.802 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 17:04:29.847 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 17:04:29.850 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 17:04:29.851 +07:00 [INF] Hosting environment: Production
+2026-01-07 17:04:29.852 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:04:51.326 +07:00 [INF] Application is shutting down...
+2026-01-07 17:05:24.338 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 17:05:24.392 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 17:05:24.443 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 17:05:24.446 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 17:05:24.447 +07:00 [INF] Hosting environment: Production
+2026-01-07 17:05:24.448 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:05:42.808 +07:00 [INF] Application is shutting down...
+2026-01-07 17:06:01.848 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 17:06:01.897 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 17:06:01.945 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 17:06:01.948 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 17:06:01.949 +07:00 [INF] Hosting environment: Production
+2026-01-07 17:06:01.950 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:06:16.135 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:06:16.156 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-01-07 17:06:16.178 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:06:16.196 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:06:16.247 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:06:16.667 +07:00 [INF] User found: Administrator, PasswordHash length: 4
+2026-01-07 17:06:16.670 +07:00 [ERR] Error during login for email: admin@pelindo.co.id
+BCrypt.Net.SaltParseException: Invalid salt version
+   at BCrypt.Net.BCrypt.HashPassword(String inputKey, String salt, Boolean enhancedEntropy, HashType hashType)
+   at BCrypt.Net.BCrypt.Verify(String text, String hash, Boolean enhancedEntropy, HashType hashType)
+   at PelindoCarLoan.API.Services.AuthService.ValidatePassword(String password, String passwordHash) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 180
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 56
+2026-01-07 17:06:16.681 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 480.4735ms
+2026-01-07 17:06:16.684 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:06:16.686 +07:00 [ERR] An unhandled exception occurred
+BCrypt.Net.SaltParseException: Invalid salt version
+   at BCrypt.Net.BCrypt.HashPassword(String inputKey, String salt, Boolean enhancedEntropy, HashType hashType)
+   at BCrypt.Net.BCrypt.Verify(String text, String hash, Boolean enhancedEntropy, HashType hashType)
+   at PelindoCarLoan.API.Services.AuthService.ValidatePassword(String password, String passwordHash) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 180
+   at PelindoCarLoan.API.Services.AuthService.LoginAsync(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Services\AuthService.cs:line 56
+   at PelindoCarLoan.API.Controllers.AuthController.Login(LoginRequestDto request) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Controllers\AuthController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at PelindoCarLoan.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\Middleware\ExceptionMiddleware.cs:line 22
+2026-01-07 17:06:16.705 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 500 null application/json 571.1367ms
+2026-01-07 17:06:50.176 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/auth/hash/Password123! - null null
+2026-01-07 17:06:50.182 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API)'
+2026-01-07 17:06:50.186 +07:00 [INF] Route matched with {action = "GenerateHash", controller = "Auth"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GenerateHash(System.String) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:06:50.482 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-07 17:06:50.487 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API) in 299.4424ms
+2026-01-07 17:06:50.489 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API)'
+2026-01-07 17:06:50.491 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/auth/hash/Password123! - 200 null application/json; charset=utf-8 314.3372ms
+2026-01-07 17:06:57.316 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/auth/hash/Password123! - null null
+2026-01-07 17:06:57.319 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API)'
+2026-01-07 17:06:57.321 +07:00 [INF] Route matched with {action = "GenerateHash", controller = "Auth"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GenerateHash(System.String) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:06:57.449 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-01-07 17:06:57.451 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API) in 128.6964ms
+2026-01-07 17:06:57.452 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.GenerateHash (PelindoCarLoan.API)'
+2026-01-07 17:06:57.453 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/auth/hash/Password123! - 200 null application/json; charset=utf-8 137.2636ms
+2026-01-07 17:08:25.868 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 17:08:25.920 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 17:08:25.969 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 17:08:25.972 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 17:08:25.972 +07:00 [INF] Hosting environment: Production
+2026-01-07 17:08:25.973 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:08:52.096 +07:00 [INF] Application is shutting down...
+2026-01-07 17:09:02.043 +07:00 [INF] Pelindo Car Loan API started successfully
+2026-01-07 17:09:02.094 +07:00 [INF] User profile is available. Using 'C:\Users\abima\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-01-07 17:09:02.138 +07:00 [INF] Now listening on: http://localhost:5000
+2026-01-07 17:09:02.140 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-07 17:09:02.141 +07:00 [INF] Hosting environment: Production
+2026-01-07 17:09:02.141 +07:00 [INF] Content root path: C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API
+2026-01-07 17:09:16.240 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:09:16.260 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-01-07 17:09:16.282 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:09:16.299 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:09:16.348 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:09:16.788 +07:00 [INF] User found: Administrator, PasswordHash length: 60
+2026-01-07 17:09:17.182 +07:00 [INF] User logged in successfully: admin@pelindo.co.id
+2026-01-07 17:09:17.188 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[PelindoCarLoan.API.DTOs.LoginResponseDto, PelindoCarLoan.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-07 17:09:17.209 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 905.3925ms
+2026-01-07 17:09:17.213 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:09:17.216 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 200 null application/json; charset=utf-8 976.5865ms
+2026-01-07 17:13:03.159 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/auth/login - null null
+2026-01-07 17:13:03.163 +07:00 [INF] CORS policy execution successful.
+2026-01-07 17:13:03.165 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/auth/login - 204 null null 5.7863ms
+2026-01-07 17:13:03.168 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:13:03.170 +07:00 [INF] CORS policy execution successful.
+2026-01-07 17:13:03.172 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:13:03.173 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:13:03.176 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:13:03.187 +07:00 [INF] User found: Administrator, PasswordHash length: 60
+2026-01-07 17:13:03.465 +07:00 [INF] User logged in successfully: admin@pelindo.co.id
+2026-01-07 17:13:03.468 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[PelindoCarLoan.API.DTOs.LoginResponseDto, PelindoCarLoan.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-07 17:13:03.470 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 295.3462ms
+2026-01-07 17:13:03.471 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:13:03.472 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 200 null application/json; charset=utf-8 304.0971ms
+2026-01-07 17:13:04.784 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:13:04.787 +07:00 [INF] CORS policy execution successful.
+2026-01-07 17:13:04.789 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:13:04.791 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:13:04.795 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:13:04.798 +07:00 [INF] User found: Administrator, PasswordHash length: 60
+2026-01-07 17:13:04.927 +07:00 [INF] User logged in successfully: admin@pelindo.co.id
+2026-01-07 17:13:04.929 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[PelindoCarLoan.API.DTOs.LoginResponseDto, PelindoCarLoan.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-07 17:13:04.930 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 137.9112ms
+2026-01-07 17:13:04.931 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:13:04.932 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 200 null application/json; charset=utf-8 148.2744ms
+2026-01-07 17:14:12.138 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/auth/login - null null
+2026-01-07 17:14:12.141 +07:00 [INF] CORS policy execution successful.
+2026-01-07 17:14:12.143 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/auth/login - 204 null null 4.7227ms
+2026-01-07 17:14:12.146 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/auth/login - application/json 57
+2026-01-07 17:14:12.149 +07:00 [INF] CORS policy execution successful.
+2026-01-07 17:14:12.150 +07:00 [INF] Executing endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:14:12.151 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(PelindoCarLoan.API.DTOs.LoginRequestDto) on controller PelindoCarLoan.API.Controllers.AuthController (PelindoCarLoan.API).
+2026-01-07 17:14:12.153 +07:00 [INF] Login attempt for email: admin@pelindo.co.id
+2026-01-07 17:14:12.155 +07:00 [INF] User found: Administrator, PasswordHash length: 60
+2026-01-07 17:14:12.286 +07:00 [INF] User logged in successfully: admin@pelindo.co.id
+2026-01-07 17:14:12.289 +07:00 [INF] Executing OkObjectResult, writing value of type 'PelindoCarLoan.API.DTOs.ApiResponse`1[[PelindoCarLoan.API.DTOs.LoginResponseDto, PelindoCarLoan.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-01-07 17:14:12.290 +07:00 [INF] Executed action PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API) in 137.2131ms
+2026-01-07 17:14:12.291 +07:00 [INF] Executed endpoint 'PelindoCarLoan.API.Controllers.AuthController.Login (PelindoCarLoan.API)'
+2026-01-07 17:14:12.291 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/auth/login - 200 null application/json; charset=utf-8 145.3856ms

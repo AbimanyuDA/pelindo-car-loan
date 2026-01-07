@@ -31,30 +31,39 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<Vehicle?> GetByIdAsync(int id)
         {
             const string sql = @"
-                SELECT id, plate_number AS PlateNumber, brand, type, capacity, status,
-                       notes, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT vehicle_id, license_plate, brand, type, model, year, capacity, status,
+                       last_maintenance, next_maintenance, created_at, updated_at
                 FROM vehicles
-                WHERE id = :Id";
+                WHERE vehicle_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Vehicle>(sql, new { Id = id });
+            var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = id });
+            if (result == null) return null;
+            
+            return MapToVehicle(result);
         }
 
         public async Task<IEnumerable<Vehicle>> GetAllAsync(string? status = null)
         {
             var sql = @"
-                SELECT id, plate_number AS PlateNumber, brand, type, capacity, status,
-                       notes, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT vehicle_id, license_plate, brand, type, model, year, capacity, status,
+                       last_maintenance, next_maintenance, created_at, updated_at
                 FROM vehicles
-                WHERE is_active = 1";
+                WHERE 1=1";
 
             if (!string.IsNullOrEmpty(status))
                 sql += " AND status = :Status";
 
-            sql += " ORDER BY plate_number";
+            sql += " ORDER BY license_plate";
 
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryAsync<Vehicle>(sql, new { Status = status });
+            var results = await connection.QueryAsync<dynamic>(sql, new { Status = status });
+            var vehicles = new List<Vehicle>();
+            foreach (var r in results)
+            {
+                vehicles.Add(MapToVehicle(r));
+            }
+            return vehicles;
         }
 
         public async Task<IEnumerable<Vehicle>> GetAvailableAsync()
@@ -65,40 +74,48 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<Vehicle>> GetAvailableForPeriodAsync(DateTime start, DateTime end)
         {
             const string sql = @"
-                SELECT v.id, v.plate_number AS PlateNumber, v.brand, v.type, v.capacity, v.status,
-                       v.notes, v.is_active AS IsActive, v.created_at AS CreatedAt, v.updated_at AS UpdatedAt
+                SELECT v.vehicle_id, v.license_plate, v.brand, v.type, v.model, v.year, v.capacity, v.status,
+                       v.last_maintenance, v.next_maintenance, v.created_at, v.updated_at
                 FROM vehicles v
-                WHERE v.is_active = 1 
-                  AND v.status = 'AVAILABLE'
+                WHERE v.status = 'AVAILABLE'
                   AND NOT EXISTS (
                       SELECT 1 FROM schedules s
-                      INNER JOIN loan_requests lr ON s.loan_request_id = lr.id
-                      WHERE s.vehicle_id = v.id
+                      INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
+                      WHERE s.vehicle_id = v.vehicle_id
                         AND s.status NOT IN ('COMPLETED', 'CANCELLED')
                         AND lr.start_datetime < :EndTime
                         AND lr.end_datetime > :StartTime
                   )
-                ORDER BY v.plate_number";
+                ORDER BY v.license_plate";
 
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryAsync<Vehicle>(sql, new { StartTime = start, EndTime = end });
+            var results = await connection.QueryAsync<dynamic>(sql, new { StartTime = start, EndTime = end });
+            var vehicles = new List<Vehicle>();
+            foreach (var r in results)
+            {
+                vehicles.Add(MapToVehicle(r));
+            }
+            return vehicles;
         }
 
         public async Task<int> CreateAsync(Vehicle vehicle)
         {
             const string sql = @"
-                INSERT INTO vehicles (plate_number, brand, type, capacity, status, notes, is_active)
-                VALUES (:PlateNumber, :Brand, :Type, :Capacity, :Status, :Notes, 1)
-                RETURNING id INTO :Id";
+                INSERT INTO vehicles (license_plate, brand, type, model, year, capacity, status, last_maintenance, next_maintenance)
+                VALUES (:PlateNumber, :Brand, :Type, :Model, :Year, :Capacity, :Status, :LastMaintenance, :NextMaintenance)
+                RETURNING vehicle_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
             var parameters = new DynamicParameters();
             parameters.Add("PlateNumber", vehicle.PlateNumber);
             parameters.Add("Brand", vehicle.Brand);
             parameters.Add("Type", vehicle.Type);
+            parameters.Add("Model", vehicle.Model);
+            parameters.Add("Year", vehicle.Year);
             parameters.Add("Capacity", vehicle.Capacity);
             parameters.Add("Status", vehicle.Status);
-            parameters.Add("Notes", vehicle.Notes);
+            parameters.Add("LastMaintenance", vehicle.LastMaintenance);
+            parameters.Add("NextMaintenance", vehicle.NextMaintenance);
             parameters.Add("Id", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
 
             await connection.ExecuteAsync(sql, parameters);
@@ -109,9 +126,11 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE vehicles
-                SET plate_number = :PlateNumber, brand = :Brand, type = :Type,
-                    capacity = :Capacity, status = :Status, notes = :Notes
-                WHERE id = :Id";
+                SET license_plate = :PlateNumber, brand = :Brand, type = :Type, model = :Model,
+                    year = :Year, capacity = :Capacity, status = :Status, 
+                    last_maintenance = :LastMaintenance, next_maintenance = :NextMaintenance,
+                    updated_at = SYSDATE
+                WHERE vehicle_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new
@@ -120,16 +139,19 @@ namespace PelindoCarLoan.API.Repositories
                 vehicle.PlateNumber,
                 vehicle.Brand,
                 vehicle.Type,
+                vehicle.Model,
+                vehicle.Year,
                 vehicle.Capacity,
                 vehicle.Status,
-                vehicle.Notes
+                vehicle.LastMaintenance,
+                vehicle.NextMaintenance
             });
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateStatusAsync(int id, string status)
         {
-            const string sql = "UPDATE vehicles SET status = :Status WHERE id = :Id";
+            const string sql = "UPDATE vehicles SET status = :Status, updated_at = SYSDATE WHERE vehicle_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id, Status = status });
@@ -138,7 +160,7 @@ namespace PelindoCarLoan.API.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            const string sql = "UPDATE vehicles SET is_active = 0 WHERE id = :Id";
+            const string sql = "DELETE FROM vehicles WHERE vehicle_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -147,10 +169,29 @@ namespace PelindoCarLoan.API.Repositories
 
         public async Task<int> GetAvailableCountAsync()
         {
-            const string sql = "SELECT COUNT(1) FROM vehicles WHERE status = 'AVAILABLE' AND is_active = 1";
+            const string sql = "SELECT COUNT(1) FROM vehicles WHERE status = 'AVAILABLE'";
 
             using var connection = _dbContext.CreateConnection();
             return await connection.ExecuteScalarAsync<int>(sql);
+        }
+
+        private Vehicle MapToVehicle(dynamic result)
+        {
+            return new Vehicle
+            {
+                Id = (int)result.VEHICLE_ID,
+                PlateNumber = result.LICENSE_PLATE ?? string.Empty,
+                Brand = result.BRAND ?? string.Empty,
+                Type = result.TYPE ?? string.Empty,
+                Model = result.MODEL,
+                Year = result.YEAR != null ? (int?)result.YEAR : null,
+                Capacity = result.CAPACITY != null ? (int)result.CAPACITY : 4,
+                Status = result.STATUS ?? VehicleStatus.Available,
+                LastMaintenance = result.LAST_MAINTENANCE,
+                NextMaintenance = result.NEXT_MAINTENANCE,
+                CreatedAt = result.CREATED_AT ?? DateTime.Now,
+                UpdatedAt = result.UPDATED_AT ?? DateTime.Now
+            };
         }
     }
 }

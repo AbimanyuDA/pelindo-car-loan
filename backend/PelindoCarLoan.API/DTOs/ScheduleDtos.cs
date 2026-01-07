@@ -17,8 +17,6 @@ namespace PelindoCarLoan.API.DTOs
     public class UpdateScheduleStatusDto
     {
         public string Status { get; set; } = string.Empty;
-        public DateTime? ActualStartTime { get; set; }
-        public DateTime? ActualEndTime { get; set; }
         public string? Notes { get; set; }
     }
 
@@ -31,10 +29,7 @@ namespace PelindoCarLoan.API.DTOs
         public int LoanRequestId { get; set; }
         public int DriverId { get; set; }
         public int VehicleId { get; set; }
-        public int? AssignedBy { get; set; }
         public DateTime AssignedAt { get; set; }
-        public DateTime? ActualStartTime { get; set; }
-        public DateTime? ActualEndTime { get; set; }
         public string Status { get; set; } = string.Empty;
         public string? Notes { get; set; }
         
@@ -42,7 +37,6 @@ namespace PelindoCarLoan.API.DTOs
         public LoanRequestDto? LoanRequest { get; set; }
         public DriverDto? Driver { get; set; }
         public VehicleDto? Vehicle { get; set; }
-        public string? AssignedByName { get; set; }
     }
 
     /// <summary>

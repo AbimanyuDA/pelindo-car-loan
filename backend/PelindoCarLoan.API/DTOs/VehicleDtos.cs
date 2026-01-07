@@ -9,10 +9,12 @@ namespace PelindoCarLoan.API.DTOs
         public string PlateNumber { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        public string? Model { get; set; }
+        public int? Year { get; set; }
         public int Capacity { get; set; }
         public string Status { get; set; } = string.Empty;
-        public string? Notes { get; set; }
-        public bool IsActive { get; set; }
+        public DateTime? LastMaintenance { get; set; }
+        public DateTime? NextMaintenance { get; set; }
     }
 
     /// <summary>
@@ -23,8 +25,9 @@ namespace PelindoCarLoan.API.DTOs
         public string PlateNumber { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        public string? Model { get; set; }
+        public int? Year { get; set; }
         public int Capacity { get; set; } = 4;
-        public string? Notes { get; set; }
     }
 
     /// <summary>
@@ -33,6 +36,5 @@ namespace PelindoCarLoan.API.DTOs
     public class UpdateVehicleStatusDto
     {
         public string Status { get; set; } = string.Empty;
-        public string? Notes { get; set; }
     }
 }

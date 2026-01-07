@@ -207,9 +207,8 @@ namespace PelindoCarLoan.API.Services
                 {
                     Id = schedule.Id,
                     LoanRequestId = schedule.LoanRequestId,
-                    DriverId = schedule.DriverId,
-                    VehicleId = schedule.VehicleId,
-                    AssignedBy = schedule.AssignedBy,
+                    DriverId = schedule.DriverId ?? 0,
+                    VehicleId = schedule.VehicleId ?? 0,
                     AssignedAt = schedule.AssignedAt,
                     Status = schedule.Status,
                     Notes = schedule.Notes

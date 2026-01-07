@@ -97,8 +97,7 @@ namespace PelindoCarLoan.API.Services
                 LoanRequestId = loanRequestId,
                 DriverId = driver.Id,
                 VehicleId = vehicle.Id,
-                AssignedBy = null, // Auto-assigned
-                Status = ScheduleStatus.Assigned,
+                Status = ScheduleStatus.Confirmed,
                 Notes = "Auto-assigned by system"
             };
 
@@ -142,16 +141,16 @@ namespace PelindoCarLoan.API.Services
 
             // Validate driver exists
             var driver = await _driverRepository.GetByIdAsync(dto.DriverId);
-            if (driver == null || !driver.IsActive)
+            if (driver == null)
             {
-                throw new ArgumentException("Invalid or inactive driver");
+                throw new ArgumentException("Invalid driver");
             }
 
             // Validate vehicle exists
             var vehicle = await _vehicleRepository.GetByIdAsync(dto.VehicleId);
-            if (vehicle == null || !vehicle.IsActive)
+            if (vehicle == null)
             {
-                throw new ArgumentException("Invalid or inactive vehicle");
+                throw new ArgumentException("Invalid vehicle");
             }
 
             // Create schedule
@@ -160,8 +159,7 @@ namespace PelindoCarLoan.API.Services
                 LoanRequestId = dto.LoanRequestId,
                 DriverId = dto.DriverId,
                 VehicleId = dto.VehicleId,
-                AssignedBy = assignedBy,
-                Status = ScheduleStatus.Assigned,
+                Status = ScheduleStatus.Confirmed,
                 Notes = dto.Notes ?? "Manually assigned by admin"
             };
 
@@ -229,8 +227,6 @@ namespace PelindoCarLoan.API.Services
             if (schedule == null) return false;
 
             schedule.Status = dto.Status;
-            schedule.ActualStartTime = dto.ActualStartTime;
-            schedule.ActualEndTime = dto.ActualEndTime;
             schedule.Notes = dto.Notes ?? schedule.Notes;
 
             var result = await _scheduleRepository.UpdateAsync(schedule);
@@ -295,12 +291,9 @@ namespace PelindoCarLoan.API.Services
             {
                 Id = schedule.Id,
                 LoanRequestId = schedule.LoanRequestId,
-                DriverId = schedule.DriverId,
-                VehicleId = schedule.VehicleId,
-                AssignedBy = schedule.AssignedBy,
+                DriverId = schedule.DriverId ?? 0,
+                VehicleId = schedule.VehicleId ?? 0,
                 AssignedAt = schedule.AssignedAt,
-                ActualStartTime = schedule.ActualStartTime,
-                ActualEndTime = schedule.ActualEndTime,
                 Status = schedule.Status,
                 Notes = schedule.Notes,
                 LoanRequest = schedule.LoanRequest != null ? new LoanRequestDto
@@ -325,8 +318,9 @@ namespace PelindoCarLoan.API.Services
                     Id = schedule.Driver.Id,
                     DriverName = schedule.Driver.User?.Name,
                     LicenseNumber = schedule.Driver.LicenseNumber,
-                    PhoneNumber = schedule.Driver.PhoneNumber,
-                    Status = schedule.Driver.Status
+                    Status = schedule.Driver.Status,
+                    ExperienceYears = schedule.Driver.ExperienceYears,
+                    Rating = schedule.Driver.Rating
                 } : null,
                 Vehicle = schedule.Vehicle != null ? new VehicleDto
                 {
@@ -334,6 +328,7 @@ namespace PelindoCarLoan.API.Services
                     PlateNumber = schedule.Vehicle.PlateNumber,
                     Brand = schedule.Vehicle.Brand,
                     Type = schedule.Vehicle.Type,
+                    Model = schedule.Vehicle.Model,
                     Capacity = schedule.Vehicle.Capacity,
                     Status = schedule.Vehicle.Status
                 } : null

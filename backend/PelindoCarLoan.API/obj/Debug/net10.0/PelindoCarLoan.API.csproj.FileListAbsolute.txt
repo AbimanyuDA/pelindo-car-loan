@@ -1,0 +1,9 @@
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.csproj.AssemblyReference.cache
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.AssemblyInfoInputs.cache
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.AssemblyInfo.cs
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.csproj.CoreCompileInputs.cache
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\abima\Desktop\Project\Pelindo\pelindo-car-loan\backend\PelindoCarLoan.API\obj\Debug\net10.0\PelindoCarLoan.API.sourcelink.json

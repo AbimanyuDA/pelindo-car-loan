@@ -31,35 +31,63 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<User?> GetByIdAsync(int id)
         {
             const string sql = @"
-                SELECT id, name, email, password_hash AS PasswordHash, role, division, 
-                       is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT user_id, full_name, email, password_hash, role, division, 
+                       is_active, created_at, updated_at
                 FROM users
-                WHERE id = :Id";
+                WHERE user_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<User>(sql, new { Id = id });
+            var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = id });
+            if (result == null) return null;
+            
+            return new User
+            {
+                Id = (int)result.USER_ID,
+                Name = result.FULL_NAME ?? string.Empty,
+                Email = result.EMAIL ?? string.Empty,
+                PasswordHash = result.PASSWORD_HASH ?? string.Empty,
+                Role = result.ROLE ?? string.Empty,
+                Division = result.DIVISION,
+                IsActive = result.IS_ACTIVE == 1,
+                CreatedAt = result.CREATED_AT ?? DateTime.Now,
+                UpdatedAt = result.UPDATED_AT ?? DateTime.Now
+            };
         }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
             const string sql = @"
-                SELECT id, name, email, password_hash AS PasswordHash, role, division,
-                       is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT user_id, full_name, email, password_hash, role, division,
+                       is_active, created_at, updated_at
                 FROM users
                 WHERE LOWER(email) = LOWER(:Email) AND is_active = 1";
 
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<User>(sql, new { Email = email });
+            var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Email = email });
+            if (result == null) return null;
+            
+            return new User
+            {
+                Id = (int)result.USER_ID,
+                Name = result.FULL_NAME ?? string.Empty,
+                Email = result.EMAIL ?? string.Empty,
+                PasswordHash = result.PASSWORD_HASH ?? string.Empty,
+                Role = result.ROLE ?? string.Empty,
+                Division = result.DIVISION,
+                IsActive = result.IS_ACTIVE == 1,
+                CreatedAt = result.CREATED_AT ?? DateTime.Now,
+                UpdatedAt = result.UPDATED_AT ?? DateTime.Now
+            };
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             const string sql = @"
-                SELECT id, name, email, role, division,
+                SELECT user_id AS Id, full_name AS Name, email, role, division,
                        is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
                 FROM users
                 WHERE is_active = 1
-                ORDER BY name";
+                ORDER BY full_name";
 
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryAsync<User>(sql);
@@ -68,11 +96,11 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<User>> GetByRoleAsync(string role)
         {
             const string sql = @"
-                SELECT id, name, email, role, division,
+                SELECT user_id AS Id, full_name AS Name, email, role, division,
                        is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
                 FROM users
                 WHERE role = :Role AND is_active = 1
-                ORDER BY name";
+                ORDER BY full_name";
 
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryAsync<User>(sql, new { Role = role });
@@ -81,12 +109,13 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<int> CreateAsync(User user)
         {
             const string sql = @"
-                INSERT INTO users (name, email, password_hash, role, division, is_active)
-                VALUES (:Name, :Email, :PasswordHash, :Role, :Division, 1)
-                RETURNING id INTO :Id";
+                INSERT INTO users (user_id, username, email, password_hash, full_name, role, division, is_active, phone_number)
+                VALUES (seq_users.NEXTVAL, :Username, :Email, :PasswordHash, :Name, :Role, :Division, 1, null)
+                RETURNING user_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
             var parameters = new DynamicParameters();
+            parameters.Add("Username", user.Email.Split('@')[0]); // Generate username from email
             parameters.Add("Name", user.Name);
             parameters.Add("Email", user.Email);
             parameters.Add("PasswordHash", user.PasswordHash);
@@ -102,8 +131,8 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE users
-                SET name = :Name, email = :Email, role = :Role, division = :Division, is_active = :IsActive
-                WHERE id = :Id";
+                SET full_name = :Name, email = :Email, role = :Role, division = :Division, is_active = :IsActive
+                WHERE user_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new
@@ -120,7 +149,7 @@ namespace PelindoCarLoan.API.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            const string sql = "UPDATE users SET is_active = 0 WHERE id = :Id";
+            const string sql = "UPDATE users SET is_active = 0 WHERE user_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -129,7 +158,7 @@ namespace PelindoCarLoan.API.Repositories
 
         public async Task<bool> ExistsAsync(int id)
         {
-            const string sql = "SELECT COUNT(1) FROM users WHERE id = :Id AND is_active = 1";
+            const string sql = "SELECT COUNT(1) FROM users WHERE user_id = :Id AND is_active = 1";
 
             using var connection = _dbContext.CreateConnection();
             return await connection.ExecuteScalarAsync<int>(sql, new { Id = id }) > 0;

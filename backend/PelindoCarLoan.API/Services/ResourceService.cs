@@ -54,10 +54,10 @@ namespace PelindoCarLoan.API.Services
                 PlateNumber = dto.PlateNumber,
                 Brand = dto.Brand,
                 Type = dto.Type,
+                Model = dto.Model,
+                Year = dto.Year,
                 Capacity = dto.Capacity,
-                Status = VehicleStatus.Available,
-                Notes = dto.Notes,
-                IsActive = true
+                Status = VehicleStatus.Available
             };
 
             var id = await _vehicleRepository.CreateAsync(vehicle);
@@ -76,8 +76,9 @@ namespace PelindoCarLoan.API.Services
             vehicle.PlateNumber = dto.PlateNumber;
             vehicle.Brand = dto.Brand;
             vehicle.Type = dto.Type;
+            vehicle.Model = dto.Model;
+            vehicle.Year = dto.Year;
             vehicle.Capacity = dto.Capacity;
-            vehicle.Notes = dto.Notes;
 
             await _vehicleRepository.UpdateAsync(vehicle);
 
@@ -123,10 +124,12 @@ namespace PelindoCarLoan.API.Services
                 PlateNumber = vehicle.PlateNumber,
                 Brand = vehicle.Brand,
                 Type = vehicle.Type,
+                Model = vehicle.Model,
+                Year = vehicle.Year,
                 Capacity = vehicle.Capacity,
                 Status = vehicle.Status,
-                Notes = vehicle.Notes,
-                IsActive = vehicle.IsActive
+                LastMaintenance = vehicle.LastMaintenance,
+                NextMaintenance = vehicle.NextMaintenance
             };
         }
     }
@@ -181,9 +184,8 @@ namespace PelindoCarLoan.API.Services
                 UserId = dto.UserId,
                 LicenseNumber = dto.LicenseNumber,
                 LicenseExpiry = dto.LicenseExpiry,
-                PhoneNumber = dto.PhoneNumber,
-                Status = DriverStatus.Available,
-                IsActive = true
+                ExperienceYears = dto.ExperienceYears,
+                Status = DriverStatus.Available
             };
 
             var id = await _driverRepository.CreateAsync(driver);
@@ -201,7 +203,7 @@ namespace PelindoCarLoan.API.Services
 
             driver.LicenseNumber = dto.LicenseNumber;
             driver.LicenseExpiry = dto.LicenseExpiry;
-            driver.PhoneNumber = dto.PhoneNumber;
+            driver.ExperienceYears = dto.ExperienceYears;
 
             await _driverRepository.UpdateAsync(driver);
 
@@ -248,9 +250,9 @@ namespace PelindoCarLoan.API.Services
                 DriverName = driver.User?.Name,
                 LicenseNumber = driver.LicenseNumber,
                 LicenseExpiry = driver.LicenseExpiry,
-                PhoneNumber = driver.PhoneNumber,
                 Status = driver.Status,
-                IsActive = driver.IsActive
+                ExperienceYears = driver.ExperienceYears,
+                Rating = driver.Rating
             };
         }
     }

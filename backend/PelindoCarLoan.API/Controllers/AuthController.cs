@@ -100,5 +100,16 @@ namespace PelindoCarLoan.API.Controllers
                 Role = CurrentUserRole 
             }, "Token is valid"));
         }
+
+        /// <summary>
+        /// Generate BCrypt hash for a password (Dev only)
+        /// </summary>
+        [HttpGet("hash/{password}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        public IActionResult GenerateHash(string password)
+        {
+            var hash = _authService.HashPassword(password);
+            return Ok(ApiResponse<object>.SuccessResponse(new { Password = password, Hash = hash }));
+        }
     }
 }
