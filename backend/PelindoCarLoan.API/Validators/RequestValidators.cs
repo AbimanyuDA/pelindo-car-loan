@@ -7,6 +7,10 @@ namespace PelindoCarLoan.API.Validators
     {
         public CreateLoanRequestValidator()
         {
+            RuleFor(x => x.ServiceLetterBasis)
+                .NotEmpty().WithMessage("Service letter basis is required")
+                .MaximumLength(200).WithMessage("Service letter basis cannot exceed 200 characters");
+
             RuleFor(x => x.Purpose)
                 .NotEmpty().WithMessage("Purpose is required")
                 .MaximumLength(500).WithMessage("Purpose cannot exceed 500 characters");
@@ -15,9 +19,19 @@ namespace PelindoCarLoan.API.Validators
                 .NotEmpty().WithMessage("Destination is required")
                 .MaximumLength(255).WithMessage("Destination cannot exceed 255 characters");
 
-            RuleFor(x => x.PassengerCount)
-                .GreaterThan(0).WithMessage("Passenger count must be at least 1")
-                .LessThanOrEqualTo(20).WithMessage("Passenger count cannot exceed 20");
+            RuleFor(x => x.GuestList)
+                .NotEmpty().WithMessage("Guest list is required")
+                .MaximumLength(500).WithMessage("Guest list cannot exceed 500 characters");
+
+            RuleFor(x => x.HotelAccommodation)
+                .MaximumLength(200).WithMessage("Hotel accommodation cannot exceed 200 characters");
+
+            // VehicleId and DriverId are optional now - can be assigned by approver
+            RuleFor(x => x.VehicleId)
+                .GreaterThan(0).When(x => x.VehicleId.HasValue).WithMessage("Vehicle ID must be greater than 0");
+
+            RuleFor(x => x.DriverId)
+                .GreaterThan(0).When(x => x.DriverId.HasValue).WithMessage("Driver ID must be greater than 0");
 
             RuleFor(x => x.StartDatetime)
                 .NotEmpty().WithMessage("Start datetime is required")

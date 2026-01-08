@@ -15,11 +15,16 @@ namespace PelindoCarLoan.API.Controllers
     {
         private readonly ILoanRequestService _loanRequestService;
         private readonly ILogger<LoanRequestsController> _logger;
+        private readonly IWebHostEnvironment _env;
 
-        public LoanRequestsController(ILoanRequestService loanRequestService, ILogger<LoanRequestsController> logger)
+        public LoanRequestsController(
+            ILoanRequestService loanRequestService, 
+            ILogger<LoanRequestsController> logger,
+            IWebHostEnvironment env)
         {
             _loanRequestService = loanRequestService;
             _logger = logger;
+            _env = env;
         }
 
         /// <summary>
@@ -143,6 +148,87 @@ namespace PelindoCarLoan.API.Controllers
             }
 
             return Ok(ApiResponse<object>.SuccessResponse(null, "Loan request cancelled successfully"));
+        }
+
+        /// <summary>
+        /// Upload service letter file
+        /// </summary>
+        /// <param name="file">File to upload</param>
+        /// <returns>File path</returns>
+        [HttpPost("upload-service-letter")]
+        [Authorize(Roles = "PEMOHON")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadServiceLetter(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("No file uploaded"));
+            }
+
+            // Validate file type (PDF only)
+            var allowedExtensions = new[] { ".pdf" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("Only PDF files are allowed"));
+            }
+
+            // Validate file size (max 5MB)
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("File size must not exceed 5MB"));
+            }
+
+            try
+            {
+                // Create uploads directory if not exists
+                var uploadsPath = Path.Combine(_env.ContentRootPath, "uploads", "service-letters");
+                Directory.CreateDirectory(uploadsPath);
+
+                // Generate unique filename
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadsPath, fileName);
+
+                // Save file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Return relative path
+                var relativePath = Path.Combine("uploads", "service-letters", fileName);
+                _logger.LogInformation("File uploaded: {FileName} by user {UserId}", fileName, CurrentUserId);
+
+                return Ok(ApiResponse<string>.SuccessResponse(relativePath, "File uploaded successfully"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading file");
+                return StatusCode(500, ApiResponse<object>.ErrorResponse("Error uploading file"));
+            }
+        }
+
+        /// <summary>
+        /// Download service letter file
+        /// </summary>
+        /// <param name="fileName">File name</param>
+        /// <returns>File</returns>
+        [HttpGet("download-service-letter/{fileName}")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult DownloadServiceLetter(string fileName)
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "uploads", "service-letters", fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("File not found"));
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/pdf", fileName);
         }
     }
 }

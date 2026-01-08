@@ -45,7 +45,9 @@ namespace PelindoCarLoan.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<DriverScheduleDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMySchedules()
         {
+            _logger.LogInformation("GetMySchedules called for user ID: {UserId}", CurrentUserId);
             var schedules = await _schedulingService.GetDriverSchedulesAsync(CurrentUserId);
+            _logger.LogInformation("Found {Count} schedules for user ID: {UserId}", schedules.Count(), CurrentUserId);
             return Ok(ApiResponse<IEnumerable<DriverScheduleDto>>.SuccessResponse(schedules));
         }
 
@@ -172,6 +174,34 @@ namespace PelindoCarLoan.API.Controllers
             }
 
             return Ok(ApiResponse<object>.SuccessResponse(null, "Scheduling successful"));
+        }
+
+        /// <summary>
+        /// Cancels a schedule (Pemohon only)
+        /// </summary>
+        /// <param name="scheduleId">Schedule ID</param>
+        /// <param name="request">Cancellation request with reason</param>
+        /// <returns>Success status</returns>
+        [HttpPost("{scheduleId}/cancel")]
+        [Authorize(Roles = "PEMOHON")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> CancelSchedule(int scheduleId, [FromBody] CancelScheduleRequestDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.CancellationReason))
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("Cancellation reason is required"));
+            }
+
+            var result = await _schedulingService.CancelScheduleAsync(scheduleId, CurrentUserId, request.CancellationReason);
+            
+            if (!result)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("Schedule not found or you don't have permission to cancel"));
+            }
+
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Schedule cancelled successfully"));
         }
     }
 }

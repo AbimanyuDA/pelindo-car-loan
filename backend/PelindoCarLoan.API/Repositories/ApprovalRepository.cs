@@ -84,18 +84,18 @@ namespace PelindoCarLoan.API.Repositories
                 SELECT approval_id AS Id, loan_request_id AS LoanRequestId, approver_id AS ApproverId,
                        approval_level AS ApprovalLevel, status, notes, approved_at AS ApprovedAt
                 FROM approvals
-                WHERE loan_request_id = :LoanRequestId AND approval_level = :Level";
+                WHERE loan_request_id = :LoanRequestId AND approval_level = :ApprovalLevel";
 
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<Approval>(sql, 
-                new { LoanRequestId = loanRequestId, Level = level });
+                new { LoanRequestId = loanRequestId, ApprovalLevel = level });
         }
 
         public async Task<int> CreateAsync(Approval approval)
         {
             const string sql = @"
-                INSERT INTO approvals (approval_id, loan_request_id, approver_id, approval_level, status, notes)
-                VALUES (seq_approvals.NEXTVAL, :LoanRequestId, :ApproverId, :ApprovalLevel, :Status, :Notes)
+                INSERT INTO approvals (approval_id, loan_request_id, approver_id, approval_level, status, notes, approved_at)
+                VALUES (seq_approvals.NEXTVAL, :LoanRequestId, :ApproverId, :ApprovalLevel, :Status, :Notes, :ApprovedAt)
                 RETURNING approval_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
@@ -105,6 +105,7 @@ namespace PelindoCarLoan.API.Repositories
             parameters.Add("ApprovalLevel", approval.ApprovalLevel);
             parameters.Add("Status", approval.Status);
             parameters.Add("Notes", approval.Notes);
+            parameters.Add("ApprovedAt", approval.ApprovedAt == default ? DateTime.UtcNow : approval.ApprovedAt);
             parameters.Add("Id", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
 
             await connection.ExecuteAsync(sql, parameters);

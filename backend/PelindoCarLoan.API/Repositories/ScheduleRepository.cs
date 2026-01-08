@@ -9,6 +9,7 @@ namespace PelindoCarLoan.API.Repositories
     public interface IScheduleRepository
     {
         Task<Schedule?> GetByIdAsync(int id);
+        Task<Schedule?> GetByIdWithDetailsAsync(int id);
         Task<Schedule?> GetByLoanRequestIdAsync(int loanRequestId);
         Task<IEnumerable<Schedule>> GetAllAsync(string? status = null);
         Task<IEnumerable<Schedule>> GetByDriverIdAsync(int driverId);
@@ -19,6 +20,7 @@ namespace PelindoCarLoan.API.Repositories
         Task<int> CreateAsync(Schedule schedule);
         Task<bool> UpdateAsync(Schedule schedule);
         Task<bool> UpdateStatusAsync(int id, string status);
+        Task<bool> CancelScheduleAsync(int scheduleId, string cancellationReason);
         Task<bool> DeleteAsync(int id);
         Task<int> GetScheduledCountAsync();
     }
@@ -44,16 +46,68 @@ namespace PelindoCarLoan.API.Repositories
             return await connection.QueryFirstOrDefaultAsync<Schedule>(sql, new { Id = id });
         }
 
+        public async Task<Schedule?> GetByIdWithDetailsAsync(int id)
+        {
+            const string sql = @"
+                SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
+                       s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
+                       lr.loan_request_id AS Id, lr.user_id AS UserId, lr.purpose, lr.destination
+                FROM schedules s
+                INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
+                WHERE s.schedule_id = :Id";
+
+            using var connection = _dbContext.CreateConnection();
+            var result = await connection.QueryAsync<Schedule, LoanRequest, Schedule>(
+                sql,
+                (schedule, loanRequest) =>
+                {
+                    schedule.LoanRequest = loanRequest;
+                    return schedule;
+                },
+                new { Id = id },
+                splitOn: "Id"
+            );
+
+            return result.FirstOrDefault();
+        }
+
         public async Task<Schedule?> GetByLoanRequestIdAsync(int loanRequestId)
         {
             const string sql = @"
-                SELECT schedule_id AS Id, loan_request_id AS LoanRequestId, driver_id AS DriverId,
-                       vehicle_id AS VehicleId, assigned_at AS AssignedAt, status, notes
-                FROM schedules
-                WHERE loan_request_id = :LoanRequestId";
+                SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
+                       s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
+                       d.driver_id AS Id, d.user_id AS UserId, d.license_number AS LicenseNumber,
+                       d.license_expiry AS LicenseExpiry, d.status AS Status,
+                       du.user_id AS Id, du.full_name AS Name, du.email AS Email, du.phone_number AS PhoneNumber,
+                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, 
+                       v.year, v.capacity, v.status AS Status
+                FROM schedules s
+                LEFT JOIN drivers d ON s.driver_id = d.driver_id
+                LEFT JOIN users du ON d.user_id = du.user_id
+                LEFT JOIN vehicles v ON s.vehicle_id = v.vehicle_id
+                WHERE s.loan_request_id = :LoanRequestId";
 
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Schedule>(sql, new { LoanRequestId = loanRequestId });
+            var result = await connection.QueryAsync<Schedule, Driver, User, Vehicle, Schedule>(
+                sql,
+                (schedule, driver, driverUser, vehicle) =>
+                {
+                    if (driver != null && driverUser != null)
+                    {
+                        driver.User = driverUser;
+                        schedule.Driver = driver;
+                    }
+                    if (vehicle != null)
+                    {
+                        schedule.Vehicle = vehicle;
+                    }
+                    return schedule;
+                },
+                new { LoanRequestId = loanRequestId },
+                splitOn: "Id,Id,Id"
+            );
+
+            return result.FirstOrDefault();
         }
 
         public async Task<IEnumerable<Schedule>> GetAllAsync(string? status = null)
@@ -61,8 +115,8 @@ namespace PelindoCarLoan.API.Repositories
             var sql = @"
                 SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
                        s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
-                       lr.loan_request_id AS Id, lr.purpose, lr.destination,
-                       lr.passenger_count AS PassengerCount, lr.start_datetime AS StartDatetime, 
+                       lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime, lr.status AS LRStatus,
                        d.driver_id AS Id, d.license_number AS LicenseNumber,
                        v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
@@ -102,8 +156,8 @@ namespace PelindoCarLoan.API.Repositories
             const string sql = @"
                 SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
                        s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
-                       lr.loan_request_id AS Id, lr.purpose, lr.destination,
-                       lr.passenger_count AS PassengerCount, lr.start_datetime AS StartDatetime, 
+                       lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime,
                        v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
                        u.user_id AS Id, u.full_name AS Name, u.email
@@ -136,11 +190,11 @@ namespace PelindoCarLoan.API.Repositories
             const string sql = @"
                 SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
                        s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
-                       lr.loan_request_id AS Id, lr.purpose, lr.destination,
-                       lr.passenger_count AS PassengerCount, lr.start_datetime AS StartDatetime, 
+                       lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime,
                        v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
-                       u.user_id AS Id, u.full_name AS Name, u.email
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
                 LEFT JOIN vehicles v ON s.vehicle_id = v.vehicle_id
@@ -171,8 +225,8 @@ namespace PelindoCarLoan.API.Repositories
             const string sql = @"
                 SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
                        s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
-                       lr.loan_request_id AS Id, lr.purpose, lr.destination,
-                       lr.passenger_count AS PassengerCount, lr.start_datetime AS StartDatetime, 
+                       lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime,
                        v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
                        u.user_id AS Id, u.full_name AS Name, u.email
@@ -220,8 +274,8 @@ namespace PelindoCarLoan.API.Repositories
             const string sql = @"
                 SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
                        s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
-                       lr.loan_request_id AS Id, lr.purpose, lr.destination,
-                       lr.passenger_count AS PassengerCount, lr.start_datetime AS StartDatetime, 
+                       lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
@@ -288,6 +342,19 @@ namespace PelindoCarLoan.API.Repositories
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id, Status = status });
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> CancelScheduleAsync(int scheduleId, string cancellationReason)
+        {
+            const string sql = @"
+                UPDATE schedules 
+                SET status = 'CANCELLED', 
+                    notes = :CancellationReason 
+                WHERE schedule_id = :ScheduleId";
+
+            using var connection = _dbContext.CreateConnection();
+            var rowsAffected = await connection.ExecuteAsync(sql, new { ScheduleId = scheduleId, CancellationReason = cancellationReason });
             return rowsAffected > 0;
         }
 

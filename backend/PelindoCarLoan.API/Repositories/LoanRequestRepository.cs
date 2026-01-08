@@ -34,10 +34,12 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<LoanRequest?> GetByIdAsync(int id)
         {
             const string sql = @"
-                SELECT loan_request_id AS Id, user_id AS UserId, NULL AS RequestNumber, purpose, destination,
-                       passenger_count AS PassengerCount, start_datetime AS StartDatetime, 
-                       end_datetime AS EndDatetime, status, NULL AS Notes, 
-                       created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT loan_request_id AS Id, user_id AS UserId, NULL AS RequestNumber, 
+                       service_letter_basis AS ServiceLetterBasis, purpose, destination,
+                       guest_list AS GuestList, hotel_accommodation AS HotelAccommodation, 
+                       vehicle_id AS VehicleId, driver_id AS DriverId, 
+                       start_datetime AS StartDatetime, end_datetime AS EndDatetime, 
+                       status, NULL AS Notes, created_at AS CreatedAt, updated_at AS UpdatedAt
                 FROM loan_requests
                 WHERE loan_request_id = :Id";
 
@@ -48,25 +50,37 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<LoanRequest?> GetByIdWithDetailsAsync(int id)
         {
             const string sql = @"
-                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, lr.purpose, 
-                       lr.destination, lr.passenger_count AS PassengerCount, 
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, 
+                       lr.service_letter_basis AS ServiceLetterBasis, lr.purpose, 
+                       lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation, 
+                       lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
                        lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division,
+                       d.driver_id AS Id, d.user_id AS UserId,
+                       du.user_id AS Id, du.full_name AS Name, du.email, du.phone_number AS PhoneNumber
                 FROM loan_requests lr
                 INNER JOIN users u ON lr.user_id = u.user_id
+                LEFT JOIN drivers d ON lr.driver_id = d.driver_id
+                LEFT JOIN users du ON d.user_id = du.user_id
                 WHERE lr.loan_request_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
-            var result = await connection.QueryAsync<LoanRequest, User, LoanRequest>(
+            var result = await connection.QueryAsync<LoanRequest, User, Driver, User, LoanRequest>(
                 sql,
-                (lr, u) =>
+                (lr, u, d, du) =>
                 {
                     lr.User = u;
+                    if (d != null && du != null)
+                    {
+                        d.User = du;
+                        lr.Driver = d;
+                    }
                     return lr;
                 },
                 new { Id = id },
-                splitOn: "Id"
+                splitOn: "Id,Id,Id"
             );
 
             return result.FirstOrDefault();
@@ -75,8 +89,11 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<LoanRequest>> GetAllAsync(int? userId = null, string? status = null)
         {
             var sql = @"
-                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, lr.purpose, 
-                       lr.destination, lr.passenger_count AS PassengerCount, 
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, 
+                       lr.service_letter_basis AS ServiceLetterBasis, lr.purpose, 
+                       lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation,
+                       lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
                        lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
                        u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
@@ -111,26 +128,38 @@ namespace PelindoCarLoan.API.Repositories
             var status = approvalLevel == 1 ? LoanRequestStatus.Submitted : LoanRequestStatus.ApprovedL1;
 
             const string sql = @"
-                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, lr.purpose, 
-                       lr.destination, lr.passenger_count AS PassengerCount, 
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, 
+                       lr.service_letter_basis AS ServiceLetterBasis, lr.service_letter_file_path AS ServiceLetterFilePath,
+                       lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation,
+                       lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
-                       lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
+                       lr.status, lr.notes AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division,
+                       d.driver_id AS Id, d.user_id AS UserId,
+                       du.user_id AS Id, du.full_name AS Name, du.email, du.phone_number AS PhoneNumber
                 FROM loan_requests lr
                 INNER JOIN users u ON lr.user_id = u.user_id
+                LEFT JOIN drivers d ON lr.driver_id = d.driver_id
+                LEFT JOIN users du ON d.user_id = du.user_id
                 WHERE lr.status = :Status
                 ORDER BY lr.created_at ASC";
 
             using var connection = _dbContext.CreateConnection();
-            var result = await connection.QueryAsync<LoanRequest, User, LoanRequest>(
+            var result = await connection.QueryAsync<LoanRequest, User, Driver, User, LoanRequest>(
                 sql,
-                (lr, u) =>
+                (lr, u, d, du) =>
                 {
                     lr.User = u;
+                    if (d != null && du != null)
+                    {
+                        d.User = du;
+                        lr.Driver = d;
+                    }
                     return lr;
                 },
                 new { Status = status },
-                splitOn: "Id"
+                splitOn: "Id,Id,Id"
             );
 
             return result;
@@ -144,21 +173,29 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<int> CreateAsync(LoanRequest loanRequest)
         {
             const string sql = @"
-                INSERT INTO loan_requests (loan_request_id, user_id, purpose, destination, 
-                                          passenger_count, start_datetime, end_datetime, status)
-                VALUES (seq_loan_requests.NEXTVAL, :UserId, :Purpose, :Destination, 
-                        :PassengerCount, :StartDatetime, :EndDatetime, :Status)
+                INSERT INTO loan_requests (loan_request_id, user_id, service_letter_basis, service_letter_file_path, 
+                                          purpose, destination, guest_list, hotel_accommodation, vehicle_id, driver_id, 
+                                          start_datetime, end_datetime, status, notes)
+                VALUES (seq_loan_requests.NEXTVAL, :UserId, :ServiceLetterBasis, :ServiceLetterFilePath,
+                        :Purpose, :Destination, :GuestList, :HotelAccommodation, :VehicleId, :DriverId, 
+                        :StartDatetime, :EndDatetime, :Status, :Notes)
                 RETURNING loan_request_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
             var parameters = new DynamicParameters();
             parameters.Add("UserId", loanRequest.UserId);
+            parameters.Add("ServiceLetterBasis", loanRequest.ServiceLetterBasis);
+            parameters.Add("ServiceLetterFilePath", loanRequest.ServiceLetterFilePath);
             parameters.Add("Purpose", loanRequest.Purpose);
             parameters.Add("Destination", loanRequest.Destination);
-            parameters.Add("PassengerCount", loanRequest.PassengerCount);
+            parameters.Add("GuestList", loanRequest.GuestList);
+            parameters.Add("HotelAccommodation", loanRequest.HotelAccommodation);
+            parameters.Add("VehicleId", loanRequest.VehicleId);
+            parameters.Add("DriverId", loanRequest.DriverId);
             parameters.Add("StartDatetime", loanRequest.StartDatetime);
             parameters.Add("EndDatetime", loanRequest.EndDatetime);
             parameters.Add("Status", loanRequest.Status);
+            parameters.Add("Notes", loanRequest.Notes);
             parameters.Add("Id", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
 
             await connection.ExecuteAsync(sql, parameters);
@@ -169,7 +206,10 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE loan_requests
-                SET purpose = :Purpose, destination = :Destination, passenger_count = :PassengerCount,
+                SET service_letter_basis = :ServiceLetterBasis, service_letter_file_path = :ServiceLetterFilePath,
+                    purpose = :Purpose, destination = :Destination, 
+                    guest_list = :GuestList, hotel_accommodation = :HotelAccommodation, 
+                    vehicle_id = :VehicleId, driver_id = :DriverId,
                     start_datetime = :StartDatetime, end_datetime = :EndDatetime, 
                     status = :Status, updated_at = SYSTIMESTAMP
                 WHERE loan_request_id = :Id";
@@ -178,9 +218,14 @@ namespace PelindoCarLoan.API.Repositories
             var rowsAffected = await connection.ExecuteAsync(sql, new
             {
                 loanRequest.Id,
+                loanRequest.ServiceLetterBasis,
+                loanRequest.ServiceLetterFilePath,
                 loanRequest.Purpose,
                 loanRequest.Destination,
-                loanRequest.PassengerCount,
+                loanRequest.GuestList,
+                loanRequest.HotelAccommodation,
+                loanRequest.VehicleId,
+                loanRequest.DriverId,
                 loanRequest.StartDatetime,
                 loanRequest.EndDatetime,
                 loanRequest.Status

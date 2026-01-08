@@ -8,9 +8,14 @@ namespace PelindoCarLoan.API.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public string RequestNumber { get; set; } = string.Empty;
+        public string ServiceLetterBasis { get; set; } = string.Empty;
+        public string? ServiceLetterFilePath { get; set; }
         public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
-        public int PassengerCount { get; set; } = 1;
+        public string GuestList { get; set; } = string.Empty;
+        public string? HotelAccommodation { get; set; }
+        public int? VehicleId { get; set; }
+        public int? DriverId { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
         public string Status { get; set; } = LoanRequestStatus.Submitted;
@@ -20,6 +25,8 @@ namespace PelindoCarLoan.API.Models
         
         // Navigation properties
         public User? User { get; set; }
+        public Driver? Driver { get; set; }
+        public Vehicle? Vehicle { get; set; }
         public List<Approval>? Approvals { get; set; }
         public Schedule? Schedule { get; set; }
     }

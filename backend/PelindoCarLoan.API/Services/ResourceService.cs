@@ -248,6 +248,7 @@ namespace PelindoCarLoan.API.Services
                 Id = driver.Id,
                 UserId = driver.UserId,
                 DriverName = driver.User?.Name,
+                PhoneNumber = driver.User?.PhoneNumber,
                 LicenseNumber = driver.LicenseNumber,
                 LicenseExpiry = driver.LicenseExpiry,
                 Status = driver.Status,

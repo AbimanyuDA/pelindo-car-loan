@@ -66,7 +66,7 @@ namespace PelindoCarLoan.API.Repositories
             var sql = @"
                 SELECT d.driver_id, d.user_id, d.license_number, d.license_expiry, 
                        d.status, d.experience_years, d.rating, d.created_at, d.updated_at,
-                       u.user_id as u_user_id, u.full_name, u.email, u.role, u.division
+                       u.user_id as u_user_id, u.full_name, u.email, u.phone_number, u.role, u.division
                 FROM drivers d
                 LEFT JOIN users u ON d.user_id = u.user_id
                 WHERE 1=1";
@@ -215,6 +215,7 @@ namespace PelindoCarLoan.API.Repositories
                     Id = (int)result.U_USER_ID,
                     Name = result.FULL_NAME ?? string.Empty,
                     Email = result.EMAIL ?? string.Empty,
+                    PhoneNumber = result.PHONE_NUMBER,
                     Role = result.ROLE ?? string.Empty,
                     Division = result.DIVISION
                 };

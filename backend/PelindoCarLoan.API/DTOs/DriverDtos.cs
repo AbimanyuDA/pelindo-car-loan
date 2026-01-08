@@ -8,6 +8,7 @@ namespace PelindoCarLoan.API.DTOs
         public int Id { get; set; }
         public int? UserId { get; set; }
         public string? DriverName { get; set; }
+        public string? PhoneNumber { get; set; }
         public string LicenseNumber { get; set; } = string.Empty;
         public DateTime LicenseExpiry { get; set; }
         public string Status { get; set; } = string.Empty;

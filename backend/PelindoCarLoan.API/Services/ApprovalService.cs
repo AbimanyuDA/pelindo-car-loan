@@ -44,10 +44,19 @@ namespace PelindoCarLoan.API.Services
                 LoanRequestId = lr.Id,
                 RequestNumber = lr.RequestNumber,
                 RequesterName = lr.User?.Name ?? "Unknown",
+                RequesterEmail = lr.User?.Email ?? "",
+                RequesterPhone = lr.User?.PhoneNumber,
                 RequesterDivision = lr.User?.Division ?? "Unknown",
+                ServiceLetterBasis = lr.ServiceLetterBasis,
+                ServiceLetterFilePath = lr.ServiceLetterFilePath,
                 Purpose = lr.Purpose,
                 Destination = lr.Destination,
-                PassengerCount = lr.PassengerCount,
+                GuestList = lr.GuestList,
+                HotelAccommodation = lr.HotelAccommodation,
+                VehicleId = lr.VehicleId,
+                DriverId = lr.DriverId,
+                DriverName = lr.Driver?.User?.Name,
+                DriverPhone = lr.Driver?.User?.PhoneNumber,
                 StartDatetime = lr.StartDatetime,
                 EndDatetime = lr.EndDatetime,
                 Status = lr.Status,
@@ -113,6 +122,24 @@ namespace PelindoCarLoan.API.Services
                 throw new InvalidOperationException($"Approval for level {level} already exists");
             }
 
+            // L1 dan L2 bisa assign/reassign vehicle dan driver
+            // Jika approver memberikan vehicle/driver baru, update loan request
+            if (dto.VehicleId.HasValue && dto.DriverId.HasValue)
+            {
+                loanRequest.VehicleId = dto.VehicleId;
+                loanRequest.DriverId = dto.DriverId;
+                await _loanRequestRepository.UpdateAsync(loanRequest);
+                _logger.LogInformation(
+                    "Vehicle and Driver assigned/reassigned for LoanRequest {LoanRequestId}: Vehicle={VehicleId}, Driver={DriverId} by Approver={ApproverId}",
+                    dto.LoanRequestId, dto.VehicleId, dto.DriverId, approverId);
+            }
+
+            // Validate that vehicle and driver are assigned before approving
+            if (dto.Status == ApprovalStatus.Approved && (!loanRequest.VehicleId.HasValue || !loanRequest.DriverId.HasValue))
+            {
+                throw new InvalidOperationException("Cannot approve request without vehicle and driver assignment");
+            }
+
             // Create approval record
             var approval = new Approval
             {
@@ -120,7 +147,8 @@ namespace PelindoCarLoan.API.Services
                 ApproverId = approverId,
                 ApprovalLevel = level,
                 Status = dto.Status,
-                Notes = dto.Notes
+                Notes = dto.Notes,
+                ApprovedAt = DateTime.UtcNow
             };
 
             var approvalId = await _approvalRepository.CreateAsync(approval);
@@ -142,7 +170,7 @@ namespace PelindoCarLoan.API.Services
                 ApprovalLevel = approval.ApprovalLevel,
                 Status = approval.Status,
                 Notes = approval.Notes,
-                ApprovedAt = DateTime.UtcNow
+                ApprovedAt = approval.ApprovedAt
             };
         }
 

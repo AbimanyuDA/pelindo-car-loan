@@ -21,6 +21,14 @@ namespace PelindoCarLoan.API.DTOs
     }
 
     /// <summary>
+    /// Cancel schedule request DTO
+    /// </summary>
+    public class CancelScheduleRequestDto
+    {
+        public string CancellationReason { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// Schedule response DTO
     /// </summary>
     public class ScheduleDto
@@ -47,9 +55,13 @@ namespace PelindoCarLoan.API.DTOs
         public int ScheduleId { get; set; }
         public string RequestNumber { get; set; } = string.Empty;
         public string RequesterName { get; set; } = string.Empty;
+        public string RequesterEmail { get; set; } = string.Empty;
+        public string RequesterPhone { get; set; } = string.Empty;
         public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
-        public int PassengerCount { get; set; }
+        public string GuestList { get; set; } = string.Empty;
+        public bool HotelAccommodation { get; set; }
+        public string? HotelName { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
         public string VehiclePlate { get; set; } = string.Empty;

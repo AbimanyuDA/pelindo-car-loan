@@ -5,9 +5,14 @@ namespace PelindoCarLoan.API.DTOs
     /// </summary>
     public class CreateLoanRequestDto
     {
+        public string ServiceLetterBasis { get; set; } = string.Empty;
+        public string? ServiceLetterFilePath { get; set; }
         public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
-        public int PassengerCount { get; set; } = 1;
+        public string GuestList { get; set; } = string.Empty;
+        public string? HotelAccommodation { get; set; }
+        public int? VehicleId { get; set; }
+        public int? DriverId { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
         public string? Notes { get; set; }
@@ -17,10 +22,12 @@ namespace PelindoCarLoan.API.DTOs
     /// Update loan request DTO
     /// </summary>
     public class UpdateLoanRequestDto
-    {
-        public string Purpose { get; set; } = string.Empty;
+    {        public string ServiceLetterBasis { get; set; } = string.Empty;        public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
-        public int PassengerCount { get; set; } = 1;
+        public string GuestList { get; set; } = string.Empty;
+        public string? HotelAccommodation { get; set; }
+        public int VehicleId { get; set; }
+        public int DriverId { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
         public string? Notes { get; set; }
@@ -34,9 +41,18 @@ namespace PelindoCarLoan.API.DTOs
         public int Id { get; set; }
         public int UserId { get; set; }
         public string RequestNumber { get; set; } = string.Empty;
+        public string? RequesterName { get; set; }
+        public string? RequesterEmail { get; set; }
+        public string? RequesterPhone { get; set; }
+        public string ServiceLetterBasis { get; set; } = string.Empty;
         public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
-        public int PassengerCount { get; set; }
+        public string GuestList { get; set; } = string.Empty;
+        public string? HotelAccommodation { get; set; }
+        public int? VehicleId { get; set; }
+        public int? DriverId { get; set; }
+        public string? DriverName { get; set; }
+        public string? DriverPhone { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
         public string Status { get; set; } = string.Empty;
@@ -58,8 +74,13 @@ namespace PelindoCarLoan.API.DTOs
         public int Id { get; set; }
         public string RequestNumber { get; set; } = string.Empty;
         public string RequesterName { get; set; } = string.Empty;
+        public string ServiceLetterBasis { get; set; } = string.Empty;
         public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
+        public string GuestList { get; set; } = string.Empty;
+        public string? HotelAccommodation { get; set; }
+        public int? VehicleId { get; set; }
+        public int? DriverId { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
         public string Status { get; set; } = string.Empty;

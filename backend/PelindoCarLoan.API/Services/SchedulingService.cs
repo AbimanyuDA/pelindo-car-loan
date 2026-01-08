@@ -20,6 +20,7 @@ namespace PelindoCarLoan.API.Services
         Task<IEnumerable<ScheduleDto>> GetWaitingResourceRequestsAsync();
         Task<bool> RetrySchedulingAsync(int loanRequestId);
         Task<int> GetScheduledCountAsync();
+        Task<bool> CancelScheduleAsync(int scheduleId, int userId, string cancellationReason);
     }
 
     public class SchedulingService : ISchedulingService
@@ -67,38 +68,28 @@ namespace PelindoCarLoan.API.Services
                 throw new InvalidOperationException("Loan request already has a schedule assigned");
             }
 
-            // Find available drivers for the requested time period
-            var availableDrivers = await _driverRepository.GetAvailableForPeriodAsync(
-                loanRequest.StartDatetime, loanRequest.EndDatetime);
-
-            // Find available vehicles for the requested time period with sufficient capacity
-            var availableVehicles = await _vehicleRepository.GetAvailableForPeriodAsync(
-                loanRequest.StartDatetime, loanRequest.EndDatetime);
-
-            // Filter vehicles by capacity
-            availableVehicles = availableVehicles.Where(v => v.Capacity >= loanRequest.PassengerCount);
-
-            var driver = availableDrivers.FirstOrDefault();
-            var vehicle = availableVehicles.FirstOrDefault();
-
-            // If no driver or vehicle available, set status to WAITING_RESOURCE
-            if (driver == null || vehicle == null)
+            // Validate that driver and vehicle are already assigned in loan request
+            if (!loanRequest.DriverId.HasValue || !loanRequest.VehicleId.HasValue)
             {
                 await _loanRequestRepository.UpdateStatusAsync(loanRequestId, LoanRequestStatus.WaitingResource);
                 _logger.LogWarning(
-                    "No resources available for loan request {LoanRequestId}. Driver available: {DriverAvailable}, Vehicle available: {VehicleAvailable}",
-                    loanRequestId, driver != null, vehicle != null);
+                    "No driver or vehicle assigned for loan request {LoanRequestId}. Driver: {DriverId}, Vehicle: {VehicleId}",
+                    loanRequestId, loanRequest.DriverId, loanRequest.VehicleId);
                 return null;
             }
+
+            // Use driver and vehicle that were assigned during approval (L1 or L2)
+            var driverId = loanRequest.DriverId.Value;
+            var vehicleId = loanRequest.VehicleId.Value;
 
             // Create schedule
             var schedule = new Schedule
             {
                 LoanRequestId = loanRequestId,
-                DriverId = driver.Id,
-                VehicleId = vehicle.Id,
+                DriverId = driverId,
+                VehicleId = vehicleId,
                 Status = ScheduleStatus.Confirmed,
-                Notes = "Auto-assigned by system"
+                Notes = "Jadwal perjalanan telah dikonfirmasi. Mohon untuk saling berkoordinasi untuk mengatur detail penjemputan."
             };
 
             var scheduleId = await _scheduleRepository.CreateAsync(schedule);
@@ -109,7 +100,7 @@ namespace PelindoCarLoan.API.Services
 
             _logger.LogInformation(
                 "Schedule created: LoanRequest={LoanRequestId}, Driver={DriverId}, Vehicle={VehicleId}",
-                loanRequestId, driver.Id, vehicle.Id);
+                loanRequestId, driverId, vehicleId);
 
             return await GetByIdAsync(scheduleId);
         }
@@ -260,7 +251,10 @@ namespace PelindoCarLoan.API.Services
                     RequestNumber = lr.RequestNumber,
                     Purpose = lr.Purpose,
                     Destination = lr.Destination,
-                    PassengerCount = lr.PassengerCount,
+                    GuestList = lr.GuestList,
+                    HotelAccommodation = lr.HotelAccommodation,
+                    VehicleId = lr.VehicleId,
+                    DriverId = lr.DriverId,
                     StartDatetime = lr.StartDatetime,
                     EndDatetime = lr.EndDatetime,
                     Status = lr.Status,
@@ -302,7 +296,10 @@ namespace PelindoCarLoan.API.Services
                     RequestNumber = schedule.LoanRequest.RequestNumber,
                     Purpose = schedule.LoanRequest.Purpose,
                     Destination = schedule.LoanRequest.Destination,
-                    PassengerCount = schedule.LoanRequest.PassengerCount,
+                    GuestList = schedule.LoanRequest.GuestList,
+                    HotelAccommodation = schedule.LoanRequest.HotelAccommodation,
+                    VehicleId = schedule.LoanRequest.VehicleId,
+                    DriverId = schedule.LoanRequest.DriverId,
                     StartDatetime = schedule.LoanRequest.StartDatetime,
                     EndDatetime = schedule.LoanRequest.EndDatetime,
                     Status = schedule.LoanRequest.Status,
@@ -342,9 +339,13 @@ namespace PelindoCarLoan.API.Services
                 ScheduleId = schedule.Id,
                 RequestNumber = schedule.LoanRequest?.RequestNumber ?? "",
                 RequesterName = schedule.LoanRequest?.User?.Name ?? "Unknown",
+                RequesterEmail = schedule.LoanRequest?.User?.Email ?? "",
+                RequesterPhone = schedule.LoanRequest?.User?.PhoneNumber ?? "",
                 Purpose = schedule.LoanRequest?.Purpose ?? "",
                 Destination = schedule.LoanRequest?.Destination ?? "",
-                PassengerCount = schedule.LoanRequest?.PassengerCount ?? 0,
+                GuestList = schedule.LoanRequest?.GuestList ?? "",
+                HotelAccommodation = !string.IsNullOrWhiteSpace(schedule.LoanRequest?.HotelAccommodation),
+                HotelName = schedule.LoanRequest?.HotelAccommodation,
                 StartDatetime = schedule.LoanRequest?.StartDatetime ?? DateTime.MinValue,
                 EndDatetime = schedule.LoanRequest?.EndDatetime ?? DateTime.MinValue,
                 VehiclePlate = schedule.Vehicle?.PlateNumber ?? "",
@@ -353,6 +354,30 @@ namespace PelindoCarLoan.API.Services
                 Status = schedule.Status,
                 Notes = schedule.Notes
             };
+        }
+
+        public async Task<bool> CancelScheduleAsync(int scheduleId, int userId, string cancellationReason)
+        {
+            // Get schedule with loan request to verify ownership
+            var schedule = await _scheduleRepository.GetByIdWithDetailsAsync(scheduleId);
+            if (schedule == null) return false;
+
+            // Verify that the user is the owner of the loan request
+            if (schedule.LoanRequest?.UserId != userId) return false;
+
+            // Only allow cancellation if schedule is CONFIRMED
+            if (schedule.Status != ScheduleStatus.Confirmed) return false;
+
+            // Cancel the schedule with reason
+            var result = await _scheduleRepository.CancelScheduleAsync(scheduleId, $"Dibatalkan oleh pemohon: {cancellationReason}");
+            
+            if (result)
+            {
+                // Update loan request status back to APPROVED (assuming it was fully approved before scheduling)
+                await _loanRequestRepository.UpdateStatusAsync(schedule.LoanRequestId, "APPROVED");
+            }
+
+            return result;
         }
     }
 }

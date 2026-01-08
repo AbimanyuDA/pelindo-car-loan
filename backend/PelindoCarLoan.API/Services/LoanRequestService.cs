@@ -80,9 +80,14 @@ namespace PelindoCarLoan.API.Services
             {
                 UserId = userId,
                 RequestNumber = requestNumber,
+                ServiceLetterBasis = dto.ServiceLetterBasis,
+                ServiceLetterFilePath = dto.ServiceLetterFilePath,
                 Purpose = dto.Purpose,
                 Destination = dto.Destination,
-                PassengerCount = dto.PassengerCount,
+                GuestList = dto.GuestList,
+                HotelAccommodation = dto.HotelAccommodation,
+                VehicleId = dto.VehicleId,
+                DriverId = dto.DriverId,
                 StartDatetime = dto.StartDatetime,
                 EndDatetime = dto.EndDatetime,
                 Status = LoanRequestStatus.Submitted,
@@ -119,9 +124,13 @@ namespace PelindoCarLoan.API.Services
                 throw new ArgumentException("End datetime must be after start datetime");
             }
 
+            loanRequest.ServiceLetterBasis = dto.ServiceLetterBasis;
             loanRequest.Purpose = dto.Purpose;
             loanRequest.Destination = dto.Destination;
-            loanRequest.PassengerCount = dto.PassengerCount;
+            loanRequest.GuestList = dto.GuestList;
+            loanRequest.HotelAccommodation = dto.HotelAccommodation;
+            loanRequest.VehicleId = dto.VehicleId;
+            loanRequest.DriverId = dto.DriverId;
             loanRequest.StartDatetime = dto.StartDatetime;
             loanRequest.EndDatetime = dto.EndDatetime;
             loanRequest.Notes = dto.Notes;
@@ -175,9 +184,18 @@ namespace PelindoCarLoan.API.Services
                 Id = lr.Id,
                 UserId = lr.UserId,
                 RequestNumber = lr.RequestNumber,
+                RequesterName = lr.User?.Name,
+                RequesterEmail = lr.User?.Email,
+                RequesterPhone = lr.User?.PhoneNumber,
+                ServiceLetterBasis = lr.ServiceLetterBasis,
                 Purpose = lr.Purpose,
                 Destination = lr.Destination,
-                PassengerCount = lr.PassengerCount,
+                GuestList = lr.GuestList,
+                HotelAccommodation = lr.HotelAccommodation,
+                VehicleId = lr.VehicleId,
+                DriverId = lr.DriverId,
+                DriverName = lr.Driver?.User?.Name,
+                DriverPhone = lr.Driver?.User?.PhoneNumber,
                 StartDatetime = lr.StartDatetime,
                 EndDatetime = lr.EndDatetime,
                 Status = lr.Status,
@@ -211,7 +229,27 @@ namespace PelindoCarLoan.API.Services
                     VehicleId = schedule.VehicleId ?? 0,
                     AssignedAt = schedule.AssignedAt,
                     Status = schedule.Status,
-                    Notes = schedule.Notes
+                    Notes = schedule.Notes,
+                    Driver = schedule.Driver != null ? new DriverDto
+                    {
+                        Id = schedule.Driver.Id,
+                        UserId = schedule.Driver.UserId,
+                        LicenseNumber = schedule.Driver.LicenseNumber,
+                        LicenseExpiry = schedule.Driver.LicenseExpiry,
+                        Status = schedule.Driver.Status,
+                        DriverName = schedule.Driver.User?.Name,
+                        PhoneNumber = schedule.Driver.User?.PhoneNumber
+                    } : null,
+                    Vehicle = schedule.Vehicle != null ? new VehicleDto
+                    {
+                        Id = schedule.Vehicle.Id,
+                        PlateNumber = schedule.Vehicle.PlateNumber,
+                        Brand = schedule.Vehicle.Brand,
+                        Type = schedule.Vehicle.Type,
+                        Year = schedule.Vehicle.Year,
+                        Capacity = schedule.Vehicle.Capacity,
+                        Status = schedule.Vehicle.Status
+                    } : null
                 } : null
             };
         }
@@ -223,8 +261,13 @@ namespace PelindoCarLoan.API.Services
                 Id = lr.Id,
                 RequestNumber = lr.RequestNumber,
                 RequesterName = lr.User?.Name ?? "Unknown",
+                ServiceLetterBasis = lr.ServiceLetterBasis,
                 Purpose = lr.Purpose,
                 Destination = lr.Destination,
+                GuestList = lr.GuestList,
+                HotelAccommodation = lr.HotelAccommodation,
+                VehicleId = lr.VehicleId,
+                DriverId = lr.DriverId,
                 StartDatetime = lr.StartDatetime,
                 EndDatetime = lr.EndDatetime,
                 Status = lr.Status,

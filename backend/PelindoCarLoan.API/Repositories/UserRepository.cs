@@ -31,7 +31,7 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<User?> GetByIdAsync(int id)
         {
             const string sql = @"
-                SELECT user_id, full_name, email, password_hash, role, division, 
+                SELECT user_id, full_name, email, phone_number, password_hash, role, division, 
                        is_active, created_at, updated_at
                 FROM users
                 WHERE user_id = :Id";
@@ -45,6 +45,7 @@ namespace PelindoCarLoan.API.Repositories
                 Id = (int)result.USER_ID,
                 Name = result.FULL_NAME ?? string.Empty,
                 Email = result.EMAIL ?? string.Empty,
+                PhoneNumber = result.PHONE_NUMBER,
                 PasswordHash = result.PASSWORD_HASH ?? string.Empty,
                 Role = result.ROLE ?? string.Empty,
                 Division = result.DIVISION,
@@ -57,7 +58,7 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<User?> GetByEmailAsync(string email)
         {
             const string sql = @"
-                SELECT user_id, full_name, email, password_hash, role, division,
+                SELECT user_id, full_name, email, phone_number, password_hash, role, division,
                        is_active, created_at, updated_at
                 FROM users
                 WHERE LOWER(email) = LOWER(:Email) AND is_active = 1";
@@ -71,6 +72,7 @@ namespace PelindoCarLoan.API.Repositories
                 Id = (int)result.USER_ID,
                 Name = result.FULL_NAME ?? string.Empty,
                 Email = result.EMAIL ?? string.Empty,
+                PhoneNumber = result.PHONE_NUMBER,
                 PasswordHash = result.PASSWORD_HASH ?? string.Empty,
                 Role = result.ROLE ?? string.Empty,
                 Division = result.DIVISION,

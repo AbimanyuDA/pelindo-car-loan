@@ -18,7 +18,9 @@ namespace PelindoCarLoan.API.Controllers
             get
             {
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                return userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
+                var userId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
+                Console.WriteLine($"[DEBUG] CurrentUserId extracted from JWT: {userId}");
+                return userId;
             }
         }
 

@@ -54,7 +54,7 @@ namespace PelindoCarLoan.API.Controllers
         /// <param name="dto">Approval decision</param>
         /// <returns>Approval result</returns>
         [HttpPost("process/l1")]
-        [Authorize(Roles = "PIC_APPROVAL_L1")]
+        [Authorize(Roles = "PIC_APPROVAL_L1,ADMIN")]
         [ProducesResponseType(typeof(ApiResponse<ApprovalDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ProcessL1([FromBody] ProcessApprovalDto dto)
@@ -70,7 +70,7 @@ namespace PelindoCarLoan.API.Controllers
         /// <param name="dto">Approval decision</param>
         /// <returns>Approval result</returns>
         [HttpPost("process/l2")]
-        [Authorize(Roles = "PIC_APPROVAL_L2")]
+        [Authorize(Roles = "PIC_APPROVAL_L2,ADMIN")]
         [ProducesResponseType(typeof(ApiResponse<ApprovalDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ProcessL2([FromBody] ProcessApprovalDto dto)
