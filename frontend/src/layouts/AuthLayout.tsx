@@ -1,7 +1,6 @@
 import { Outlet, Navigate } from "react-router-dom";
-import { Anchor, Ship } from "lucide-react";
+import { Anchor } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-
 export default function AuthLayout() {
   const { isAuthenticated } = useAuthStore();
 
@@ -23,14 +22,16 @@ export default function AuthLayout() {
         {/* Content */}
         <div className="relative z-10 text-center text-white">
           <div className="flex justify-center mb-8">
-            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-full">
-              <Ship className="w-20 h-20 text-secondary-400" />
-            </div>
+            <img
+              src="/images/logo-pelindo.png"
+              alt="Pelindo"
+              className="h-32 object-contain"
+            />
           </div>
 
           <h1 className="text-4xl font-bold mb-4">Pelindo Car Loan</h1>
           <p className="text-xl text-gray-300 mb-8">
-            Sistem Peminjaman Kendaraan Operasional
+            Sistem Peminjaman Kendaraan Operasional Pelindo Regional III
           </p>
 
           <div className="flex items-center justify-center gap-2 text-gray-400">
@@ -73,9 +74,11 @@ export default function AuthLayout() {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm p-4 rounded-full mb-4">
-              <Ship className="w-12 h-12 text-secondary-400" />
-            </div>
+            <img
+              src="/images/logo-pelindo.png"
+              alt="Pelindo"
+              className="h-16 object-contain mx-auto mb-4"
+            />
             <h1 className="text-2xl font-bold text-white">Pelindo Car Loan</h1>
           </div>
 

@@ -11,13 +11,16 @@
 Semua user menggunakan password yang sama: **`Password123!`**
 
 ### Admin
+
 - **Email**: admin@pelindo.co.id
 - **Role**: ADMIN
 - **Nama**: Administrator
 - **Divisi**: IT
 
 ### Pemohon (Requesters)
+
 1. **Email**: pemohon1@pelindo.co.id
+
    - **Nama**: Budi Santoso
    - **Divisi**: Finance
 
@@ -26,7 +29,9 @@ Semua user menggunakan password yang sama: **`Password123!`**
    - **Divisi**: Operations
 
 ### PIC Approval L1 (First Level Approvers)
+
 1. **Email**: approver.l1.1@pelindo.co.id
+
    - **Nama**: Agus Wijaya
    - **Divisi**: Finance
 
@@ -35,16 +40,20 @@ Semua user menggunakan password yang sama: **`Password123!`**
    - **Divisi**: Operations
 
 ### PIC Approval L2 (Second Level Approver)
+
 - **Email**: approver.l2@pelindo.co.id
 - **Nama**: Ahmad Rahman
 - **Divisi**: Management
 
 ### Driver
+
 1. **Email**: driver1@pelindo.co.id
+
    - **Nama**: Joko Susilo
    - **SIM**: SIM-A-12345678
 
 2. **Email**: driver2@pelindo.co.id
+
    - **Nama**: Andi Pratama
    - **SIM**: SIM-A-87654321
 
@@ -59,12 +68,13 @@ Semua user menggunakan password yang sama: **`Password123!`**
 - **Service Name**: XE
 - **Username**: system
 - **Password**: bima2005
-- **Connection String**: 
+- **Connection String**:
   ```
   Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)));User Id=system;Password=bima2005;
   ```
 
-### Koneksi via SQL*Plus
+### Koneksi via SQL\*Plus
+
 ```bash
 sqlplus system/bima2005@localhost:1521/XE
 ```
@@ -72,12 +82,14 @@ sqlplus system/bima2005@localhost:1521/XE
 ## 🚀 Cara Menjalankan Aplikasi
 
 ### Backend (ASP.NET Core)
+
 ```powershell
 cd backend\PelindoCarLoan.API
 dotnet run
 ```
 
 ### Frontend (React + Vite)
+
 ```powershell
 cd frontend
 npm run dev
@@ -86,6 +98,7 @@ npm run dev
 ## 📊 Data yang Tersedia
 
 ### Vehicles (6 kendaraan)
+
 - B 1234 ABC - Toyota Camry (Sedan)
 - B 5678 DEF - Honda CR-V (SUV)
 - B 9012 GHI - Toyota Avanza (MPV)
@@ -94,11 +107,13 @@ npm run dev
 - B 2345 PQR - Mitsubishi Pajero Sport (SUV) - MAINTENANCE
 
 ### Drivers (3 driver)
+
 - Joko Susilo (Available)
 - Andi Pratama (Available)
 - Bambang Surya (On Duty)
 
 ### Sample Loan Requests (3 request)
+
 1. Meeting with port authority - SUBMITTED
 2. Attending maritime conference - SUBMITTED
 3. Business trip pickup - APPROVED_L1 (dengan schedule)

@@ -222,6 +222,17 @@ export const scheduleService = {
     );
     return response.data;
   },
+
+  cancelSchedule: async (
+    scheduleId: number,
+    data: { cancellationReason: string }
+  ): Promise<ApiResponse<void>> => {
+    const response = await api.post<ApiResponse<void>>(
+      `/schedules/${scheduleId}/cancel`,
+      data
+    );
+    return response.data;
+  },
 };
 
 // Vehicle Services

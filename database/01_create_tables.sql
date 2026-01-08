@@ -166,6 +166,7 @@ CREATE TABLE loan_requests (
     id              NUMBER(10) PRIMARY KEY,
     user_id         NUMBER(10) NOT NULL,
     request_number  VARCHAR2(30) NOT NULL,
+    service_letter_basis VARCHAR2(200) DEFAULT '' NOT NULL,
     purpose         VARCHAR2(500) NOT NULL,
     destination     VARCHAR2(255) NOT NULL,
     passenger_count NUMBER(3) DEFAULT 1,
@@ -194,6 +195,7 @@ CREATE TABLE loan_requests (
 );
 
 COMMENT ON TABLE loan_requests IS 'Stores vehicle loan requests from PEMOHON users';
+COMMENT ON COLUMN loan_requests.service_letter_basis IS 'Service letter basis / SPPD number for the loan request';
 COMMENT ON COLUMN loan_requests.status IS 'Request status: SUBMITTED, APPROVED_L1, REJECTED_L1, APPROVED_L2, REJECTED_L2, SCHEDULED, WAITING_RESOURCE, IN_PROGRESS, COMPLETED, CANCELLED';
 
 -- ============================================================

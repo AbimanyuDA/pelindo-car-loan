@@ -32,9 +32,18 @@ export interface LoanRequest {
   id: number;
   userId: number;
   requestNumber: string;
+  requesterName?: string;
+  requesterEmail?: string;
+  requesterPhone?: string;
+  serviceLetterBasis: string;
   purpose: string;
   destination: string;
-  passengerCount: number;
+  guestList: string;
+  hotelAccommodation?: string;
+  vehicleId: number;
+  driverId: number;
+  driverName?: string;
+  driverPhone?: string;
   startDatetime: string;
   endDatetime: string;
   status: LoanRequestStatus;
@@ -50,8 +59,13 @@ export interface LoanRequestListItem {
   id: number;
   requestNumber: string;
   requesterName: string;
+  serviceLetterBasis: string;
   purpose: string;
   destination: string;
+  guestList: string;
+  hotelAccommodation?: string;
+  vehicleId?: number;
+  driverId?: number;
   startDatetime: string;
   endDatetime: string;
   status: LoanRequestStatus;
@@ -59,9 +73,13 @@ export interface LoanRequestListItem {
 }
 
 export interface CreateLoanRequest {
+  serviceLetterBasis: string;
   purpose: string;
   destination: string;
-  passengerCount: number;
+  guestList: string;
+  hotelAccommodation?: string;
+  vehicleId: number;
+  driverId: number;
   startDatetime: string;
   endDatetime: string;
   notes?: string;
@@ -95,10 +113,19 @@ export interface PendingApproval {
   loanRequestId: number;
   requestNumber: string;
   requesterName: string;
+  requesterEmail: string;
+  requesterPhone?: string;
   requesterDivision: string;
+  serviceLetterBasis?: string;
+  serviceLetterFilePath?: string;
   purpose: string;
   destination: string;
-  passengerCount: number;
+  guestList: string;
+  hotelAccommodation?: string;
+  vehicleId: number;
+  driverId: number;
+  driverName?: string;
+  driverPhone?: string;
   startDatetime: string;
   endDatetime: string;
   status: LoanRequestStatus;
@@ -111,6 +138,8 @@ export interface ProcessApproval {
   loanRequestId: number;
   status: ApprovalStatus;
   notes?: string;
+  vehicleId?: number;
+  driverId?: number;
 }
 
 export type ApprovalStatus = "APPROVED" | "REJECTED";
@@ -137,9 +166,13 @@ export interface DriverSchedule {
   scheduleId: number;
   requestNumber: string;
   requesterName: string;
+  requesterEmail: string;
+  requesterPhone: string;
   purpose: string;
   destination: string;
-  passengerCount: number;
+  guestList: string;
+  hotelAccommodation: boolean;
+  hotelName?: string;
   startDatetime: string;
   endDatetime: string;
   vehiclePlate: string;
@@ -175,6 +208,8 @@ export interface Vehicle {
   plateNumber: string;
   brand: string;
   type: string;
+  model?: string;
+  year?: number;
   capacity: number;
   status: VehicleStatus;
   notes?: string;
@@ -196,9 +231,9 @@ export interface Driver {
   id: number;
   userId?: number;
   driverName?: string;
+  phoneNumber?: string;
   licenseNumber: string;
   licenseExpiry: string;
-  phoneNumber?: string;
   status: DriverStatus;
   isActive: boolean;
 }

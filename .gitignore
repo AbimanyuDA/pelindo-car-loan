@@ -166,3 +166,5 @@ TestResults/
 *.temp
 *.swp
 *.bak
+
+CREDENTIALS.md

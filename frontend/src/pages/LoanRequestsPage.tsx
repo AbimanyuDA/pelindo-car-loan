@@ -54,28 +54,40 @@ export default function LoanRequestsPage() {
       ),
     },
     {
-      key: "departureDate",
+      key: "startDatetime",
       header: "Tanggal",
       render: (item) => (
         <div>
-          <p className="text-sm">{formatDate(item.departureDate)}</p>
+          <p className="text-sm">{formatDate(item.startDatetime)}</p>
           <p className="text-xs text-gray-500">
-            {item.departureTime} - {item.returnTime}
+            s/d {formatDate(item.endDatetime)}
           </p>
         </div>
       ),
     },
     {
-      key: "passengerCount",
-      header: "Penumpang",
-      render: (item) => (
-        <span className="text-sm">{item.passengerCount} orang</span>
-      ),
+      key: "guestList",
+      header: "Tamu yang Dilayani",
+      render: (item) => <span className="text-sm">{item.guestList}</span>,
     },
     {
       key: "status",
       header: "Status",
-      render: (item) => <Badge status={item.status} />,
+      render: (item) => (
+        <div>
+          <Badge status={item.status} />
+          {item.status === "APPROVED_L1" && (
+            <p className="text-xs text-gray-500 mt-1">
+              Waiting for L2 approval
+            </p>
+          )}
+          {item.status === "SCHEDULED" && (
+            <p className="text-xs text-green-600 mt-1 font-medium">
+              Approved by L2
+            </p>
+          )}
+        </div>
+      ),
     },
     {
       key: "actions",

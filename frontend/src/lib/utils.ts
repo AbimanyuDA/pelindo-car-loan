@@ -33,15 +33,19 @@ export function formatTime(date: string | Date): string {
 export function getStatusColor(status: string): string {
   const colors: Record<string, string> = {
     // Loan Request Statuses
+    SUBMITTED: "bg-blue-900 text-white",
     PENDING: "bg-yellow-100 text-yellow-800",
     PENDING_L1: "bg-yellow-100 text-yellow-800",
     PENDING_L2: "bg-orange-100 text-orange-800",
+    APPROVED_L1: "bg-orange-100 text-orange-800",
     APPROVED: "bg-green-100 text-green-800",
     REJECTED: "bg-red-100 text-red-800",
+    REJECTED_L1: "bg-red-100 text-red-800",
+    REJECTED_L2: "bg-red-100 text-red-800",
     CANCELLED: "bg-gray-100 text-gray-800",
 
     // Schedule Statuses
-    SCHEDULED: "bg-blue-100 text-blue-800",
+    SCHEDULED: "bg-green-100 text-green-800",
     IN_PROGRESS: "bg-purple-100 text-purple-800",
     COMPLETED: "bg-green-100 text-green-800",
     WAITING_RESOURCE: "bg-amber-100 text-amber-800",
@@ -63,15 +67,19 @@ export function getStatusColor(status: string): string {
 export function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     // Loan Request Statuses
+    SUBMITTED: "Submitted",
     PENDING: "Pending",
     PENDING_L1: "Menunggu Approval L1",
     PENDING_L2: "Menunggu Approval L2",
+    APPROVED_L1: "APPROVED_L1",
     APPROVED: "Disetujui",
     REJECTED: "Ditolak",
+    REJECTED_L1: "Ditolak",
+    REJECTED_L2: "Ditolak",
     CANCELLED: "Dibatalkan",
 
     // Schedule Statuses
-    SCHEDULED: "Terjadwal",
+    SCHEDULED: "Scheduled",
     IN_PROGRESS: "Dalam Perjalanan",
     COMPLETED: "Selesai",
     WAITING_RESOURCE: "Menunggu Resource",
