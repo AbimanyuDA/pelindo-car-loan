@@ -120,6 +120,7 @@ namespace PelindoCarLoan.API.Extensions
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IVehicleService, VehicleService>();
             services.AddScoped<IDriverService, DriverService>();
+            services.AddScoped<IEmailService, EmailService>();
         }
 
         public static void ConfigureAutoMapper(this IServiceCollection services)

@@ -6,28 +6,92 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // If it's a Date object, use it directly
+  if (date instanceof Date) {
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  // Parse string manually to avoid timezone conversion
+  const dateStr = String(date);
+  const [datePart] = dateStr.split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+
+  const months = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  return `${day} ${months[month - 1]} ${year}`;
 }
 
 export function formatDateTime(date: string | Date): string {
-  return new Date(date).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  // If it's a Date object, use it directly
+  if (date instanceof Date) {
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  // Parse string manually to avoid timezone conversion
+  const dateStr = String(date);
+  const [datePart, timePart] = dateStr.split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+  const [hour, minute] = timePart.split(":").map(Number);
+
+  const months = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  return `${day} ${months[month - 1]} ${year}, ${String(hour).padStart(
+    2,
+    "0"
+  )}.${String(minute).padStart(2, "0")}`;
 }
 
 export function formatTime(date: string | Date): string {
-  return new Date(date).toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  // If it's a Date object, use it directly
+  if (date instanceof Date) {
+    return date.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  // Parse string manually to avoid timezone conversion
+  const dateStr = String(date);
+  const timePart = dateStr.includes("T") ? dateStr.split("T")[1] : dateStr;
+  const [hour, minute] = timePart.split(":").map(Number);
+
+  return `${String(hour).padStart(2, "0")}.${String(minute).padStart(2, "0")}`;
 }
 
 export function getStatusColor(status: string): string {

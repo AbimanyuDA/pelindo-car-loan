@@ -283,7 +283,7 @@ export default function LoanRequestDetailPage() {
               {approvalHistory.map((approval, index) => {
                 const isApproved = approval.status === "APPROVED";
                 const isRejected = approval.status === "REJECTED";
-                const isPending = !isApproved && !isRejected;
+                // const isPending = !isApproved && !isRejected;
 
                 return (
                   <div key={approval.id} className="relative">

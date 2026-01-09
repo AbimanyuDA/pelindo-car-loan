@@ -21,17 +21,26 @@ namespace PelindoCarLoan.API.Services
         private readonly IApprovalRepository _approvalRepository;
         private readonly ILoanRequestRepository _loanRequestRepository;
         private readonly ISchedulingService _schedulingService;
+        private readonly IUserRepository _userRepository;
+        private readonly IDriverRepository _driverRepository;
+        private readonly IEmailService _emailService;
         private readonly ILogger<ApprovalService> _logger;
 
         public ApprovalService(
             IApprovalRepository approvalRepository,
             ILoanRequestRepository loanRequestRepository,
             ISchedulingService schedulingService,
+            IUserRepository userRepository,
+            IDriverRepository driverRepository,
+            IEmailService emailService,
             ILogger<ApprovalService> logger)
         {
             _approvalRepository = approvalRepository;
             _loanRequestRepository = loanRequestRepository;
             _schedulingService = schedulingService;
+            _userRepository = userRepository;
+            _driverRepository = driverRepository;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -161,6 +170,98 @@ namespace PelindoCarLoan.API.Services
             _logger.LogInformation(
                 "Approval processed: LoanRequest={LoanRequestId}, Level={Level}, Status={Status}, Approver={ApproverId}",
                 dto.LoanRequestId, level, dto.Status, approverId);
+
+            // Send email notifications
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var requester = await _userRepository.GetByIdAsync(loanRequest.UserId);
+                    if (requester == null || string.IsNullOrEmpty(requester.Email))
+                        return;
+
+                    if (level == ApprovalLevel.Level1)
+                    {
+                        if (dto.Status == ApprovalStatus.Approved)
+                        {
+                            // Email to requester: L1 approved, waiting L2
+                            await _emailService.SendLoanRequestApprovedL1EmailAsync(
+                                requester.Email,
+                                requester.FullName,
+                                loanRequest.RequestNumber
+                            );
+
+                            // Email to all L2 approvers
+                            var l2Approvers = await _userRepository.GetByRoleAsync("PIC_APPROVAL_L2");
+                            foreach (var approver in l2Approvers)
+                            {
+                                if (!string.IsNullOrEmpty(approver.Email))
+                                {
+                                    await _emailService.SendApprovalL1NotificationToL2Async(
+                                        approver.Email,
+                                        requester.FullName,
+                                        loanRequest.RequestNumber,
+                                        loanRequest.Purpose
+                                    );
+                                }
+                            }
+                        }
+                        else if (dto.Status == ApprovalStatus.Rejected)
+                        {
+                            // Email to requester: L1 rejected
+                            await _emailService.SendLoanRequestRejectedL1EmailAsync(
+                                requester.Email,
+                                requester.FullName,
+                                loanRequest.RequestNumber,
+                                dto.Notes ?? ""
+                            );
+                        }
+                    }
+                    else if (level == ApprovalLevel.Level2)
+                    {
+                        if (dto.Status == ApprovalStatus.Approved)
+                        {
+                            // Email to requester: L2 approved (final)
+                            await _emailService.SendLoanRequestApprovedL2EmailAsync(
+                                requester.Email,
+                                requester.FullName,
+                                loanRequest.RequestNumber
+                            );
+
+                            // Email to driver
+                            if (loanRequest.DriverId.HasValue)
+                            {
+                                var driver = await _driverRepository.GetByIdAsync(loanRequest.DriverId.Value);
+                                if (driver?.User != null && !string.IsNullOrEmpty(driver.User.Email))
+                                {
+                                    await _emailService.SendDriverAssignmentEmailAsync(
+                                        driver.User.Email,
+                                        driver.User.FullName,
+                                        loanRequest.RequestNumber,
+                                        loanRequest.StartDatetime.ToString("dd MMMM yyyy, HH:mm"),
+                                        loanRequest.EndDatetime.ToString("dd MMMM yyyy, HH:mm"),
+                                        loanRequest.Destination
+                                    );
+                                }
+                            }
+                        }
+                        else if (dto.Status == ApprovalStatus.Rejected)
+                        {
+                            // Email to requester: L2 rejected
+                            await _emailService.SendLoanRequestRejectedL2EmailAsync(
+                                requester.Email,
+                                requester.FullName,
+                                loanRequest.RequestNumber,
+                                dto.Notes ?? ""
+                            );
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send email notification for approval {ApprovalId}", approvalId);
+                }
+            });
 
             return new ApprovalDto
             {

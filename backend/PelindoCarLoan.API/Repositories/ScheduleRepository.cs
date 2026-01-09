@@ -17,6 +17,8 @@ namespace PelindoCarLoan.API.Repositories
         Task<IEnumerable<Schedule>> GetUpcomingByDriverIdAsync(int driverId);
         Task<IEnumerable<Schedule>> GetByVehicleIdAsync(int vehicleId);
         Task<IEnumerable<Schedule>> GetByDateRangeAsync(DateTime start, DateTime end);
+        Task<bool> HasDriverConflictAsync(int driverId, DateTime startTime, DateTime endTime, int? excludeScheduleId = null);
+        Task<bool> HasVehicleConflictAsync(int vehicleId, DateTime startTime, DateTime endTime, int? excludeScheduleId = null);
         Task<int> CreateAsync(Schedule schedule);
         Task<bool> UpdateAsync(Schedule schedule);
         Task<bool> UpdateStatusAsync(int id, string status);
@@ -373,6 +375,74 @@ namespace PelindoCarLoan.API.Repositories
 
             using var connection = _dbContext.CreateConnection();
             return await connection.ExecuteScalarAsync<int>(sql);
+        }
+
+        /// <summary>
+        /// Check if a driver has schedule conflict in the given time range
+        /// </summary>
+        public async Task<bool> HasDriverConflictAsync(int driverId, DateTime startTime, DateTime endTime, int? excludeScheduleId = null)
+        {
+            var sql = @"
+                SELECT COUNT(1)
+                FROM schedules s
+                INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
+                WHERE s.driver_id = :DriverId
+                  AND s.status IN ('CONFIRMED', 'IN_PROGRESS')
+                  AND (
+                    (lr.start_datetime <= :StartTime AND lr.end_datetime >= :StartTime) OR
+                    (lr.start_datetime <= :EndTime AND lr.end_datetime >= :EndTime) OR
+                    (lr.start_datetime >= :StartTime AND lr.end_datetime <= :EndTime)
+                  )";
+
+            if (excludeScheduleId.HasValue)
+            {
+                sql += " AND s.schedule_id != :ExcludeScheduleId";
+            }
+
+            using var connection = _dbContext.CreateConnection();
+            var count = await connection.ExecuteScalarAsync<int>(sql, new
+            {
+                DriverId = driverId,
+                StartTime = startTime,
+                EndTime = endTime,
+                ExcludeScheduleId = excludeScheduleId
+            });
+
+            return count > 0;
+        }
+
+        /// <summary>
+        /// Check if a vehicle has schedule conflict in the given time range
+        /// </summary>
+        public async Task<bool> HasVehicleConflictAsync(int vehicleId, DateTime startTime, DateTime endTime, int? excludeScheduleId = null)
+        {
+            var sql = @"
+                SELECT COUNT(1)
+                FROM schedules s
+                INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
+                WHERE s.vehicle_id = :VehicleId
+                  AND s.status IN ('CONFIRMED', 'IN_PROGRESS')
+                  AND (
+                    (lr.start_datetime <= :StartTime AND lr.end_datetime >= :StartTime) OR
+                    (lr.start_datetime <= :EndTime AND lr.end_datetime >= :EndTime) OR
+                    (lr.start_datetime >= :StartTime AND lr.end_datetime <= :EndTime)
+                  )";
+
+            if (excludeScheduleId.HasValue)
+            {
+                sql += " AND s.schedule_id != :ExcludeScheduleId";
+            }
+
+            using var connection = _dbContext.CreateConnection();
+            var count = await connection.ExecuteScalarAsync<int>(sql, new
+            {
+                VehicleId = vehicleId,
+                StartTime = startTime,
+                EndTime = endTime,
+                ExcludeScheduleId = excludeScheduleId
+            });
+
+            return count > 0;
         }
     }
 }

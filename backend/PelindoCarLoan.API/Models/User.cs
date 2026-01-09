@@ -7,6 +7,7 @@ namespace PelindoCarLoan.API.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string FullName => Name; // Alias for Name
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public string PasswordHash { get; set; } = string.Empty;

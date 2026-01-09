@@ -35,7 +35,8 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 SELECT loan_request_id AS Id, user_id AS UserId, NULL AS RequestNumber, 
-                       service_letter_basis AS ServiceLetterBasis, purpose, destination,
+                       service_letter_basis AS ServiceLetterBasis, service_letter_file_path AS ServiceLetterFilePath,
+                       purpose, destination,
                        guest_list AS GuestList, hotel_accommodation AS HotelAccommodation, 
                        vehicle_id AS VehicleId, driver_id AS DriverId, 
                        start_datetime AS StartDatetime, end_datetime AS EndDatetime, 
@@ -51,8 +52,8 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, 
-                       lr.service_letter_basis AS ServiceLetterBasis, lr.purpose, 
-                       lr.destination, lr.guest_list AS GuestList,
+                       lr.service_letter_basis AS ServiceLetterBasis, lr.service_letter_file_path AS ServiceLetterFilePath,
+                       lr.purpose, lr.destination, lr.guest_list AS GuestList,
                        lr.hotel_accommodation AS HotelAccommodation, 
                        lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
@@ -90,8 +91,8 @@ namespace PelindoCarLoan.API.Repositories
         {
             var sql = @"
                 SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, 
-                       lr.service_letter_basis AS ServiceLetterBasis, lr.purpose, 
-                       lr.destination, lr.guest_list AS GuestList,
+                       lr.service_letter_basis AS ServiceLetterBasis, lr.service_letter_file_path AS ServiceLetterFilePath,
+                       lr.purpose, lr.destination, lr.guest_list AS GuestList,
                        lr.hotel_accommodation AS HotelAccommodation,
                        lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 

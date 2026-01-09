@@ -24,17 +24,23 @@ namespace PelindoCarLoan.API.Services
         private readonly ILoanRequestRepository _loanRequestRepository;
         private readonly IApprovalRepository _approvalRepository;
         private readonly IScheduleRepository _scheduleRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
         private readonly ILogger<LoanRequestService> _logger;
 
         public LoanRequestService(
             ILoanRequestRepository loanRequestRepository,
             IApprovalRepository approvalRepository,
             IScheduleRepository scheduleRepository,
+            IUserRepository userRepository,
+            IEmailService emailService,
             ILogger<LoanRequestService> logger)
         {
             _loanRequestRepository = loanRequestRepository;
             _approvalRepository = approvalRepository;
             _scheduleRepository = scheduleRepository;
+            _userRepository = userRepository;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -98,6 +104,36 @@ namespace PelindoCarLoan.API.Services
             loanRequest.Id = id;
 
             _logger.LogInformation("Loan request created: {RequestNumber} by user {UserId}", requestNumber, userId);
+
+            // Send email to L1 approvers
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var l1Approvers = await _userRepository.GetByRoleAsync("PIC_APPROVAL_L1");
+                    var requester = await _userRepository.GetByIdAsync(userId);
+                    
+                    if (requester != null)
+                    {
+                        foreach (var approver in l1Approvers)
+                        {
+                            if (!string.IsNullOrEmpty(approver.Email))
+                            {
+                                await _emailService.SendLoanRequestSubmittedEmailAsync(
+                                    approver.Email,
+                                    requester.FullName,
+                                    requestNumber,
+                                    dto.Purpose
+                                );
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send email notification for loan request {RequestNumber}", requestNumber);
+                }
+            });
 
             return (await GetByIdAsync(id))!;
         }

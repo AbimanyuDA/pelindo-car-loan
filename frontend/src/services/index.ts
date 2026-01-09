@@ -245,9 +245,17 @@ export const vehicleService = {
     return response.data;
   },
 
-  getAvailable: async (): Promise<ApiResponse<Vehicle[]>> => {
+  getAvailable: async (
+    startDate?: string,
+    endDate?: string
+  ): Promise<ApiResponse<Vehicle[]>> => {
+    const params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+
     const response = await api.get<ApiResponse<Vehicle[]>>(
-      "/vehicles/available"
+      "/vehicles/available",
+      { params }
     );
     return response.data;
   },
@@ -300,8 +308,18 @@ export const driverService = {
     return response.data;
   },
 
-  getAvailable: async (): Promise<ApiResponse<Driver[]>> => {
-    const response = await api.get<ApiResponse<Driver[]>>("/drivers/available");
+  getAvailable: async (
+    startDate?: string,
+    endDate?: string
+  ): Promise<ApiResponse<Driver[]>> => {
+    const params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+
+    const response = await api.get<ApiResponse<Driver[]>>(
+      "/drivers/available",
+      { params }
+    );
     return response.data;
   },
 

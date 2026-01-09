@@ -82,6 +82,37 @@ namespace PelindoCarLoan.API.Services
             var driverId = loanRequest.DriverId.Value;
             var vehicleId = loanRequest.VehicleId.Value;
 
+            // Check for schedule conflicts
+            var hasDriverConflict = await _scheduleRepository.HasDriverConflictAsync(
+                driverId, 
+                loanRequest.StartDatetime, 
+                loanRequest.EndDatetime
+            );
+
+            if (hasDriverConflict)
+            {
+                await _loanRequestRepository.UpdateStatusAsync(loanRequestId, LoanRequestStatus.WaitingResource);
+                _logger.LogWarning(
+                    "Driver {DriverId} has schedule conflict for loan request {LoanRequestId} ({StartTime} - {EndTime})",
+                    driverId, loanRequestId, loanRequest.StartDatetime, loanRequest.EndDatetime);
+                throw new InvalidOperationException($"Driver sudah memiliki jadwal di rentang waktu tersebut. Silakan pilih driver lain atau ubah jadwal.");
+            }
+
+            var hasVehicleConflict = await _scheduleRepository.HasVehicleConflictAsync(
+                vehicleId, 
+                loanRequest.StartDatetime, 
+                loanRequest.EndDatetime
+            );
+
+            if (hasVehicleConflict)
+            {
+                await _loanRequestRepository.UpdateStatusAsync(loanRequestId, LoanRequestStatus.WaitingResource);
+                _logger.LogWarning(
+                    "Vehicle {VehicleId} has schedule conflict for loan request {LoanRequestId} ({StartTime} - {EndTime})",
+                    vehicleId, loanRequestId, loanRequest.StartDatetime, loanRequest.EndDatetime);
+                throw new InvalidOperationException($"Kendaraan sudah dijadwalkan di rentang waktu tersebut. Silakan pilih kendaraan lain atau ubah jadwal.");
+            }
+
             // Create schedule
             var schedule = new Schedule
             {
@@ -142,6 +173,35 @@ namespace PelindoCarLoan.API.Services
             if (vehicle == null)
             {
                 throw new ArgumentException("Invalid vehicle");
+            }
+
+            // Check for schedule conflicts
+            var hasDriverConflict = await _scheduleRepository.HasDriverConflictAsync(
+                dto.DriverId, 
+                loanRequest.StartDatetime, 
+                loanRequest.EndDatetime
+            );
+
+            if (hasDriverConflict)
+            {
+                _logger.LogWarning(
+                    "Driver {DriverId} has schedule conflict for loan request {LoanRequestId} ({StartTime} - {EndTime})",
+                    dto.DriverId, dto.LoanRequestId, loanRequest.StartDatetime, loanRequest.EndDatetime);
+                throw new InvalidOperationException($"Driver sudah memiliki jadwal di rentang waktu {loanRequest.StartDatetime:dd/MM/yyyy HH:mm} - {loanRequest.EndDatetime:dd/MM/yyyy HH:mm}. Silakan pilih driver lain.");
+            }
+
+            var hasVehicleConflict = await _scheduleRepository.HasVehicleConflictAsync(
+                dto.VehicleId, 
+                loanRequest.StartDatetime, 
+                loanRequest.EndDatetime
+            );
+
+            if (hasVehicleConflict)
+            {
+                _logger.LogWarning(
+                    "Vehicle {VehicleId} has schedule conflict for loan request {LoanRequestId} ({StartTime} - {EndTime})",
+                    dto.VehicleId, dto.LoanRequestId, loanRequest.StartDatetime, loanRequest.EndDatetime);
+                throw new InvalidOperationException($"Kendaraan sudah dijadwalkan di rentang waktu {loanRequest.StartDatetime:dd/MM/yyyy HH:mm} - {loanRequest.EndDatetime:dd/MM/yyyy HH:mm}. Silakan pilih kendaraan lain.");
             }
 
             // Create schedule

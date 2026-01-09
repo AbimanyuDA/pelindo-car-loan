@@ -1,5 +1,6 @@
 using PelindoCarLoan.API.Extensions;
 using PelindoCarLoan.API.Middleware;
+using PelindoCarLoan.API.Helpers;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,13 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Add custom DateTime converter to prevent UTC conversion
+        options.JsonSerializerOptions.Converters.Add(new LocalDateTimeConverter());
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure custom services

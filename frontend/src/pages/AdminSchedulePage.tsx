@@ -56,8 +56,24 @@ export default function AdminSchedulePage() {
   });
 
   const { data: availableVehicles } = useQuery({
-    queryKey: ["available-vehicles"],
+    queryKey: [
+      "available-vehicles",
+      selectedSchedule?.loanRequest?.startDatetime,
+      selectedSchedule?.loanRequest?.endDatetime,
+    ],
     queryFn: async () => {
+      if (
+        selectedSchedule?.loanRequest?.startDatetime &&
+        selectedSchedule?.loanRequest?.endDatetime
+      ) {
+        // Use date filter if we have schedule dates
+        const response = await vehicleService.getAvailable(
+          selectedSchedule.loanRequest.startDatetime,
+          selectedSchedule.loanRequest.endDatetime
+        );
+        return response.data || [];
+      }
+      // Fallback to all available
       const response = await vehicleService.getAvailable();
       return response.data || [];
     },
@@ -65,8 +81,24 @@ export default function AdminSchedulePage() {
   });
 
   const { data: availableDrivers } = useQuery({
-    queryKey: ["available-drivers"],
+    queryKey: [
+      "available-drivers",
+      selectedSchedule?.loanRequest?.startDatetime,
+      selectedSchedule?.loanRequest?.endDatetime,
+    ],
     queryFn: async () => {
+      if (
+        selectedSchedule?.loanRequest?.startDatetime &&
+        selectedSchedule?.loanRequest?.endDatetime
+      ) {
+        // Use date filter if we have schedule dates
+        const response = await driverService.getAvailable(
+          selectedSchedule.loanRequest.startDatetime,
+          selectedSchedule.loanRequest.endDatetime
+        );
+        return response.data || [];
+      }
+      // Fallback to all available
       const response = await driverService.getAvailable();
       return response.data || [];
     },
@@ -129,8 +161,12 @@ export default function AdminSchedulePage() {
       header: "Tujuan",
       render: (item) => (
         <div>
-          <p className="font-medium text-gray-900">{item.purpose || "N/A"}</p>
-          <p className="text-sm text-gray-500">{item.destination}</p>
+          <p className="font-medium text-gray-900">
+            {item.loanRequest?.purpose || "N/A"}
+          </p>
+          <p className="text-sm text-gray-500">
+            {item.loanRequest?.destination}
+          </p>
         </div>
       ),
     },
@@ -139,9 +175,23 @@ export default function AdminSchedulePage() {
       header: "Tanggal",
       render: (item) => (
         <div>
-          <p className="text-sm">{formatDate(item.departureDate)}</p>
+          <p className="text-sm">
+            {item.loanRequest?.startDatetime
+              ? formatDate(item.loanRequest.startDatetime)
+              : "N/A"}
+          </p>
           <p className="text-xs text-gray-500">
-            {item.departureTime} - {item.returnTime}
+            {item.loanRequest?.startDatetime &&
+              new Date(item.loanRequest.startDatetime).toLocaleTimeString(
+                "id-ID",
+                { hour: "2-digit", minute: "2-digit" }
+              )}{" "}
+            -{" "}
+            {item.loanRequest?.endDatetime &&
+              new Date(item.loanRequest.endDatetime).toLocaleTimeString(
+                "id-ID",
+                { hour: "2-digit", minute: "2-digit" }
+              )}
           </p>
         </div>
       ),
@@ -181,7 +231,7 @@ export default function AdminSchedulePage() {
       header: "Aksi",
       render: (item) => (
         <div className="flex items-center gap-2">
-          {item.status === "WAITING_RESOURCE" && (
+          {item.loanRequest?.status === "WAITING_RESOURCE" && (
             <>
               <Button
                 variant="secondary"
@@ -210,7 +260,9 @@ export default function AdminSchedulePage() {
 
   const stats = {
     total: schedules?.length || 0,
-    scheduled: schedules?.filter((s) => s.status === "SCHEDULED").length || 0,
+    scheduled:
+      schedules?.filter((s) => s.loanRequest?.status === "SCHEDULED").length ||
+      0,
     inProgress:
       schedules?.filter((s) => s.status === "IN_PROGRESS").length || 0,
     completed: schedules?.filter((s) => s.status === "COMPLETED").length || 0,
@@ -295,7 +347,9 @@ export default function AdminSchedulePage() {
         isOpen={selectedSchedule !== null}
         onClose={closeModal}
         title="Tetapkan Kendaraan & Driver"
-        description={`Jadwal untuk ${selectedSchedule?.destination}`}
+        description={`Jadwal untuk ${
+          selectedSchedule?.loanRequest?.destination || "N/A"
+        }`}
       >
         {error && (
           <Alert
@@ -314,14 +368,29 @@ export default function AdminSchedulePage() {
                 <p className="text-gray-500">Tanggal</p>
                 <p className="font-medium">
                   {selectedSchedule &&
-                    formatDate(selectedSchedule.departureDate)}
+                  selectedSchedule.loanRequest?.startDatetime
+                    ? formatDate(selectedSchedule.loanRequest.startDatetime)
+                    : "N/A"}
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Waktu</p>
                 <p className="font-medium">
-                  {selectedSchedule?.departureTime} -{" "}
-                  {selectedSchedule?.returnTime}
+                  {selectedSchedule?.loanRequest?.startDatetime &&
+                    new Date(
+                      selectedSchedule.loanRequest.startDatetime
+                    ).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                  -{" "}
+                  {selectedSchedule?.loanRequest?.endDatetime &&
+                    new Date(
+                      selectedSchedule.loanRequest.endDatetime
+                    ).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                 </p>
               </div>
             </div>
@@ -343,7 +412,7 @@ export default function AdminSchedulePage() {
             placeholder="Pilih driver"
             options={(availableDrivers || []).map((d: Driver) => ({
               value: d.id,
-              label: `${d.name} - ${d.phoneNumber}`,
+              label: `${d.user?.name || "Unknown"} - ${d.phoneNumber}`,
             }))}
             error={errors.driverId?.message}
             {...register("driverId")}

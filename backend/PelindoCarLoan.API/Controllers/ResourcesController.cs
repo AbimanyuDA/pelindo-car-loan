@@ -41,10 +41,18 @@ namespace PelindoCarLoan.API.Controllers
         /// <returns>List of available vehicles</returns>
         [HttpGet("available")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<VehicleDto>>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAvailable()
+        public async Task<IActionResult> GetAvailable([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
-            var vehicles = await _vehicleService.GetAvailableAsync();
-            return Ok(ApiResponse<IEnumerable<VehicleDto>>.SuccessResponse(vehicles));
+            // If dates provided, check for schedule conflicts
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                var vehicles = await _vehicleService.GetAvailableForPeriodAsync(startDate.Value, endDate.Value);
+                return Ok(ApiResponse<IEnumerable<VehicleDto>>.SuccessResponse(vehicles));
+            }
+            
+            // Otherwise just check status
+            var availableVehicles = await _vehicleService.GetAvailableAsync();
+            return Ok(ApiResponse<IEnumerable<VehicleDto>>.SuccessResponse(availableVehicles));
         }
 
         /// <summary>
@@ -185,10 +193,18 @@ namespace PelindoCarLoan.API.Controllers
         /// <returns>List of available drivers</returns>
         [HttpGet("available")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<DriverDto>>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAvailable()
+        public async Task<IActionResult> GetAvailable([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
-            var drivers = await _driverService.GetAvailableAsync();
-            return Ok(ApiResponse<IEnumerable<DriverDto>>.SuccessResponse(drivers));
+            // If dates provided, check for schedule conflicts
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                var drivers = await _driverService.GetAvailableForPeriodAsync(startDate.Value, endDate.Value);
+                return Ok(ApiResponse<IEnumerable<DriverDto>>.SuccessResponse(drivers));
+            }
+            
+            // Otherwise just check status
+            var availableDrivers = await _driverService.GetAvailableAsync();
+            return Ok(ApiResponse<IEnumerable<DriverDto>>.SuccessResponse(availableDrivers));
         }
 
         /// <summary>

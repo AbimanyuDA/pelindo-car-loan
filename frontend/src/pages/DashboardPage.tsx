@@ -321,7 +321,7 @@ function DriverDashboard() {
                       {schedule.destination}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {schedule.vehiclePlateNumber} • {schedule.requesterName}
+                      {schedule.vehiclePlate} • {schedule.requesterName}
                     </p>
                   </div>
                   <Badge status={schedule.status} />
@@ -413,12 +413,12 @@ function AdminDashboard() {
             <CardTitle>Pengajuan Terbaru</CardTitle>
           </CardHeader>
           <CardContent>
-            {!dashboard?.recentRequests ||
-            dashboard.recentRequests.length === 0 ? (
+            {!dashboard?.myRecentRequests ||
+            dashboard.myRecentRequests.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Tidak ada data</p>
             ) : (
               <div className="space-y-4">
-                {dashboard.recentRequests.map((request) => (
+                {dashboard.myRecentRequests.map((request: any) => (
                   <div
                     key={request.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"

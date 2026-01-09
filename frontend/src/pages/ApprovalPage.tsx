@@ -18,14 +18,8 @@ import {
   vehicleService,
   driverService,
 } from "@/services";
-import { formatDate } from "@/lib/utils";
-import type {
-  PendingApproval,
-  LoanRequest,
-  Approval,
-  Vehicle,
-  Driver,
-} from "@/types";
+import { formatDate, formatDateTime, formatTime } from "@/lib/utils";
+import type { PendingApproval, LoanRequest, Vehicle, Driver } from "@/types";
 
 interface ApprovalPageProps {
   level: "l1" | "l2";
@@ -58,7 +52,6 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
     handleSubmit,
     reset,
     formState: { errors },
-    setValue,
   } = useForm<ApprovalFormData>({
     resolver: zodResolver(approvalSchema),
   });
@@ -99,22 +92,56 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
     },
   });
 
-  const { data: allVehicles } = useQuery({
-    queryKey: ["vehicles"],
+  // Fetch vehicles with date filtering if selectedRequest is available
+  useQuery({
+    queryKey: [
+      "vehicles",
+      selectedRequest?.startDatetime,
+      selectedRequest?.endDatetime,
+    ],
     queryFn: async () => {
-      const response = await vehicleService.getAll();
-      setVehicles(response.data || []);
-      return response.data || [];
+      if (selectedRequest?.startDatetime && selectedRequest?.endDatetime) {
+        // Fetch available vehicles for the specific period
+        const response = await vehicleService.getAvailable(
+          selectedRequest.startDatetime,
+          selectedRequest.endDatetime
+        );
+        setVehicles(response.data || []);
+        return response.data || [];
+      } else {
+        // Fallback to all vehicles
+        const response = await vehicleService.getAll();
+        setVehicles(response.data || []);
+        return response.data || [];
+      }
     },
+    enabled: !!selectedRequest, // Only enabled when modal is open
   });
 
-  const { data: allDrivers } = useQuery({
-    queryKey: ["drivers"],
+  // Fetch drivers with date filtering if selectedRequest is available
+  useQuery({
+    queryKey: [
+      "drivers",
+      selectedRequest?.startDatetime,
+      selectedRequest?.endDatetime,
+    ],
     queryFn: async () => {
-      const response = await driverService.getAll();
-      setDrivers(response.data || []);
-      return response.data || [];
+      if (selectedRequest?.startDatetime && selectedRequest?.endDatetime) {
+        // Fetch available drivers for the specific period
+        const response = await driverService.getAvailable(
+          selectedRequest.startDatetime,
+          selectedRequest.endDatetime
+        );
+        setDrivers(response.data || []);
+        return response.data || [];
+      } else {
+        // Fallback to all drivers
+        const response = await driverService.getAll();
+        setDrivers(response.data || []);
+        return response.data || [];
+      }
     },
+    enabled: !!selectedRequest, // Only enabled when modal is open
   });
 
   const approveMutation = useMutation({
@@ -189,9 +216,11 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
     type: "approve" | "reject"
   ) => {
     console.log("=== DEBUG Approval Modal Data ===");
+    console.log("Level:", level);
     console.log("Selected Request:", item);
     console.log("Service Letter Basis:", item.serviceLetterBasis);
     console.log("Service Letter File Path:", item.serviceLetterFilePath);
+    console.log("All keys in item:", Object.keys(item));
     console.log("================================");
 
     setSelectedRequest(item);
@@ -284,15 +313,7 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
         <div>
           <p className="text-sm">{formatDate(item.startDatetime)}</p>
           <p className="text-xs text-gray-500">
-            {new Date(item.startDatetime).toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}{" "}
-            -{" "}
-            {new Date(item.endDatetime).toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {formatTime(item.startDatetime)} - {formatTime(item.endDatetime)}
           </p>
         </div>
       ),
@@ -513,7 +534,7 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
                             <div>
                               <p className="text-gray-500">Waktu</p>
                               <p className="font-medium">
-                                {formatDate(req.startDatetime)}
+                                {formatDateTime(req.startDatetime)}
                               </p>
                             </div>
                             <div>
@@ -575,7 +596,7 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
                             <div>
                               <p className="text-gray-500">Waktu</p>
                               <p className="font-medium">
-                                {formatDate(req.startDatetime)}
+                                {formatDateTime(req.startDatetime)}
                               </p>
                             </div>
                             <div>
@@ -669,12 +690,9 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
               </div>
               <div>
                 <p className="text-gray-500">File Surat Pelayanan</p>
-                {selectedRequest &&
-                (selectedRequest as any).serviceLetterFilePath ? (
+                {selectedRequest?.serviceLetterFilePath ? (
                   <a
-                    href={`http://localhost:5000/api/LoanRequests/download-service-letter/${(
-                      selectedRequest as any
-                    ).serviceLetterFilePath
+                    href={`http://localhost:5000/api/LoanRequests/download-service-letter/${selectedRequest.serviceLetterFilePath
                       .split(/[/\\]/)
                       .pop()}`}
                     target="_blank"
@@ -780,13 +798,15 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
               <div>
                 <p className="text-gray-500">Waktu Mulai</p>
                 <p className="font-medium">
-                  {selectedRequest && formatDate(selectedRequest.startDatetime)}
+                  {selectedRequest &&
+                    formatDateTime(selectedRequest.startDatetime)}
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Waktu Selesai</p>
                 <p className="font-medium">
-                  {selectedRequest && formatDate(selectedRequest.endDatetime)}
+                  {selectedRequest &&
+                    formatDateTime(selectedRequest.endDatetime)}
                 </p>
               </div>
             </div>
@@ -1209,13 +1229,13 @@ export default function ApprovalPage({ level }: ApprovalPageProps) {
               <div>
                 <p className="text-sm text-gray-500">Waktu Mulai</p>
                 <p className="font-medium">
-                  {formatDate(detailRequest.startDatetime)}
+                  {formatDateTime(detailRequest.startDatetime)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Waktu Selesai</p>
                 <p className="font-medium">
-                  {formatDate(detailRequest.endDatetime)}
+                  {formatDateTime(detailRequest.endDatetime)}
                 </p>
               </div>
             </div>

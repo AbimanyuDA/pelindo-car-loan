@@ -62,29 +62,12 @@ export default function LoanRequestFormPage() {
     "assigned"
   );
 
-  // Fetch available vehicles
-  const { data: vehiclesData } = useQuery({
-    queryKey: ["vehicles"],
-    queryFn: async () => {
-      const response = await vehicleService.getAll();
-      return response.data;
-    },
-  });
-
-  // Fetch available drivers
-  const { data: driversData } = useQuery({
-    queryKey: ["drivers"],
-    queryFn: async () => {
-      const response = await driverService.getAll();
-      return response.data;
-    },
-  });
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<LoanRequestFormData>({
     resolver: zodResolver(loanRequestSchema),
     mode: "onSubmit",
@@ -94,6 +77,60 @@ export default function LoanRequestFormPage() {
       hotelAccommodation: "",
       notes: "",
     },
+  });
+
+  // Watch date changes for availability filtering
+  const departureDate = watch("departureDate");
+  const departureTime = watch("departureTime");
+  const returnDate = watch("returnDate");
+  const returnTime = watch("returnTime");
+
+  // Compute start and end datetime for filtering
+  const startDatetime =
+    departureDate && departureTime
+      ? `${departureDate}T${departureTime}:00`
+      : undefined;
+  const endDatetime =
+    returnDate && returnTime ? `${returnDate}T${returnTime}:00` : undefined;
+
+  // Fetch available vehicles based on selected dates
+  const { data: vehiclesData } = useQuery({
+    queryKey: ["vehicles", "available", startDatetime, endDatetime],
+    queryFn: async () => {
+      if (startDatetime && endDatetime) {
+        // Fetch with date filter to exclude vehicles already scheduled
+        const response = await vehicleService.getAvailable(
+          startDatetime,
+          endDatetime
+        );
+        return response.data;
+      } else {
+        // No dates selected, fetch all vehicles
+        const response = await vehicleService.getAll();
+        return response.data;
+      }
+    },
+    enabled: true,
+  });
+
+  // Fetch available drivers based on selected dates
+  const { data: driversData } = useQuery({
+    queryKey: ["drivers", "available", startDatetime, endDatetime],
+    queryFn: async () => {
+      if (startDatetime && endDatetime) {
+        // Fetch with date filter to exclude drivers already scheduled
+        const response = await driverService.getAvailable(
+          startDatetime,
+          endDatetime
+        );
+        return response.data;
+      } else {
+        // No dates selected, fetch all drivers
+        const response = await driverService.getAll();
+        return response.data;
+      }
+    },
+    enabled: true,
   });
 
   const createMutation = useMutation({
@@ -199,7 +236,12 @@ export default function LoanRequestFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex-shrink-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex-shrink-0"
+        >
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div className="min-w-0">
@@ -450,28 +492,24 @@ export default function LoanRequestFormPage() {
                     <option value="">Pilih kendaraan tersedia</option>
                     {vehiclesData && vehiclesData.length > 0 ? (
                       vehiclesData.map((vehicle, index) => {
-                        const status = vehicle.status?.toUpperCase() || "";
-                        const isAvailable = status === "AVAILABLE";
                         const value = vehicle.id;
                         if (!value) return null; // skip items tanpa id
                         return (
                           <option
                             key={`vehicle-${value}-${index}`}
                             value={value}
-                            disabled={!isAvailable}
                           >
                             {vehicle.brand} {vehicle.type} •{" "}
-                            {vehicle.plateNumber} —{" "}
-                            {isAvailable
-                              ? "Tersedia"
-                              : status === "IN_USE"
-                              ? "Sedang dipakai"
-                              : "Maintenance"}
+                            {vehicle.plateNumber} — Tersedia
                           </option>
                         );
                       })
                     ) : (
-                      <option disabled>Tidak ada kendaraan tersedia</option>
+                      <option disabled>
+                        {startDatetime && endDatetime
+                          ? "Tidak ada kendaraan tersedia di waktu yang dipilih"
+                          : "Pilih tanggal terlebih dahulu"}
+                      </option>
                     )}
                   </select>
                   {errors.vehicleId && (
@@ -497,8 +535,6 @@ export default function LoanRequestFormPage() {
                     <option value="">Pilih driver tersedia</option>
                     {driversData && driversData.length > 0 ? (
                       driversData.map((driver, index) => {
-                        const status = driver.status?.toUpperCase() || "";
-                        const isAvailable = status === "AVAILABLE";
                         const value = driver.id;
                         if (!value) return null;
                         const displayName =
@@ -509,21 +545,17 @@ export default function LoanRequestFormPage() {
                           <option
                             key={`driver-${value}-${index}`}
                             value={value}
-                            disabled={!isAvailable}
                           >
-                            {displayName} —{" "}
-                            {isAvailable
-                              ? "Tersedia"
-                              : status === "ON_DUTY"
-                              ? "Sedang bertugas"
-                              : status === "OFF_DUTY"
-                              ? "Tidak bertugas"
-                              : "Cuti"}
+                            {displayName} — Tersedia
                           </option>
                         );
                       })
                     ) : (
-                      <option disabled>Tidak ada driver tersedia</option>
+                      <option disabled>
+                        {startDatetime && endDatetime
+                          ? "Tidak ada driver tersedia di waktu yang dipilih"
+                          : "Pilih tanggal terlebih dahulu"}
+                      </option>
                     )}
                   </select>
                   {errors.driverId && (

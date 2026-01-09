@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PelindoCarLoan.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c23f3b374d7e51a267c0538fd3883110cab9360")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3efe6f48a8ee5252d1e2165115e48be7d53070ef")]
 [assembly: System.Reflection.AssemblyProductAttribute("PelindoCarLoan.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PelindoCarLoan.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

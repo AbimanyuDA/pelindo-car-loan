@@ -12,6 +12,7 @@ namespace PelindoCarLoan.API.Services
         Task<VehicleDto?> GetByIdAsync(int id);
         Task<IEnumerable<VehicleDto>> GetAllAsync(string? status = null);
         Task<IEnumerable<VehicleDto>> GetAvailableAsync();
+        Task<IEnumerable<VehicleDto>> GetAvailableForPeriodAsync(DateTime start, DateTime end);
         Task<VehicleDto> CreateAsync(CreateVehicleDto dto);
         Task<VehicleDto?> UpdateAsync(int id, CreateVehicleDto dto);
         Task<bool> UpdateStatusAsync(int id, UpdateVehicleStatusDto dto);
@@ -44,6 +45,12 @@ namespace PelindoCarLoan.API.Services
         public async Task<IEnumerable<VehicleDto>> GetAvailableAsync()
         {
             var vehicles = await _vehicleRepository.GetAvailableAsync();
+            return vehicles.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<VehicleDto>> GetAvailableForPeriodAsync(DateTime start, DateTime end)
+        {
+            var vehicles = await _vehicleRepository.GetAvailableForPeriodAsync(start, end);
             return vehicles.Select(MapToDto);
         }
 
@@ -142,6 +149,7 @@ namespace PelindoCarLoan.API.Services
         Task<DriverDto?> GetByIdAsync(int id);
         Task<IEnumerable<DriverDto>> GetAllAsync(string? status = null);
         Task<IEnumerable<DriverDto>> GetAvailableAsync();
+        Task<IEnumerable<DriverDto>> GetAvailableForPeriodAsync(DateTime start, DateTime end);
         Task<DriverDto> CreateAsync(CreateDriverDto dto);
         Task<DriverDto?> UpdateAsync(int id, CreateDriverDto dto);
         Task<bool> UpdateStatusAsync(int id, UpdateDriverStatusDto dto);
@@ -174,6 +182,12 @@ namespace PelindoCarLoan.API.Services
         public async Task<IEnumerable<DriverDto>> GetAvailableAsync()
         {
             var drivers = await _driverRepository.GetAvailableAsync();
+            return drivers.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<DriverDto>> GetAvailableForPeriodAsync(DateTime start, DateTime end)
+        {
+            var drivers = await _driverRepository.GetAvailableForPeriodAsync(start, end);
             return drivers.Select(MapToDto);
         }
 
