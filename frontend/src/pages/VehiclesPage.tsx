@@ -198,46 +198,47 @@ export default function VehiclesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Kendaraan</h1>
-          <p className="text-gray-600">Kelola data kendaraan operasional</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Kendaraan</h1>
+          <p className="text-sm sm:text-base text-gray-600">Kelola data kendaraan operasional</p>
         </div>
         <Button
           onClick={openCreateForm}
           leftIcon={<Plus className="w-4 h-4" />}
+          className="w-full sm:w-auto"
         >
           Tambah Kendaraan
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="py-4">
-            <p className="text-sm text-gray-500">Total</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+          <CardContent className="py-3 sm:py-4">
+            <p className="text-xs sm:text-sm text-gray-500">Total</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="py-4">
-            <p className="text-sm text-gray-500">Tersedia</p>
-            <p className="text-2xl font-bold text-green-600">
+          <CardContent className="py-3 sm:py-4">
+            <p className="text-xs sm:text-sm text-gray-500">Tersedia</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-600">
               {stats.available}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="py-4">
-            <p className="text-sm text-gray-500">Sedang Digunakan</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.inUse}</p>
+          <CardContent className="py-3 sm:py-4">
+            <p className="text-xs sm:text-sm text-gray-500">Sedang Digunakan</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.inUse}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="py-4">
-            <p className="text-sm text-gray-500">Maintenance</p>
-            <p className="text-2xl font-bold text-orange-600">
+          <CardContent className="py-3 sm:py-4">
+            <p className="text-xs sm:text-sm text-gray-500">Maintenance</p>
+            <p className="text-xl sm:text-2xl font-bold text-orange-600">
               {stats.maintenance}
             </p>
           </CardContent>

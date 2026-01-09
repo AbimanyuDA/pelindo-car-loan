@@ -148,6 +148,7 @@ CREDENTIALS.md
 *.db-wal
 *.sqlite
 *.sqlite3
+database/
 
 # =================================
 # Miscellaneous
@@ -168,3 +169,6 @@ TestResults/
 *.bak
 
 CREDENTIALS.md
+
+
+database/

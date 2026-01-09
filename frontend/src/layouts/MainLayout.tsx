@@ -183,10 +183,10 @@ export default function MainLayout() {
       <div className="lg:pl-64">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between h-16 px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16 px-3 sm:px-4 lg:px-8">
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden text-gray-600 hover:text-gray-900"
+              className="lg:hidden text-gray-600 hover:text-gray-900 p-1"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-6 h-6" />
@@ -196,9 +196,9 @@ export default function MainLayout() {
             <div className="flex-1 lg:flex-none" />
 
             {/* Right Side */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Notifications */}
-              <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+              <button className="relative p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
@@ -207,12 +207,12 @@ export default function MainLayout() {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="w-5 h-5 text-primary-600" />
                   </div>
-                  <div className="hidden md:block text-left">
+                  <div className="hidden sm:block text-left">
                     <p className="text-sm font-medium text-gray-700">
                       {user.name}
                     </p>
@@ -222,7 +222,7 @@ export default function MainLayout() {
                   </div>
                   <ChevronDown
                     className={cn(
-                      "w-4 h-4 text-gray-500 transition-transform duration-200",
+                      "w-4 h-4 text-gray-500 transition-transform duration-200 hidden sm:block",
                       userMenuOpen && "rotate-180"
                     )}
                   />
@@ -261,7 +261,7 @@ export default function MainLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-8">
+        <main className="p-3 sm:p-4 lg:p-8">
           <Outlet />
         </main>
       </div>

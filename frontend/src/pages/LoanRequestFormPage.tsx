@@ -197,16 +197,16 @@ export default function LoanRequestFormPage() {
   const minDate = tomorrow.toISOString().split("T")[0];
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate(-1)}>
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex-shrink-0">
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             Ajukan Peminjaman
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Isi form berikut untuk mengajukan peminjaman kendaraan
           </p>
         </div>
@@ -288,7 +288,7 @@ export default function LoanRequestFormPage() {
               {...register("hotelAccommodation")}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <Input
                 type="date"
                 label="Tanggal Keberangkatan *"
@@ -321,13 +321,13 @@ export default function LoanRequestFormPage() {
             </div>
 
             {/* Resource Selection Mode */}
-            <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <label className="block text-sm font-medium text-gray-800 mb-3">
+            <div className="space-y-3 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <label className="block text-xs sm:text-sm font-medium text-gray-800 mb-3">
                 Pemilihan Kendaraan & Driver *
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <label
-                  className={`relative flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  className={`relative flex items-start sm:items-center p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     selectionMode === "assigned"
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 bg-white hover:border-gray-300"
@@ -346,11 +346,11 @@ export default function LoanRequestFormPage() {
                     }}
                     className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                   />
-                  <div className="ml-3 flex-1">
-                    <p className="text-sm font-semibold text-gray-900">
+                  <div className="ml-2 sm:ml-3 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900">
                       Dipilihkan Oleh Approval
                     </p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-xs text-gray-600 mt-0.5 hidden sm:block">
                       Sistem akan meneruskan ke approval untuk dipilihkan
                     </p>
                   </div>
@@ -370,7 +370,7 @@ export default function LoanRequestFormPage() {
                 </label>
 
                 <label
-                  className={`relative flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  className={`relative flex items-start sm:items-center p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     selectionMode === "self"
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 bg-white hover:border-gray-300"
@@ -385,13 +385,13 @@ export default function LoanRequestFormPage() {
                       setSelectionMode("self");
                       setValue("resourceSelectionMode", "self");
                     }}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 flex-shrink-0"
                   />
-                  <div className="ml-3 flex-1">
-                    <p className="text-sm font-semibold text-gray-900">
+                  <div className="ml-2 sm:ml-3 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900">
                       Pilih Sendiri
                     </p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-xs text-gray-600 mt-0.5 hidden sm:block">
                       Saya ingin memilih kendaraan & driver sendiri
                     </p>
                   </div>
@@ -543,11 +543,12 @@ export default function LoanRequestFormPage() {
               {...register("notes")}
             />
 
-            <div className="flex justify-end gap-3 pt-4 border-t">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate(-1)}
+                className="w-full sm:w-auto"
               >
                 Batal
               </Button>
@@ -555,6 +556,7 @@ export default function LoanRequestFormPage() {
                 type="submit"
                 isLoading={createMutation.isPending}
                 leftIcon={<Send className="w-4 h-4" />}
+                className="w-full sm:w-auto"
               >
                 Kirim Pengajuan
               </Button>

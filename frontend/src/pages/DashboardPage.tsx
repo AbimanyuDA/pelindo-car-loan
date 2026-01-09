@@ -74,7 +74,7 @@ function PemohonDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="Total Pengajuan"
           value={stats.total}
@@ -173,7 +173,7 @@ function ApprovalDashboard({ role }: { role: string }) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <StatCard
           title="Menunggu Approval"
           value={level === "l1" ? counts?.level1 || 0 : counts?.level2 || 0}
@@ -407,7 +407,7 @@ function AdminDashboard() {
       </div>
 
       {/* Recent Activities */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Pengajuan Terbaru</CardTitle>
@@ -497,13 +497,13 @@ function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
 
   return (
     <Card>
-      <CardContent className="flex items-center gap-4">
-        <div className={`p-3 rounded-lg ${colors[color]}`}>
-          <Icon className="w-6 h-6" />
+      <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <div className={`p-2 sm:p-3 rounded-lg flex-shrink-0 ${colors[color]}`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <div className="min-w-0">
+          <p className="text-xs sm:text-sm text-gray-500">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{value}</p>
         </div>
       </CardContent>
     </Card>
