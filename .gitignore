@@ -175,3 +175,4 @@ CREDENTIALS.md
 database/
 
 /backend/PelindoCarLoan.API/appsettings.json
+/backend/PelindoCarLoan.API/uploads/service-letters/*
