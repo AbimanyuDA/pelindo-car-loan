@@ -7,4 +7,4 @@ export { ApprovalL1Page, ApprovalL2Page } from "./ApprovalPage";
 export { default as DriverSchedulePage } from "./DriverSchedulePage";
 export { default as AdminSchedulePage } from "./AdminSchedulePage";
 export { default as VehiclesPage } from "./VehiclesPage";
-export { default as DriversPage } from "./DriversPage";
+export { default as UsersPage } from "./UsersPage";

@@ -56,6 +56,7 @@ namespace PelindoCarLoan.API.Services
                 RequesterEmail = lr.User?.Email ?? "",
                 RequesterPhone = lr.User?.PhoneNumber,
                 RequesterDivision = lr.User?.Division ?? "Unknown",
+                RequesterUnitKerja = lr.User?.UnitKerja,
                 ServiceLetterBasis = lr.ServiceLetterBasis,
                 ServiceLetterFilePath = lr.ServiceLetterFilePath,
                 Purpose = lr.Purpose,

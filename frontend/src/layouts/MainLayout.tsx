@@ -69,9 +69,9 @@ const navItems: NavItem[] = [
     roles: ["ADMIN"],
   },
   {
-    label: "Driver",
+    label: "Manajemen User",
     icon: Users,
-    path: "/admin/drivers",
+    path: "/admin/users",
     roles: ["ADMIN"],
   },
 ];

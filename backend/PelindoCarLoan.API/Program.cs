@@ -51,6 +51,9 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("CorsPolicy");
 
+// Enable static files for serving logo and other assets
+app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

@@ -17,6 +17,7 @@ namespace PelindoCarLoan.API.Services
         Task<VehicleDto?> UpdateAsync(int id, CreateVehicleDto dto);
         Task<bool> UpdateStatusAsync(int id, UpdateVehicleStatusDto dto);
         Task<bool> DeleteAsync(int id);
+        Task<BulkImportResultDto> ImportVehiclesFromExcelAsync(Stream fileStream);
     }
 
     public class VehicleService : IVehicleService
@@ -138,6 +139,165 @@ namespace PelindoCarLoan.API.Services
                 LastMaintenance = vehicle.LastMaintenance,
                 NextMaintenance = vehicle.NextMaintenance
             };
+        }
+
+        public async Task<BulkImportResultDto> ImportVehiclesFromExcelAsync(Stream fileStream)
+        {
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            var result = new BulkImportResultDto
+            {
+                SuccessCount = 0,
+                FailedCount = 0,
+                Errors = new List<BulkImportErrorDto>()
+            };
+
+            using var package = new OfficeOpenXml.ExcelPackage(fileStream);
+            var worksheet = package.Workbook.Worksheets[0];
+            var rowCount = worksheet.Dimension?.Rows ?? 0;
+
+            if (rowCount < 2)
+            {
+                throw new InvalidOperationException("File Excel kosong atau tidak memiliki data");
+            }
+
+            for (int row = 2; row <= rowCount; row++)
+            {
+                try
+                {
+                    var plateNumber = worksheet.Cells[row, 1].Text?.Trim();
+                    var brand = worksheet.Cells[row, 2].Text?.Trim();
+                    var type = worksheet.Cells[row, 3].Text?.Trim();
+                    var model = worksheet.Cells[row, 4].Text?.Trim();
+                    var capacityText = worksheet.Cells[row, 5].Text?.Trim();
+                    var status = worksheet.Cells[row, 6].Text?.Trim();
+
+                    // Validation
+                    if (string.IsNullOrWhiteSpace(plateNumber))
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber ?? "",
+                            ErrorMessage = "Nomor Plat tidak boleh kosong"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(brand))
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber,
+                            ErrorMessage = "Merek tidak boleh kosong"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(type))
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber,
+                            ErrorMessage = "Tipe tidak boleh kosong"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(model))
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber,
+                            ErrorMessage = "Model tidak boleh kosong"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    if (!int.TryParse(capacityText, out int capacity) || capacity < 1)
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber,
+                            ErrorMessage = "Kapasitas harus berupa angka minimal 1"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    // Check if plate number already exists
+                    var existingVehicles = await _vehicleRepository.GetAllAsync();
+                    if (existingVehicles.Any(v => v.PlateNumber.Equals(plateNumber, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber,
+                            ErrorMessage = $"Nomor Plat '{plateNumber}' sudah terdaftar"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    // Set default status if empty
+                    if (string.IsNullOrWhiteSpace(status))
+                    {
+                        status = VehicleStatus.Available;
+                    }
+
+                    // Validate status
+                    if (!VehicleStatus.AllStatuses.Contains(status))
+                    {
+                        result.Errors.Add(new BulkImportErrorDto
+                        {
+                            RowNumber = row,
+                            Email = plateNumber,
+                            ErrorMessage = $"Status '{status}' tidak valid. Gunakan: {string.Join(", ", VehicleStatus.AllStatuses)}"
+                        });
+                        result.FailedCount++;
+                        continue;
+                    }
+
+                    // Create vehicle
+                    var vehicle = new Vehicle
+                    {
+                        PlateNumber = plateNumber,
+                        Brand = brand,
+                        Type = type,
+                        Model = model,
+                        Year = DateTime.Now.Year, // Default to current year
+                        Capacity = capacity,
+                        Status = status
+                    };
+
+                    await _vehicleRepository.CreateAsync(vehicle);
+                    result.SuccessCount++;
+
+                    _logger.LogInformation("Vehicle imported: {PlateNumber}", plateNumber);
+                }
+                catch (Exception ex)
+                {
+                    var plateNumber = worksheet.Cells[row, 1].Text?.Trim() ?? "";
+                    result.Errors.Add(new BulkImportErrorDto
+                    {
+                        RowNumber = row,
+                        Email = plateNumber,
+                        ErrorMessage = ex.Message
+                    });
+                    result.FailedCount++;
+                    _logger.LogError(ex, "Error importing vehicle at row {Row}", row);
+                }
+            }
+
+            return result;
         }
     }
 

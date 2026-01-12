@@ -133,7 +133,6 @@ export default function LoanRequestDetailPage() {
       <div className="space-y-6">
         <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Kembali
         </Button>
         <Alert variant="error">Pengajuan tidak ditemukan</Alert>
       </div>
@@ -141,9 +140,9 @@ export default function LoanRequestDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-0">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4">
         <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
@@ -243,7 +242,7 @@ export default function LoanRequestDetailPage() {
             </div>
           </div>
           <div className="mt-6 pt-6 border-t">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-500">Dibuat pada</p>
                 <p className="text-gray-900">
@@ -331,22 +330,22 @@ export default function LoanRequestDetailPage() {
                           }
                         `}
                         >
-                          <div className="flex items-start justify-between gap-4 mb-2">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-gray-900">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 mb-2">
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                                   Approval Level {approval.approvalLevel}
                                 </h3>
                                 <Badge status={approval.status} />
                               </div>
-                              <p className="text-sm text-gray-600 mt-1">
+                              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                                 oleh{" "}
                                 <span className="font-medium text-gray-900">
                                   {approval.approverName}
                                 </span>
                               </p>
                             </div>
-                            <p className="text-xs text-gray-500 whitespace-nowrap">
+                            <p className="text-xs text-gray-500 sm:whitespace-nowrap">
                               {formatDateTime(approval.approvedAt)}
                             </p>
                           </div>
@@ -401,7 +400,7 @@ export default function LoanRequestDetailPage() {
       {schedule && (
         <Card className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-indigo-200 shadow-lg">
           <CardHeader className="border-b border-indigo-100">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <CardTitle className="text-indigo-900 flex items-center gap-3 text-xl">
                 <div className="p-2 bg-indigo-100 rounded-lg">
                   <Calendar className="w-6 h-6 text-indigo-600" />

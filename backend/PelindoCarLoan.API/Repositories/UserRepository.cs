@@ -32,7 +32,7 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 SELECT user_id, full_name, email, phone_number, password_hash, role, division, 
-                       is_active, created_at, updated_at
+                       unit_kerja, is_active, created_at, updated_at
                 FROM users
                 WHERE user_id = :Id";
 
@@ -49,6 +49,7 @@ namespace PelindoCarLoan.API.Repositories
                 PasswordHash = result.PASSWORD_HASH ?? string.Empty,
                 Role = result.ROLE ?? string.Empty,
                 Division = result.DIVISION,
+                UnitKerja = result.UNIT_KERJA,
                 IsActive = result.IS_ACTIVE == 1,
                 CreatedAt = result.CREATED_AT ?? DateTime.Now,
                 UpdatedAt = result.UPDATED_AT ?? DateTime.Now
@@ -59,9 +60,9 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 SELECT user_id, full_name, email, phone_number, password_hash, role, division,
-                       is_active, created_at, updated_at
+                       unit_kerja, is_active, created_at, updated_at
                 FROM users
-                WHERE LOWER(email) = LOWER(:Email) AND is_active = 1";
+                WHERE LOWER(email) = LOWER(:Email)";
 
             using var connection = _dbContext.CreateConnection();
             var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Email = email });
@@ -76,6 +77,7 @@ namespace PelindoCarLoan.API.Repositories
                 PasswordHash = result.PASSWORD_HASH ?? string.Empty,
                 Role = result.ROLE ?? string.Empty,
                 Division = result.DIVISION,
+                UnitKerja = result.UNIT_KERJA,
                 IsActive = result.IS_ACTIVE == 1,
                 CreatedAt = result.CREATED_AT ?? DateTime.Now,
                 UpdatedAt = result.UPDATED_AT ?? DateTime.Now
@@ -85,8 +87,8 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             const string sql = @"
-                SELECT user_id AS Id, full_name AS Name, email, role, division,
-                       is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT user_id AS Id, full_name AS Name, email, role, division, unit_kerja AS UnitKerja,
+                       phone_number AS PhoneNumber, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
                 FROM users
                 WHERE is_active = 1
                 ORDER BY full_name";
@@ -98,8 +100,8 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<IEnumerable<User>> GetByRoleAsync(string role)
         {
             const string sql = @"
-                SELECT user_id AS Id, full_name AS Name, email, role, division,
-                       is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
+                SELECT user_id AS Id, full_name AS Name, email, role, division, unit_kerja AS UnitKerja,
+                       phone_number AS PhoneNumber, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt
                 FROM users
                 WHERE role = :Role AND is_active = 1
                 ORDER BY full_name";
@@ -111,8 +113,8 @@ namespace PelindoCarLoan.API.Repositories
         public async Task<int> CreateAsync(User user)
         {
             const string sql = @"
-                INSERT INTO users (user_id, username, email, password_hash, full_name, role, division, is_active, phone_number)
-                VALUES (seq_users.NEXTVAL, :Username, :Email, :PasswordHash, :Name, :Role, :Division, 1, null)
+                INSERT INTO users (user_id, username, email, password_hash, full_name, role, division, unit_kerja, phone_number, is_active)
+                VALUES (seq_users.NEXTVAL, :Username, :Email, :PasswordHash, :Name, :Role, :Division, :UnitKerja, :PhoneNumber, 1)
                 RETURNING user_id INTO :Id";
 
             using var connection = _dbContext.CreateConnection();
@@ -123,6 +125,8 @@ namespace PelindoCarLoan.API.Repositories
             parameters.Add("PasswordHash", user.PasswordHash);
             parameters.Add("Role", user.Role);
             parameters.Add("Division", user.Division);
+            parameters.Add("UnitKerja", user.UnitKerja);
+            parameters.Add("PhoneNumber", user.PhoneNumber);
             parameters.Add("Id", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
 
             await connection.ExecuteAsync(sql, parameters);
@@ -133,7 +137,8 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE users
-                SET full_name = :Name, email = :Email, role = :Role, division = :Division, is_active = :IsActive
+                SET full_name = :Name, email = :Email, role = :Role, division = :Division, 
+                    unit_kerja = :UnitKerja, phone_number = :PhoneNumber, is_active = :IsActive, updated_at = SYSTIMESTAMP
                 WHERE user_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
@@ -144,6 +149,8 @@ namespace PelindoCarLoan.API.Repositories
                 user.Email,
                 user.Role,
                 user.Division,
+                user.UnitKerja,
+                user.PhoneNumber,
                 IsActive = user.IsActive ? 1 : 0
             });
             return rowsAffected > 0;

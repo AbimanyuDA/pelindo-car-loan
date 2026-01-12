@@ -155,6 +155,100 @@ namespace PelindoCarLoan.API.Controllers
 
             return Ok(ApiResponse<object>.SuccessResponse(null, "Vehicle deleted successfully"));
         }
+
+        /// <summary>
+        /// Import vehicles from Excel file
+        /// Format: PlateNumber | Brand | Type | Model | Capacity | Status
+        /// </summary>
+        [HttpPost("import")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult<ApiResponse<BulkImportResultDto>>> ImportFromExcel(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(ApiResponse<object>.ErrorResponse("File Excel tidak boleh kosong"));
+                }
+
+                if (!file.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+                {
+                    return BadRequest(ApiResponse<object>.ErrorResponse("File harus berformat .xlsx"));
+                }
+
+                using var stream = file.OpenReadStream();
+                var result = await _vehicleService.ImportVehiclesFromExcelAsync(stream);
+
+                return Ok(ApiResponse<BulkImportResultDto>.SuccessResponse(result,
+                    $"Import selesai: {result.SuccessCount} berhasil, {result.FailedCount} gagal"));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing vehicles from Excel");
+                return StatusCode(500, ApiResponse<object>.ErrorResponse("Terjadi kesalahan saat mengimport vehicles dari Excel"));
+            }
+        }
+
+        /// <summary>
+        /// Download Excel template for bulk import
+        /// </summary>
+        [HttpGet("template")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult DownloadTemplate()
+        {
+            try
+            {
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                
+                using var package = new OfficeOpenXml.ExcelPackage();
+                var worksheet = package.Workbook.Worksheets.Add("Vehicles");
+
+                // Header
+                worksheet.Cells[1, 1].Value = "PlateNumber";
+                worksheet.Cells[1, 2].Value = "Brand";
+                worksheet.Cells[1, 3].Value = "Type";
+                worksheet.Cells[1, 4].Value = "Model";
+                worksheet.Cells[1, 5].Value = "Capacity";
+                worksheet.Cells[1, 6].Value = "Status";
+
+                // Sample data
+                worksheet.Cells[2, 1].Value = "B 1234 XYZ";
+                worksheet.Cells[2, 2].Value = "Toyota";
+                worksheet.Cells[2, 3].Value = "Sedan";
+                worksheet.Cells[2, 4].Value = "Camry 2023";
+                worksheet.Cells[2, 5].Value = 5;
+                worksheet.Cells[2, 6].Value = "AVAILABLE";
+
+                worksheet.Cells[3, 1].Value = "B 5678 ABC";
+                worksheet.Cells[3, 2].Value = "Mitsubishi";
+                worksheet.Cells[3, 3].Value = "MPV";
+                worksheet.Cells[3, 4].Value = "Xpander 2024";
+                worksheet.Cells[3, 5].Value = 7;
+                worksheet.Cells[3, 6].Value = "AVAILABLE";
+
+                // Style header
+                using (var range = worksheet.Cells[1, 1, 1, 6])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                }
+
+                worksheet.Cells.AutoFitColumns();
+
+                var bytes = package.GetAsByteArray();
+                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "VehicleTemplate.xlsx");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating Excel template");
+                return StatusCode(500, ApiResponse<object>.ErrorResponse("Terjadi kesalahan saat membuat template"));
+            }
+        }
     }
 
     /// <summary>

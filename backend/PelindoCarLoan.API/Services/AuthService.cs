@@ -51,6 +51,13 @@ namespace PelindoCarLoan.API.Services
                     return null;
                 }
 
+                // Check if user account is active
+                if (!user.IsActive)
+                {
+                    _logger.LogWarning("Login attempt failed - user account is inactive: {Email}", request.Email);
+                    throw new UnauthorizedAccessException("Akun Anda telah dinonaktifkan. Silakan hubungi administrator untuk mengaktifkan kembali.");
+                }
+
                 _logger.LogInformation("User found: {Name}, PasswordHash length: {Length}", user.Name, user.PasswordHash?.Length ?? 0);
 
                 if (!ValidatePassword(request.Password, user.PasswordHash))
@@ -75,6 +82,7 @@ namespace PelindoCarLoan.API.Services
                         Email = user.Email,
                         Role = user.Role,
                         Division = user.Division,
+                        UnitKerja = user.UnitKerja,
                         IsActive = user.IsActive,
                         CreatedAt = user.CreatedAt
                     }
@@ -125,6 +133,7 @@ namespace PelindoCarLoan.API.Services
                 Email = user.Email,
                 Role = user.Role,
                 Division = user.Division,
+                UnitKerja = user.UnitKerja,
                 IsActive = user.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
@@ -142,6 +151,7 @@ namespace PelindoCarLoan.API.Services
                 Email = user.Email,
                 Role = user.Role,
                 Division = user.Division,
+                UnitKerja = user.UnitKerja,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt
             };

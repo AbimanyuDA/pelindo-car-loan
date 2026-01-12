@@ -29,6 +29,7 @@ namespace PelindoCarLoan.API.DTOs
         public string Password { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string? Division { get; set; }
+        public string? UnitKerja { get; set; }
     }
 
     /// <summary>
@@ -41,6 +42,7 @@ namespace PelindoCarLoan.API.DTOs
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string? Division { get; set; }
+        public string? UnitKerja { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
     }

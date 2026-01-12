@@ -44,7 +44,10 @@ namespace PelindoCarLoan.API.DTOs
         public string? RequesterName { get; set; }
         public string? RequesterEmail { get; set; }
         public string? RequesterPhone { get; set; }
+        public string? RequesterDivision { get; set; }
+        public string? RequesterUnitKerja { get; set; }
         public string ServiceLetterBasis { get; set; } = string.Empty;
+        public string? ServiceLetterFilePath { get; set; }
         public string Purpose { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
         public string GuestList { get; set; } = string.Empty;

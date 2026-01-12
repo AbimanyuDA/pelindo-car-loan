@@ -223,7 +223,10 @@ namespace PelindoCarLoan.API.Services
                 RequesterName = lr.User?.Name,
                 RequesterEmail = lr.User?.Email,
                 RequesterPhone = lr.User?.PhoneNumber,
+                RequesterDivision = lr.User?.Division,
+                RequesterUnitKerja = lr.User?.UnitKerja,
                 ServiceLetterBasis = lr.ServiceLetterBasis,
+                ServiceLetterFilePath = lr.ServiceLetterFilePath,
                 Purpose = lr.Purpose,
                 Destination = lr.Destination,
                 GuestList = lr.GuestList,
@@ -244,7 +247,8 @@ namespace PelindoCarLoan.API.Services
                     Name = lr.User.Name,
                     Email = lr.User.Email,
                     Role = lr.User.Role,
-                    Division = lr.User.Division
+                    Division = lr.User.Division,
+                    UnitKerja = lr.User.UnitKerja
                 } : null,
                 Approvals = approvals?.Select(a => new ApprovalDto
                 {

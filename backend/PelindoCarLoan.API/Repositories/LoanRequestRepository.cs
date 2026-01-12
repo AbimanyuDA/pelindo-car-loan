@@ -58,7 +58,7 @@ namespace PelindoCarLoan.API.Repositories
                        lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
                        lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division, u.unit_kerja AS UnitKerja,
                        d.driver_id AS Id, d.user_id AS UserId,
                        du.user_id AS Id, du.full_name AS Name, du.email, du.phone_number AS PhoneNumber
                 FROM loan_requests lr
@@ -97,7 +97,7 @@ namespace PelindoCarLoan.API.Repositories
                        lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
                        lr.status, NULL AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.user_id AS Id, u.full_name AS Name, u.email, u.role, u.division
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division, u.unit_kerja AS UnitKerja
                 FROM loan_requests lr
                 INNER JOIN users u ON lr.user_id = u.user_id
                 WHERE 1=1";
@@ -136,7 +136,7 @@ namespace PelindoCarLoan.API.Repositories
                        lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
                        lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
                        lr.status, lr.notes AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
-                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division, u.unit_kerja AS UnitKerja,
                        d.driver_id AS Id, d.user_id AS UserId,
                        du.user_id AS Id, du.full_name AS Name, du.email, du.phone_number AS PhoneNumber
                 FROM loan_requests lr

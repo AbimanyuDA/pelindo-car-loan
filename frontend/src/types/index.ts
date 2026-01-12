@@ -35,7 +35,10 @@ export interface LoanRequest {
   requesterName?: string;
   requesterEmail?: string;
   requesterPhone?: string;
+  requesterDivision?: string;
+  requesterUnitKerja?: string;
   serviceLetterBasis: string;
+  serviceLetterFilePath?: string;
   purpose: string;
   destination: string;
   guestList: string;
@@ -116,6 +119,7 @@ export interface PendingApproval {
   requesterEmail: string;
   requesterPhone?: string;
   requesterDivision: string;
+  requesterUnitKerja?: string;
   serviceLetterBasis?: string;
   serviceLetterFilePath?: string;
   purpose: string;

@@ -31,14 +31,26 @@ namespace PelindoCarLoan.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
-            var result = await _authService.LoginAsync(request);
-            
-            if (result == null)
+            try
             {
-                return Unauthorized(ApiResponse<object>.ErrorResponse("Invalid email or password"));
-            }
+                var result = await _authService.LoginAsync(request);
+                
+                if (result == null)
+                {
+                    return Unauthorized(ApiResponse<object>.ErrorResponse("Email atau password salah"));
+                }
 
-            return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(result, "Login successful"));
+                return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(result, "Login successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                return StatusCode(500, ApiResponse<object>.ErrorResponse("Terjadi kesalahan saat login"));
+            }
         }
 
         /// <summary>

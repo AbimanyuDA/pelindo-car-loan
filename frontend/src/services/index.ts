@@ -296,6 +296,46 @@ export const vehicleService = {
     const response = await api.delete<ApiResponse<void>>(`/vehicles/${id}`);
     return response.data;
   },
+
+  importFromExcel: async (file: File): Promise<ApiResponse<any>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await api.post<ApiResponse<any>>(
+      "/vehicles/import",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  downloadTemplate: async (): Promise<void> => {
+    try {
+      const response = await api.get("/vehicles/template", {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "VehicleTemplate.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      throw error;
+    }
+  },
 };
 
 // Driver Services
@@ -372,3 +412,12 @@ export const dashboardService = {
     return response.data;
   },
 };
+
+// Export user service
+export { userService } from "./userService";
+export type {
+  User as UserType,
+  CreateUserRequest,
+  UpdateUserRequest,
+  BulkImportResult,
+} from "./userService";

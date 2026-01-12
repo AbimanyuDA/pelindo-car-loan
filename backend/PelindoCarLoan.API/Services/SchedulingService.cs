@@ -433,8 +433,8 @@ namespace PelindoCarLoan.API.Services
             
             if (result)
             {
-                // Update loan request status back to APPROVED (assuming it was fully approved before scheduling)
-                await _loanRequestRepository.UpdateStatusAsync(schedule.LoanRequestId, "APPROVED");
+                // Update loan request status to CANCELLED
+                await _loanRequestRepository.UpdateStatusAsync(schedule.LoanRequestId, LoanRequestStatus.Cancelled);
             }
 
             return result;

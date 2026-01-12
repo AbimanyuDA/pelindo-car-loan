@@ -16,7 +16,7 @@ import {
   DriverSchedulePage,
   AdminSchedulePage,
   VehiclesPage,
-  DriversPage,
+  UsersPage,
 } from "@/pages";
 
 // Components
@@ -55,7 +55,7 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin/schedules" element={<AdminSchedulePage />} />
         <Route path="/admin/vehicles" element={<VehiclesPage />} />
-        <Route path="/admin/drivers" element={<DriversPage />} />
+        <Route path="/admin/users" element={<UsersPage />} />
       </Route>
 
       {/* Default redirect */}

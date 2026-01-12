@@ -13,6 +13,7 @@ namespace PelindoCarLoan.API.Models
         public string PasswordHash { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string? Division { get; set; }
+        public string? UnitKerja { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
