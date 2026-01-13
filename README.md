@@ -1,8 +1,8 @@
-# 🚗 Pelindo Car Loan System
+# Pelindo Car Loan System
 
 Sistem manajemen peminjaman kendaraan untuk PT. Pelindo dengan approval workflow 2-level, scheduling, dan notifikasi email otomatis.
 
-## 📋 Daftar Isi
+## Daftar Isi
 
 - [Gambaran Umum](#gambaran-umum)
 - [Teknologi yang Digunakan](#teknologi-yang-digunakan)
@@ -17,7 +17,7 @@ Sistem manajemen peminjaman kendaraan untuk PT. Pelindo dengan approval workflow
 
 ---
 
-## 🎯 Gambaran Umum
+## Gambaran Umum
 
 Aplikasi web untuk mengelola permohonan peminjaman kendaraan dengan fitur:
 
@@ -30,11 +30,12 @@ Aplikasi web untuk mengelola permohonan peminjaman kendaraan dengan fitur:
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## Teknologi yang Digunakan
 
 ### Backend
+
 - **Framework**: ASP.NET Core 8.0
-- **Database**: Oracle Database 19c (XE version compatible)
+- **Database**: Oracle Database 21c (XE version compatible)
 - **ORM**: Dapper (Micro ORM)
 - **Authentication**: JWT (JSON Web Tokens)
 - **Validation**: FluentValidation + DataAnnotations
@@ -42,6 +43,7 @@ Aplikasi web untuk mengelola permohonan peminjaman kendaraan dengan fitur:
 - **Email**: System.Net.Mail (SMTP)
 
 ### Frontend
+
 - **Framework**: React 18.2 with TypeScript
 - **Build Tool**: Vite 5.0
 - **State Management**: Zustand
@@ -53,9 +55,10 @@ Aplikasi web untuk mengelola permohonan peminjaman kendaraan dengan fitur:
 
 ---
 
-## 💻 Persyaratan Sistem
+## Persyaratan Sistem
 
 ### Minimum Requirements
+
 - **OS**: Windows 10/11 atau macOS/Linux
 - **RAM**: 4 GB (recommended 8 GB)
 - **Storage**: 5 GB free space
@@ -63,29 +66,29 @@ Aplikasi web untuk mengelola permohonan peminjaman kendaraan dengan fitur:
 ### Software yang Harus Diinstall
 
 1. **Node.js** v18.0 atau lebih tinggi
+
    - Download: https://nodejs.org
    - Verify: `node --version` dan `npm --version`
 
 2. **.NET 8 SDK**
+
    - Download: https://dotnet.microsoft.com/download/dotnet/8.0
    - Verify: `dotnet --version`
 
 3. **Oracle Database 19c** (atau XE Edition)
+
    - Download: https://www.oracle.com/database/technologies/xe-downloads.html
    - Atau gunakan Oracle instance yang sudah ada
    - Default: localhost:1521, SID: XE
 
-4. **Git** (untuk cloning repository)
-   - Download: https://git-scm.com
-
-5. **IDE Recommendations**:
+4. **IDE Recommendations**:
    - **Frontend**: Visual Studio Code
    - **Backend**: Visual Studio 2022 Community atau Rider
    - **Database**: SQL Developer atau DBeaver
 
 ---
 
-## 🚀 Instalasi
+## Instalasi
 
 ### Step 1: Clone Repository
 
@@ -97,6 +100,7 @@ cd pelindo-car-loan
 ### Step 2: Setup Database
 
 #### 2.1 Pastikan Oracle Database Berjalan
+
 ```bash
 # Windows - Check service
 sc query OracleServiceXE
@@ -108,12 +112,13 @@ ps aux | grep oracle
 #### 2.2 Jalankan Database Script
 
 **Option A: Menggunakan SQLPlus (GUI)**
+
 ```bash
 # Buka Oracle SQL Developer
 # 1. Create new connection dengan:
 #    - Name: Pelindo Development
 #    - Username: system
-#    - Password: bima2005
+#    - Password: (password)
 #    - Hostname: localhost
 #    - Port: 1521
 #    - SID: XE
@@ -123,18 +128,20 @@ ps aux | grep oracle
 ```
 
 **Option B: Menggunakan Command Line**
+
 ```bash
 # Windows
-sqlplus system/bima2005@XE @database\CreateDatabase.sql
+sqlplus system/password@XE @database\CreateDatabase.sql
 
 # Linux/Mac
-sqlplus system/bima2005@XE @database/CreateDatabase.sql
+sqlplus system/password@XE @database/CreateDatabase.sql
 ```
 
 #### 2.3 Verify Database Setup
+
 ```bash
 # Connect to database
-sqlplus system/bima2005@XE
+sqlplus system/password@XE
 
 # Check tables created
 SQL> SELECT table_name FROM user_tables;
@@ -190,10 +197,7 @@ Edit file: `backend/PelindoCarLoan.API/appsettings.json`
     "ExpirationMinutes": 480
   },
   "CorsSettings": {
-    "AllowedOrigins": [
-      "http://localhost:3000",
-      "http://localhost:5173"
-    ]
+    "AllowedOrigins": ["http://localhost:3000", "http://localhost:5173"]
   },
   "Email": {
     "SmtpHost": "smtp.gmail.com",
@@ -207,6 +211,7 @@ Edit file: `backend/PelindoCarLoan.API/appsettings.json`
 ```
 
 #### Penting untuk Email Configuration:
+
 1. **Gunakan Gmail** dengan App Password (bukan password biasa)
 2. **Setup Gmail App Password**:
    - Enable 2-Factor Authentication di Gmail
@@ -223,7 +228,7 @@ Jika menggunakan database instance yang berbeda:
 
 ---
 
-## 🎮 Menjalankan Aplikasi
+## Menjalankan Aplikasi
 
 ### Development Mode (Recommended)
 
@@ -267,6 +272,7 @@ Get-Content logs/pelindo-car-loan-*.log -Wait  # PowerShell Windows
 ### Production Mode
 
 #### Build Backend
+
 ```bash
 cd backend/PelindoCarLoan.API
 dotnet build -c Release
@@ -276,6 +282,7 @@ dotnet PelindoCarLoan.API.dll
 ```
 
 #### Build Frontend
+
 ```bash
 cd frontend
 npm run build
@@ -286,140 +293,10 @@ npm run build
 
 ---
 
-## 📁 Struktur Project
-
-```
-pelindo-car-loan/
-├── README.md                          # File ini
-├── pelindo-car-loan.sln              # Visual Studio Solution
-│
-├── backend/
-│   ├── PelindoCarLoan.API/
-│   │   ├── Program.cs                # Main entry point
-│   │   ├── appsettings.json         # Configuration
-│   │   ├── appsettings.Development.json
-│   │   ├── PelindoCarLoan.API.csproj # Project file
-│   │   │
-│   │   ├── Controllers/              # API endpoints
-│   │   │   ├── AuthController.cs
-│   │   │   ├── LoanRequestsController.cs
-│   │   │   ├── ApprovalsController.cs
-│   │   │   ├── SchedulesController.cs
-│   │   │   ├── DashboardController.cs
-│   │   │   └── ...
-│   │   │
-│   │   ├── Models/                   # Domain models
-│   │   │   ├── User.cs
-│   │   │   ├── Driver.cs
-│   │   │   ├── Vehicle.cs
-│   │   │   ├── LoanRequest.cs
-│   │   │   ├── Schedule.cs
-│   │   │   └── Approval.cs
-│   │   │
-│   │   ├── DTOs/                     # Data Transfer Objects
-│   │   │   ├── AuthDtos.cs
-│   │   │   ├── LoanRequestDtos.cs
-│   │   │   ├── ApprovalDtos.cs
-│   │   │   └── ...
-│   │   │
-│   │   ├── Services/                 # Business logic
-│   │   │   ├── AuthService.cs
-│   │   │   ├── LoanRequestService.cs
-│   │   │   ├── ApprovalService.cs
-│   │   │   ├── EmailService.cs
-│   │   │   ├── SchedulingService.cs
-│   │   │   └── DashboardService.cs
-│   │   │
-│   │   ├── Repositories/             # Data access
-│   │   │   ├── IDbContext.cs
-│   │   │   ├── UserRepository.cs
-│   │   │   ├── DriverRepository.cs
-│   │   │   ├── VehicleRepository.cs
-│   │   │   ├── LoanRequestRepository.cs
-│   │   │   └── ...
-│   │   │
-│   │   ├── Validators/               # FluentValidation
-│   │   │   └── ...
-│   │   │
-│   │   ├── Middleware/
-│   │   │   └── ExceptionMiddleware.cs
-│   │   │
-│   │   ├── Extensions/
-│   │   │   └── ServiceExtensions.cs
-│   │   │
-│   │   ├── logs/                     # Application logs
-│   │   ├── uploads/                  # Uploaded files
-│   │   │   └── service-letters/
-│   │   │
-│   │   ├── bin/                      # Compiled output
-│   │   └── obj/                      # Build artifacts
-│   │
-│   ├── database/
-│   │   └── CreateDatabase.sql        # Database schema & seed data
-│   │
-│   └── README.md                     # Backend specific docs
-│
-├── frontend/
-│   ├── package.json                  # NPM dependencies
-│   ├── vite.config.ts               # Vite configuration
-│   ├── tsconfig.json                # TypeScript config
-│   ├── tailwind.config.js           # Tailwind CSS config
-│   │
-│   ├── src/
-│   │   ├── main.tsx                 # App entry point
-│   │   ├── App.tsx                  # Root component
-│   │   ├── index.css                # Global styles
-│   │   │
-│   │   ├── pages/                   # Page components
-│   │   │   ├── LoginPage.tsx
-│   │   │   ├── DashboardPage.tsx
-│   │   │   ├── LoanRequestPage.tsx
-│   │   │   ├── ApprovalPage.tsx
-│   │   │   └── ...
-│   │   │
-│   │   ├── components/              # Reusable components
-│   │   │   ├── Header.tsx
-│   │   │   ├── Sidebar.tsx
-│   │   │   ├── FormFields/
-│   │   │   ├── Tables/
-│   │   │   └── ...
-│   │   │
-│   │   ├── layouts/                 # Layout components
-│   │   │   ├── MainLayout.tsx
-│   │   │   └── AuthLayout.tsx
-│   │   │
-│   │   ├── services/                # API calls
-│   │   │   ├── api.ts
-│   │   │   ├── authService.ts
-│   │   │   ├── loanRequestService.ts
-│   │   │   └── ...
-│   │   │
-│   │   ├── store/                   # Zustand state management
-│   │   │   ├── authStore.ts
-│   │   │   └── ...
-│   │   │
-│   │   ├── types/                   # TypeScript types
-│   │   │   └── index.ts
-│   │   │
-│   │   └── lib/                     # Utilities
-│   │       ├── utils.ts
-│   │       └── constants.ts
-│   │
-│   ├── public/                      # Static files
-│   │   └── images/
-│   │
-│   ├── dist/                        # Production build output
-│   │
-│   └── node_modules/                # NPM packages
-│
-└── .gitignore                        # Git ignore rules
-```
-
----
-
-## ✨ Fitur Utama
+## Fitur Utama
 
 ### 1. Authentication & Authorization
+
 - Login dengan Email & Password
 - JWT Token-based authentication
 - Role-based access control (Requester, L1 Approver, L2 Approver, Admin)
@@ -427,6 +304,7 @@ pelindo-car-loan/
 - Logout dengan token invalidation
 
 ### 2. Loan Request Management
+
 - Create loan request dengan detail lengkap:
   - Destination & Purpose
   - Guest list
@@ -438,18 +316,19 @@ pelindo-car-loan/
 - Download uploaded documents
 
 ### 3. Approval Workflow (2-Level)
+
 - **Level 1 (Manager)**:
   - Review loan requests
   - Assign vehicle & driver
   - Approve/Reject dengan notes
   - Automatic notification ke L2 approver
-  
 - **Level 2 (Director)**:
   - Final approval/rejection
   - Automatic scheduling creation
   - Email sent to requester & driver
 
 ### 4. Vehicle & Driver Management
+
 - Add/Edit/Delete vehicles
 - Add/Edit/Delete drivers
 - Track vehicle availability
@@ -457,11 +336,13 @@ pelindo-car-loan/
 - Driver rating system
 
 ### 5. Scheduling
+
 - Automatic schedule creation saat L2 approval
 - Conflict detection (vehicle/driver busy)
 - Status tracking: SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
 
 ### 6. Email Notifications
+
 - Loan request submitted notification to L1 approver
 - L2 approval notification with vehicle/driver details
 - Requester approval notification with WhatsApp contact
@@ -470,6 +351,7 @@ pelindo-car-loan/
 - WhatsApp integration buttons untuk direct communication
 
 ### 7. Dashboard
+
 - Statistics: Total requests, pending approvals, completed trips
 - Recent requests list
 - Approval queue
@@ -482,19 +364,20 @@ pelindo-car-loan/
 
 Database seeded dengan default users. Login di: `http://localhost:3000/login`
 
-| Email | Password | Role | Division |
-|-------|----------|------|----------|
-| requester1@pelindo.com | password123 | Requester | Operations |
-| approver.l1@pelindo.com | password123 | L1 Approver | Management |
-| approver.l2@pelindo.com | password123 | L2 Approver | Director |
-| admin@pelindo.com | password123 | Admin | IT |
-| driver1@pelindo.com | password123 | Driver | Transportation |
+| Email                   | Password    | Role        | Division       |
+| ----------------------- | ----------- | ----------- | -------------- |
+| requester1@pelindo.com  | password123 | Requester   | Operations     |
+| approver.l1@pelindo.com | password123 | L1 Approver | Management     |
+| approver.l2@pelindo.com | password123 | L2 Approver | Director       |
+| admin@pelindo.com       | password123 | Admin       | IT             |
+| driver1@pelindo.com     | password123 | Driver      | Transportation |
 
 ---
 
 ## 🔌 API Endpoints
 
 ### Authentication
+
 ```
 POST   /api/auth/login              # Login
 POST   /api/auth/logout             # Logout
@@ -503,6 +386,7 @@ GET    /api/auth/profile            # Get current user
 ```
 
 ### Loan Requests
+
 ```
 GET    /api/loan-requests           # Get all requests
 GET    /api/loan-requests/{id}      # Get request detail
@@ -512,6 +396,7 @@ GET    /api/loan-requests/{id}/history  # Get request history
 ```
 
 ### Approvals
+
 ```
 GET    /api/approvals/pending       # Get pending approvals
 POST   /api/approvals/{id}/approve  # Approve request (L1/L2)
@@ -520,6 +405,7 @@ GET    /api/approvals/{id}          # Get approval detail
 ```
 
 ### Dashboard
+
 ```
 GET    /api/dashboard/statistics    # Dashboard stats
 GET    /api/dashboard/pending       # Pending items
@@ -527,6 +413,7 @@ GET    /api/dashboard/recent        # Recent activities
 ```
 
 ### Resources
+
 ```
 GET    /api/resources/vehicles      # Get all vehicles
 GET    /api/resources/drivers       # Get all drivers
@@ -541,11 +428,13 @@ Full Swagger/OpenAPI docs tersedia di: `http://localhost:5000/swagger`
 ## 🐛 Troubleshooting
 
 ### Issue 1: Database Connection Error
+
 ```
 Error: ORA-12514: TNS:listener does not currently know of service requested in connect descriptor
 ```
 
 **Solution**:
+
 - Pastikan Oracle service berjalan: `sc query OracleServiceXE`
 - Check connection string di appsettings.json
 - Verify username/password: `sqlplus system/bima2005@XE`
@@ -557,6 +446,7 @@ System.Net.Sockets.SocketException: Only one usage of each socket address (proto
 ```
 
 **Solution**:
+
 ```bash
 # Windows - Kill process using port 5000
 Get-Process -Id (Get-NetTCPConnection -LocalPort 5000).OwningProcess | Stop-Process
@@ -574,6 +464,7 @@ Error: Network Error / Failed to fetch API
 ```
 
 **Solution**:
+
 - Ensure backend running on http://localhost:5000
 - Check CORS settings in appsettings.json
 - Clear browser cache (Ctrl+Shift+Delete)
@@ -586,6 +477,7 @@ Error: SmtpException: The SMTP server requires a secure connection
 ```
 
 **Solution**:
+
 - Verify Gmail App Password (not regular password)
 - Enable 2FA di Google Account
 - Check firewall not blocking SMTP port 587
@@ -598,6 +490,7 @@ Error: Unable to restore packages
 ```
 
 **Solution**:
+
 ```bash
 # Clear NuGet cache
 dotnet nuget locals all --clear
@@ -616,6 +509,7 @@ npm install takes too long / Storage full
 ```
 
 **Solution**:
+
 ```bash
 # Use npm ci instead (cleaner install)
 npm ci
@@ -633,11 +527,13 @@ Get-Volume  # PowerShell Windows
 ## 📝 Logging
 
 ### Backend Logs
+
 - Location: `backend/PelindoCarLoan.API/logs/`
 - Format: `pelindo-car-loan-YYYY-MM-DD.log`
 - Retention: Daily rolling logs
 
 View logs:
+
 ```bash
 # Linux/Mac
 tail -f logs/pelindo-car-loan-*.log
@@ -647,6 +543,7 @@ Get-Content logs/pelindo-car-loan-*.log -Wait -Tail 50
 ```
 
 ### Frontend Logs
+
 Browser console (F12) melihat React warnings dan errors
 
 ---
@@ -694,6 +591,7 @@ Sebelum deploy ke production:
 ## 📧 Support
 
 Untuk bantuan dan pertanyaan:
+
 - Email: support@pelindo.com
 - Internal Wiki: http://wiki.pelindo.local
 - Chat: Slack #car-loan-system
@@ -750,5 +648,5 @@ npm run dev
 
 ---
 
-*Last Updated: January 13, 2026*
-*Version: 1.0.0*
+_Last Updated: January 13, 2026_
+_Version: 1.0.0_

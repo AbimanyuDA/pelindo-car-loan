@@ -3,6 +3,7 @@
 Complete API reference untuk Pelindo Car Loan System
 
 ## Base URL
+
 ```
 Development:  http://localhost:5000
 Production:   https://api.pelindo.com  (example)
@@ -17,6 +18,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 ### Token Format
+
 JWT token terdiri dari 3 bagian: `Header.Payload.Signature`
 
 **Lifetime**: 480 minutes (8 hours) - bisa disesuaikan di appsettings.json
@@ -26,17 +28,19 @@ JWT token terdiri dari 3 bagian: `Header.Payload.Signature`
 ## 🔐 Auth Endpoints
 
 ### 1. Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
 
 {
   "email": "user@pelindo.com",
-  "password": "password123"
+  "password": "password123!"
 }
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -54,6 +58,7 @@ Content-Type: application/json
 ```
 
 **Response (401 Unauthorized)**:
+
 ```json
 {
   "success": false,
@@ -64,12 +69,14 @@ Content-Type: application/json
 ---
 
 ### 2. Get Current User Profile
+
 ```http
 GET /api/auth/profile
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -88,12 +95,14 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 3. Logout
+
 ```http
 POST /api/auth/logout
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -104,12 +113,14 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 4. Refresh Token
+
 ```http
 POST /api/auth/refresh-token
 Authorization: Bearer <EXPIRED_JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -125,18 +136,21 @@ Authorization: Bearer <EXPIRED_JWT_TOKEN>
 ## 📋 Loan Request Endpoints
 
 ### 1. Get All Loan Requests
+
 ```http
 GET /api/loan-requests
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `status`: string (SUBMITTED, APPROVED_L1, APPROVED_L2, REJECTED, COMPLETED)
 - `userId`: number (filter by requester)
 - `pageNumber`: number (default: 1)
 - `pageSize`: number (default: 10)
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -168,15 +182,18 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 2. Get Loan Request Detail
+
 ```http
 GET /api/loan-requests/{id}
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **URL Parameters**:
+
 - `id`: number - Loan Request ID
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -213,6 +230,7 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 3. Create New Loan Request
+
 ```http
 POST /api/loan-requests
 Authorization: Bearer <JWT_TOKEN>
@@ -231,6 +249,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created)**:
+
 ```json
 {
   "success": true,
@@ -245,6 +264,7 @@ Content-Type: application/json
 ```
 
 **Validation Errors (400 Bad Request)**:
+
 ```json
 {
   "success": false,
@@ -259,6 +279,7 @@ Content-Type: application/json
 ---
 
 ### 4. Update Loan Request
+
 ```http
 PUT /api/loan-requests/{id}
 Authorization: Bearer <JWT_TOKEN>
@@ -271,6 +292,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -285,12 +307,14 @@ Content-Type: application/json
 ---
 
 ### 5. Get Request History
+
 ```http
 GET /api/loan-requests/{id}/history
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -322,17 +346,20 @@ Authorization: Bearer <JWT_TOKEN>
 ## ✅ Approval Endpoints
 
 ### 1. Get Pending Approvals
+
 ```http
 GET /api/approvals/pending
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `approvalLevel`: number (1 or 2)
 - `pageNumber`: number
 - `pageSize`: number
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -359,12 +386,14 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 2. Get Approval Detail
+
 ```http
 GET /api/approvals/{id}
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -390,6 +419,7 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 3. Approve L1 (Assign Vehicle & Driver)
+
 ```http
 POST /api/approvals/{id}/approve-l1
 Authorization: Bearer <JWT_TOKEN>
@@ -403,6 +433,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -419,6 +450,7 @@ Content-Type: application/json
 ---
 
 ### 4. Approve L2 (Final)
+
 ```http
 POST /api/approvals/{id}/approve-l2
 Authorization: Bearer <JWT_TOKEN>
@@ -430,6 +462,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -446,6 +479,7 @@ Content-Type: application/json
 ---
 
 ### 5. Reject Request (L1/L2)
+
 ```http
 POST /api/approvals/{id}/reject
 Authorization: Bearer <JWT_TOKEN>
@@ -458,6 +492,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -475,16 +510,19 @@ Content-Type: application/json
 ## 🏎️ Resources Endpoints
 
 ### 1. Get All Vehicles
+
 ```http
 GET /api/resources/vehicles
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `status`: string (AVAILABLE, IN_USE, MAINTENANCE, RETIRED)
 - `type`: string (filter by vehicle type)
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -507,16 +545,19 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 2. Get Available Vehicles
+
 ```http
 GET /api/resources/available-vehicles
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `startDate`: datetime (ISO 8601 format)
 - `endDate`: datetime
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -539,15 +580,18 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 3. Get All Drivers
+
 ```http
 GET /api/resources/drivers
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `status`: string (AVAILABLE, ON_DUTY, ON_LEAVE, INACTIVE)
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -569,16 +613,19 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 4. Get Available Drivers
+
 ```http
 GET /api/resources/available-drivers
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `startDate`: datetime (ISO 8601)
 - `endDate`: datetime
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -604,12 +651,14 @@ Authorization: Bearer <JWT_TOKEN>
 ## 📊 Dashboard Endpoints
 
 ### 1. Get Dashboard Statistics
+
 ```http
 GET /api/dashboard/statistics
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -629,12 +678,14 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 2. Get Dashboard Summary
+
 ```http
 GET /api/dashboard/summary
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -653,12 +704,14 @@ Authorization: Bearer <JWT_TOKEN>
 ## 📅 Schedule Endpoints
 
 ### 1. Get Schedules
+
 ```http
 GET /api/schedules
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters**:
+
 - `status`: string (SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED)
 - `vehicleId`: number
 - `driverId`: number
@@ -666,6 +719,7 @@ Authorization: Bearer <JWT_TOKEN>
 - `toDate`: datetime
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -691,6 +745,7 @@ Authorization: Bearer <JWT_TOKEN>
 ---
 
 ### 2. Update Schedule Status
+
 ```http
 PUT /api/schedules/{id}/status
 Authorization: Bearer <JWT_TOKEN>
@@ -703,6 +758,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -719,6 +775,7 @@ Content-Type: application/json
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "success": false,
@@ -730,6 +787,7 @@ Content-Type: application/json
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "success": false,
@@ -738,6 +796,7 @@ Content-Type: application/json
 ```
 
 ### 403 Forbidden
+
 ```json
 {
   "success": false,
@@ -746,6 +805,7 @@ Content-Type: application/json
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "success": false,
@@ -754,6 +814,7 @@ Content-Type: application/json
 ```
 
 ### 500 Internal Server Error
+
 ```json
 {
   "success": false,
@@ -766,11 +827,13 @@ Content-Type: application/json
 ## 🔗 Interactive API Docs
 
 Swagger/OpenAPI documentation tersedia di:
+
 ```
 http://localhost:5000/swagger
 ```
 
 Gunakan Swagger UI untuk:
+
 - Test semua endpoint
 - Lihat request/response examples
 - Generate client code
@@ -780,6 +843,7 @@ Gunakan Swagger UI untuk:
 ## Rate Limiting
 
 Tidak ada rate limiting di development. Di production:
+
 - 100 requests per minute per user
 - 1000 requests per minute per API key
 
@@ -790,10 +854,12 @@ Tidak ada rate limiting di development. Di production:
 Endpoint yang mengembalikan list menggunakan pagination:
 
 **Query Parameters**:
+
 - `pageNumber`: 1-based (default: 1)
 - `pageSize`: 1-100 (default: 10)
 
 **Response includes**:
+
 ```json
 {
   "pagination": {
@@ -810,6 +876,7 @@ Endpoint yang mengembalikan list menggunakan pagination:
 ## Timestamps
 
 Semua timestamps dalam format ISO 8601 UTC:
+
 ```
 2026-01-13T15:30:45.123Z
 ```
