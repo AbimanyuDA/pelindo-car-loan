@@ -172,7 +172,5 @@ CREDENTIALS.md
 
 .gitignore
 
-database/
 
 /backend/PelindoCarLoan.API/appsettings.json
-/backend/PelindoCarLoan.API/uploads/service-letters/*

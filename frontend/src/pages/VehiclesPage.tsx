@@ -20,14 +20,8 @@ const vehicleSchema = z.object({
     .string()
     .min(1, "Nomor plat wajib diisi")
     .max(20, "Maksimal 20 karakter"),
-  brand: z
-    .string()
-    .min(1, "Merek wajib diisi")
-    .max(50, "Maksimal 50 karakter"),
-  type: z
-    .string()
-    .min(1, "Tipe wajib diisi")
-    .max(50, "Maksimal 50 karakter"),
+  brand: z.string().min(1, "Merek wajib diisi").max(50, "Maksimal 50 karakter"),
+  type: z.string().min(1, "Tipe wajib diisi").max(50, "Maksimal 50 karakter"),
   capacity: z.coerce
     .number()
     .min(1, "Minimal 1 kursi")

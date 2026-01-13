@@ -139,7 +139,9 @@ export default function DriverSchedulePage() {
           <div className="p-2 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm flex-shrink-0">
             <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Jadwal Perjalanan Saya</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Jadwal Perjalanan Saya
+          </h1>
         </div>
         <p className="text-sm sm:text-base text-blue-100 ml-0 sm:ml-[60px]">
           Kelola dan pantau jadwal perjalanan yang telah ditugaskan kepada Anda
@@ -151,19 +153,27 @@ export default function DriverSchedulePage() {
         <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-gray-50 to-gray-100">
           <CardContent className="py-4 sm:py-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Jadwal</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">
+                Total Jadwal
+              </p>
               <div className="p-1.5 sm:p-2 bg-gray-200 rounded-lg flex-shrink-0">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.total}</p>
-            <p className="text-xs text-gray-500 mt-1 hidden sm:block">Semua perjalanan</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+              {stats.total}
+            </p>
+            <p className="text-xs text-gray-500 mt-1 hidden sm:block">
+              Semua perjalanan
+            </p>
           </CardContent>
         </Card>
         <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-blue-50 to-indigo-100">
           <CardContent className="py-4 sm:py-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs sm:text-sm font-medium text-blue-700">Terkonfirmasi</p>
+              <p className="text-xs sm:text-sm font-medium text-blue-700">
+                Terkonfirmasi
+              </p>
               <div className="p-1.5 sm:p-2 bg-blue-200 rounded-lg flex-shrink-0">
                 <Users className="w-3 h-3 sm:w-4 sm:h-4 text-blue-700" />
               </div>
@@ -171,13 +181,17 @@ export default function DriverSchedulePage() {
             <p className="text-2xl sm:text-3xl font-bold text-blue-600">
               {stats.confirmed}
             </p>
-            <p className="text-xs text-blue-600 mt-1 hidden sm:block">Siap berangkat</p>
+            <p className="text-xs text-blue-600 mt-1 hidden sm:block">
+              Siap berangkat
+            </p>
           </CardContent>
         </Card>
         <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-100">
           <CardContent className="py-4 sm:py-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs sm:text-sm font-medium text-green-700">Selesai</p>
+              <p className="text-xs sm:text-sm font-medium text-green-700">
+                Selesai
+              </p>
               <div className="p-1.5 sm:p-2 bg-green-200 rounded-lg flex-shrink-0">
                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-green-700" />
               </div>
@@ -185,19 +199,27 @@ export default function DriverSchedulePage() {
             <p className="text-2xl sm:text-3xl font-bold text-green-600">
               {stats.completed}
             </p>
-            <p className="text-xs text-green-600 mt-1 hidden sm:block">Perjalanan selesai</p>
+            <p className="text-xs text-green-600 mt-1 hidden sm:block">
+              Perjalanan selesai
+            </p>
           </CardContent>
         </Card>
         <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-red-50 to-rose-100">
           <CardContent className="py-4 sm:py-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs sm:text-sm font-medium text-red-700">Dibatalkan</p>
+              <p className="text-xs sm:text-sm font-medium text-red-700">
+                Dibatalkan
+              </p>
               <div className="p-1.5 sm:p-2 bg-red-200 rounded-lg flex-shrink-0">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-red-700" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-bold text-red-600">{stats.cancelled}</p>
-            <p className="text-xs text-red-600 mt-1 hidden sm:block">Tidak jadi</p>
+            <p className="text-2xl sm:text-3xl font-bold text-red-600">
+              {stats.cancelled}
+            </p>
+            <p className="text-xs text-red-600 mt-1 hidden sm:block">
+              Tidak jadi
+            </p>
           </CardContent>
         </Card>
       </div>

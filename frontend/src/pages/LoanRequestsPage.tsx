@@ -126,13 +126,20 @@ export default function LoanRequestsPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Pengajuan Saya</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Pengajuan Saya
+          </h1>
           <p className="text-sm sm:text-base text-gray-600">
             Kelola pengajuan peminjaman kendaraan Anda
           </p>
         </div>
         <Link to="/loan-requests/new" className="w-full sm:w-auto">
-          <Button leftIcon={<Plus className="w-4 h-4" />} className="w-full sm:w-auto">Ajukan Baru</Button>
+          <Button
+            leftIcon={<Plus className="w-4 h-4" />}
+            className="w-full sm:w-auto"
+          >
+            Ajukan Baru
+          </Button>
         </Link>
       </div>
 

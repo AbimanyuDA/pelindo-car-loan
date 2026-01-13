@@ -111,9 +111,9 @@ namespace PelindoCarLoan.API.Services
                 try
                 {
                     var l1Approvers = await _userRepository.GetByRoleAsync("PIC_APPROVAL_L1");
-                    var requester = await _userRepository.GetByIdAsync(userId);
+                    var loanRequestDto = await GetByIdAsync(id);
                     
-                    if (requester != null)
+                    if (loanRequestDto != null)
                     {
                         foreach (var approver in l1Approvers)
                         {
@@ -121,9 +121,8 @@ namespace PelindoCarLoan.API.Services
                             {
                                 await _emailService.SendLoanRequestSubmittedEmailAsync(
                                     approver.Email,
-                                    requester.FullName,
-                                    requestNumber,
-                                    dto.Purpose
+                                    approver.FullName,
+                                    loanRequestDto
                                 );
                             }
                         }

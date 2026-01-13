@@ -51,8 +51,16 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("CorsPolicy");
 
-// Enable static files for serving logo and other assets
+// Enable static files for serving logo and other assets from wwwroot
 app.UseStaticFiles();
+
+// Enable static files for serving uploads folder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
 
 app.UseHttpsRedirection();
 

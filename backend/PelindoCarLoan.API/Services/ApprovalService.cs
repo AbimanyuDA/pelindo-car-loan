@@ -23,6 +23,7 @@ namespace PelindoCarLoan.API.Services
         private readonly ISchedulingService _schedulingService;
         private readonly IUserRepository _userRepository;
         private readonly IDriverRepository _driverRepository;
+        private readonly IVehicleRepository _vehicleRepository;
         private readonly IEmailService _emailService;
         private readonly ILogger<ApprovalService> _logger;
 
@@ -32,6 +33,7 @@ namespace PelindoCarLoan.API.Services
             ISchedulingService schedulingService,
             IUserRepository userRepository,
             IDriverRepository driverRepository,
+            IVehicleRepository vehicleRepository,
             IEmailService emailService,
             ILogger<ApprovalService> logger)
         {
@@ -40,6 +42,7 @@ namespace PelindoCarLoan.API.Services
             _schedulingService = schedulingService;
             _userRepository = userRepository;
             _driverRepository = driverRepository;
+            _vehicleRepository = vehicleRepository;
             _emailService = emailService;
             _logger = logger;
         }
@@ -194,15 +197,45 @@ namespace PelindoCarLoan.API.Services
 
                             // Email to all L2 approvers
                             var l2Approvers = await _userRepository.GetByRoleAsync("PIC_APPROVAL_L2");
+                            
+                            // Get vehicle and driver details
+                            var vehicle = await _vehicleRepository.GetByIdAsync(loanRequest.VehicleId!.Value);
+                            var driver = await _driverRepository.GetByIdAsync(loanRequest.DriverId!.Value);
+                            
+                            // Get full loan request DTO
+                            var loanRequestDto = new LoanRequestDto
+                            {
+                                Id = loanRequest.Id,
+                                RequestNumber = loanRequest.RequestNumber,
+                                RequesterName = requester.FullName,
+                                RequesterEmail = requester.Email,
+                                RequesterPhone = requester.PhoneNumber,
+                                RequesterDivision = requester.Division,
+                                RequesterUnitKerja = requester.UnitKerja,
+                                ServiceLetterBasis = loanRequest.ServiceLetterBasis,
+                                ServiceLetterFilePath = loanRequest.ServiceLetterFilePath,
+                                Purpose = loanRequest.Purpose,
+                                Destination = loanRequest.Destination,
+                                GuestList = loanRequest.GuestList,
+                                HotelAccommodation = loanRequest.HotelAccommodation,
+                                StartDatetime = loanRequest.StartDatetime,
+                                EndDatetime = loanRequest.EndDatetime,
+                                Status = loanRequest.Status.ToString(),
+                                CreatedAt = loanRequest.CreatedAt
+                            };
+                            
                             foreach (var approver in l2Approvers)
                             {
                                 if (!string.IsNullOrEmpty(approver.Email))
                                 {
                                     await _emailService.SendApprovalL1NotificationToL2Async(
                                         approver.Email,
-                                        requester.FullName,
-                                        loanRequest.RequestNumber,
-                                        loanRequest.Purpose
+                                        approver.FullName,
+                                        loanRequestDto,
+                                        vehicle?.PlateNumber ?? "-",
+                                        vehicle?.Type ?? "-",
+                                        driver?.User?.FullName ?? "-",
+                                        driver?.User?.PhoneNumber ?? "-"
                                     );
                                 }
                             }
@@ -222,26 +255,55 @@ namespace PelindoCarLoan.API.Services
                     {
                         if (dto.Status == ApprovalStatus.Approved)
                         {
+                            // Get vehicle and driver details
+                            var vehicle = await _vehicleRepository.GetByIdAsync(loanRequest.VehicleId!.Value);
+                            var driver = await _driverRepository.GetByIdAsync(loanRequest.DriverId!.Value);
+                            
+                            // Build full loan request DTO
+                            var loanRequestDto = new LoanRequestDto
+                            {
+                                Id = loanRequest.Id,
+                                RequestNumber = loanRequest.RequestNumber,
+                                RequesterName = requester.FullName,
+                                RequesterEmail = requester.Email,
+                                RequesterPhone = requester.PhoneNumber,
+                                RequesterDivision = requester.Division,
+                                RequesterUnitKerja = requester.UnitKerja,
+                                ServiceLetterBasis = loanRequest.ServiceLetterBasis,
+                                ServiceLetterFilePath = loanRequest.ServiceLetterFilePath,
+                                Purpose = loanRequest.Purpose,
+                                Destination = loanRequest.Destination,
+                                GuestList = loanRequest.GuestList,
+                                HotelAccommodation = loanRequest.HotelAccommodation,
+                                StartDatetime = loanRequest.StartDatetime,
+                                EndDatetime = loanRequest.EndDatetime,
+                                Status = loanRequest.Status.ToString(),
+                                CreatedAt = loanRequest.CreatedAt
+                            };
+                            
                             // Email to requester: L2 approved (final)
                             await _emailService.SendLoanRequestApprovedL2EmailAsync(
                                 requester.Email,
                                 requester.FullName,
-                                loanRequest.RequestNumber
+                                loanRequestDto,
+                                vehicle?.PlateNumber ?? "-",
+                                vehicle?.Type ?? "-",
+                                driver?.User?.FullName ?? "-",
+                                driver?.User?.PhoneNumber ?? "-"
                             );
 
                             // Email to driver
                             if (loanRequest.DriverId.HasValue)
                             {
-                                var driver = await _driverRepository.GetByIdAsync(loanRequest.DriverId.Value);
                                 if (driver?.User != null && !string.IsNullOrEmpty(driver.User.Email))
                                 {
                                     await _emailService.SendDriverAssignmentEmailAsync(
                                         driver.User.Email,
                                         driver.User.FullName,
                                         loanRequest.RequestNumber,
-                                        loanRequest.StartDatetime.ToString("dd MMMM yyyy, HH:mm"),
-                                        loanRequest.EndDatetime.ToString("dd MMMM yyyy, HH:mm"),
-                                        loanRequest.Destination
+                                        requester.FullName,
+                                        requester.PhoneNumber,
+                                        loanRequestDto
                                     );
                                 }
                             }

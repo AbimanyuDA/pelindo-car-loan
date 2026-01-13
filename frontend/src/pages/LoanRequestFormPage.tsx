@@ -30,7 +30,7 @@ const loanRequestSchema = z.object({
   purpose: z
     .string()
     .min(5, "Tujuan minimal 5 karakter")
-    .max(200, "Tujuan maksimal 200 karakter"),
+    .max(200, "Keperluan peminjaman maksimal 200 karakter"),
   destination: z
     .string()
     .min(3, "Destinasi minimal 3 karakter")
