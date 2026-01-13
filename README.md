@@ -188,7 +188,7 @@ Edit file: `backend/PelindoCarLoan.API/appsettings.json`
 ```json
 {
   "ConnectionStrings": {
-    "OracleConnection": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)));User Id=system;Password=bima2005"
+    "OracleConnection": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)));User Id=system;Password=password"
   },
   "JwtSettings": {
     "SecretKey": "PelindoCarLoanSystemSecretKey2026VerySecure!@#$%",
@@ -360,7 +360,7 @@ npm run build
 
 ---
 
-## 👤 Akun Default
+## Akun Default
 
 Database seeded dengan default users. Login di: `http://localhost:3000/login`
 
@@ -374,7 +374,7 @@ Database seeded dengan default users. Login di: `http://localhost:3000/login`
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Authentication
 
@@ -425,7 +425,7 @@ Full Swagger/OpenAPI docs tersedia di: `http://localhost:5000/swagger`
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Issue 1: Database Connection Error
 
@@ -437,7 +437,7 @@ Error: ORA-12514: TNS:listener does not currently know of service requested in c
 
 - Pastikan Oracle service berjalan: `sc query OracleServiceXE`
 - Check connection string di appsettings.json
-- Verify username/password: `sqlplus system/bima2005@XE`
+- Verify username/password: `sqlplus system/password@XE`
 
 ### Issue 2: Port Already in Use
 
@@ -524,7 +524,7 @@ Get-Volume  # PowerShell Windows
 
 ---
 
-## 📝 Logging
+## Logging
 
 ### Backend Logs
 
@@ -548,36 +548,17 @@ Browser console (F12) melihat React warnings dan errors
 
 ---
 
-## 🔐 Security Notes
+## Security Notes
 
 - **JWT Secret**: Change `JwtSettings.SecretKey` di production
-- **Database Password**: Change default password `bima2005` di production
+- **Database Password**: Change default password `password` di production
 - **Email Password**: Gunakan Google App Password, jangan raw password
 - **CORS**: Update `AllowedOrigins` sesuai deployment domain
 - **HTTPS**: Enable HTTPS certificate di production
 
 ---
 
-## 📞 Deployment Checklist
-
-Sebelum deploy ke production:
-
-- [ ] Update database connection string untuk production server
-- [ ] Change JWT secret key yang lebih kompleks
-- [ ] Update email configuration untuk production account
-- [ ] Configure CORS untuk allowed domains
-- [ ] Setup HTTPS/SSL certificate
-- [ ] Configure environment variables
-- [ ] Run database migrations di production
-- [ ] Test email notifications
-- [ ] Setup database backups
-- [ ] Configure application logging/monitoring
-- [ ] Load test performance
-- [ ] Security audit
-
----
-
-## 📚 Additional Resources
+## Additional Resources
 
 - **ASP.NET Core Docs**: https://docs.microsoft.com/aspnet/core
 - **React Docs**: https://react.dev
@@ -588,26 +569,25 @@ Sebelum deploy ke production:
 
 ---
 
-## 📧 Support
+## Support
 
 Untuk bantuan dan pertanyaan:
 
-- Email: support@pelindo.com
-- Internal Wiki: http://wiki.pelindo.local
+- Email: abimanyudans@gmail.com
+- Internal Wiki: https://abimanyudans.vercel.app/
 - Chat: Slack #car-loan-system
 
 ---
 
 ## 📄 License
 
-Internal Use Only - PT. Pelindo
+Internal Use Only - PT. Pelindo Regional III
 
 ---
 
 ## 👥 Contributors
 
-- Bimanyu Dans (Frontend & Backend)
-- Development Team
+- Abimanyu Danendra A (Frontend & Backend)
 
 ---
 
