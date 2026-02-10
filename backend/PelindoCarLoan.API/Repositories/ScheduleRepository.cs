@@ -11,6 +11,7 @@ namespace PelindoCarLoan.API.Repositories
         Task<Schedule?> GetByIdAsync(int id);
         Task<Schedule?> GetByIdWithDetailsAsync(int id);
         Task<Schedule?> GetByLoanRequestIdAsync(int loanRequestId);
+        Task<IEnumerable<Schedule>> GetAllByLoanRequestIdAsync(int loanRequestId);
         Task<IEnumerable<Schedule>> GetAllAsync(string? status = null);
         Task<IEnumerable<Schedule>> GetByDriverIdAsync(int driverId);
         Task<IEnumerable<Schedule>> GetByDriverUserIdAsync(int userId);
@@ -112,6 +113,20 @@ namespace PelindoCarLoan.API.Repositories
             return result.FirstOrDefault();
         }
 
+        public async Task<IEnumerable<Schedule>> GetAllByLoanRequestIdAsync(int loanRequestId)
+        {
+            const string sql = @"
+                SELECT s.schedule_id AS Id, s.loan_request_id AS LoanRequestId, s.driver_id AS DriverId,
+                       s.vehicle_id AS VehicleId, s.assigned_at AS AssignedAt, s.status, s.notes,
+                       s.emergency_reason AS EmergencyReason, s.emergency_type AS EmergencyType
+                FROM schedules s
+                WHERE s.loan_request_id = :LoanRequestId
+                ORDER BY s.schedule_id ASC";
+
+            using var connection = _dbContext.CreateConnection();
+            return await connection.QueryAsync<Schedule>(sql, new { LoanRequestId = loanRequestId });
+        }
+
         public async Task<IEnumerable<Schedule>> GetAllAsync(string? status = null)
         {
             var sql = @"
@@ -121,7 +136,7 @@ namespace PelindoCarLoan.API.Repositories
                        lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime, lr.status AS LRStatus,
                        d.driver_id AS Id, d.license_number AS LicenseNumber,
-                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
+                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.model, v.capacity,
                        u.user_id AS Id, u.full_name AS Name, u.email
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
@@ -161,7 +176,7 @@ namespace PelindoCarLoan.API.Repositories
                        lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
                        lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime,
-                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
+                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.model, v.capacity,
                        u.user_id AS Id, u.full_name AS Name, u.email
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
@@ -195,7 +210,7 @@ namespace PelindoCarLoan.API.Repositories
                        lr.loan_request_id AS Id, lr.purpose, lr.destination, lr.guest_list AS GuestList,
                        lr.hotel_accommodation AS HotelAccommodation, lr.start_datetime AS StartDatetime, 
                        lr.end_datetime AS EndDatetime,
-                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.capacity,
+                       v.vehicle_id AS Id, v.license_plate AS PlateNumber, v.brand, v.type, v.model, v.capacity,
                        u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
@@ -323,7 +338,12 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE schedules
-                SET driver_id = :DriverId, vehicle_id = :VehicleId, status = :Status, notes = :Notes
+                SET driver_id = :DriverId, vehicle_id = :VehicleId, status = :Status, notes = :Notes,
+                    actual_vehicle_id = :ActualVehicleId, fuel_condition = :FuelCondition,
+                    actual_start_time = :ActualStartTime, actual_end_time = :ActualEndTime,
+                    final_fuel_condition = :FinalFuelCondition, is_refueled = :IsRefueled,
+                    refuel_amount = :RefuelAmount, refuel_receipt_path = :RefuelReceiptPath,
+                    emergency_reason = :EmergencyReason, emergency_type = :EmergencyType, driver_message = :DriverMessage
                 WHERE schedule_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
@@ -333,7 +353,18 @@ namespace PelindoCarLoan.API.Repositories
                 schedule.DriverId,
                 schedule.VehicleId,
                 schedule.Status,
-                schedule.Notes
+                schedule.Notes,
+                schedule.ActualVehicleId,
+                schedule.FuelCondition,
+                schedule.ActualStartTime,
+                schedule.ActualEndTime,
+                schedule.FinalFuelCondition,
+                IsRefueled = schedule.IsRefueled ? 1 : 0,
+                schedule.RefuelAmount,
+                schedule.RefuelReceiptPath,
+                schedule.EmergencyReason,
+                schedule.EmergencyType,
+                schedule.DriverMessage
             });
             return rowsAffected > 0;
         }
@@ -386,13 +417,18 @@ namespace PelindoCarLoan.API.Repositories
                 SELECT COUNT(1)
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
-                WHERE s.driver_id = :DriverId
-                  AND s.status IN ('CONFIRMED', 'IN_PROGRESS')
-                  AND (
-                    (lr.start_datetime <= :StartTime AND lr.end_datetime >= :StartTime) OR
-                    (lr.start_datetime <= :EndTime AND lr.end_datetime >= :EndTime) OR
-                    (lr.start_datetime >= :StartTime AND lr.end_datetime <= :EndTime)
-                  )";
+                                WHERE s.driver_id = :DriverId
+                                    AND (
+                                        s.status IN ('DRIVER_CONFIRMED', 'IN_PROGRESS', 'WAITING', 'WAITING_L2', 'EMERGENCY')
+                                        OR (
+                                            s.status IN ('CONFIRMED', 'WAITING_DRIVER')
+                                            AND (
+                                                (lr.start_datetime <= :StartTime AND lr.end_datetime >= :StartTime) OR
+                                                (lr.start_datetime <= :EndTime AND lr.end_datetime >= :EndTime) OR
+                                                (lr.start_datetime >= :StartTime AND lr.end_datetime <= :EndTime)
+                                            )
+                                        )
+                                    )";
 
             if (excludeScheduleId.HasValue)
             {
@@ -420,13 +456,18 @@ namespace PelindoCarLoan.API.Repositories
                 SELECT COUNT(1)
                 FROM schedules s
                 INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
-                WHERE s.vehicle_id = :VehicleId
-                  AND s.status IN ('CONFIRMED', 'IN_PROGRESS')
-                  AND (
-                    (lr.start_datetime <= :StartTime AND lr.end_datetime >= :StartTime) OR
-                    (lr.start_datetime <= :EndTime AND lr.end_datetime >= :EndTime) OR
-                    (lr.start_datetime >= :StartTime AND lr.end_datetime <= :EndTime)
-                  )";
+                                WHERE s.vehicle_id = :VehicleId
+                                    AND (
+                                        s.status IN ('DRIVER_CONFIRMED', 'IN_PROGRESS', 'WAITING', 'WAITING_L2', 'EMERGENCY')
+                                        OR (
+                                            s.status IN ('CONFIRMED', 'WAITING_DRIVER')
+                                            AND (
+                                                (lr.start_datetime <= :StartTime AND lr.end_datetime >= :StartTime) OR
+                                                (lr.start_datetime <= :EndTime AND lr.end_datetime >= :EndTime) OR
+                                                (lr.start_datetime >= :StartTime AND lr.end_datetime <= :EndTime)
+                                            )
+                                        )
+                                    )";
 
             if (excludeScheduleId.HasValue)
             {

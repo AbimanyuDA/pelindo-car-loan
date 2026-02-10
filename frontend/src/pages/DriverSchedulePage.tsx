@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Calendar, MapPin, Users, Hotel, Phone, Mail } from "lucide-react";
+import { Eye, Calendar, MapPin, Users, Hotel, Phone, Mail, Play, Square } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -11,27 +11,51 @@ import { Modal } from "@/components/ui/Modal";
 import { scheduleService } from "@/services";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import type { DriverSchedule } from "@/types";
+import PreDepartureModal from "@/components/driver/PreDepartureModal";
+import EmergencyModal from "@/components/driver/EmergencyModal";
+import StartJourneyModal from "@/components/driver/StartJourneyModal";
+import CompleteJourneyModal from "@/components/driver/CompleteJourneyModal";
 
 export default function DriverSchedulePage() {
   const [selectedSchedule, setSelectedSchedule] =
     useState<DriverSchedule | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isPreDepartureModalOpen, setIsPreDepartureModalOpen] = useState(false);
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [isStartJourneyModalOpen, setIsStartJourneyModalOpen] = useState(false);
+  const [isCompleteJourneyModalOpen, setIsCompleteJourneyModalOpen] = useState(false);
 
   const {
     data: schedules,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["my-schedules"],
+    queryKey: ["driver-schedules"],
     queryFn: async () => {
       const response = await scheduleService.getMySchedules();
       return response.data || [];
     },
   });
 
+
+
   const handleViewDetail = (schedule: DriverSchedule) => {
     setSelectedSchedule(schedule);
     setIsDetailModalOpen(true);
+  };
+
+  const handlePreDeparture = (schedule: DriverSchedule) => {
+    setSelectedSchedule(schedule);
+    setIsPreDepartureModalOpen(true);
+  };
+  const handleStartJourney = (schedule: DriverSchedule) => {
+    setSelectedSchedule(schedule);
+    setIsStartJourneyModalOpen(true);
+  };
+
+  const handleCompleteJourney = (schedule: DriverSchedule) => {
+    setSelectedSchedule(schedule);
+    setIsCompleteJourneyModalOpen(true);
   };
 
   const columns: Column<DriverSchedule>[] = [
@@ -105,15 +129,50 @@ export default function DriverSchedulePage() {
       key: "actions",
       header: "Aksi",
       render: (item) => (
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => handleViewDetail(item)}
-          leftIcon={<Eye className="w-4 h-4" />}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md"
-        >
-          Lihat Detail
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => handleViewDetail(item)}
+            leftIcon={<Eye className="w-4 h-4" />}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md"
+          >
+            Detail
+          </Button>
+          {item.status === "CONFIRMED" && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handlePreDeparture(item)}
+              leftIcon={<Play className="w-4 h-4" />}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md"
+            >
+              Konfirmasi
+            </Button>
+          )}
+          {item.status === "DRIVER_CONFIRMED" && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleStartJourney(item)}
+              leftIcon={<Play className="w-4 h-4" />}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md"
+            >
+              Start
+            </Button>
+          )}
+          {item.status === "IN_PROGRESS" && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleCompleteJourney(item)}
+              leftIcon={<Square className="w-4 h-4" />}
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 shadow-md"
+            >
+              Stop
+            </Button>
+          )}
+        </div>
       ),
     },
   ];
@@ -127,7 +186,10 @@ export default function DriverSchedulePage() {
   const stats = {
     total: schedules?.length || 0,
     confirmed: schedules?.filter((s) => s.status === "CONFIRMED").length || 0,
+    waitingConfirmation: schedules?.filter((s) => s.status === "DRIVER_CONFIRMED").length || 0,
+    inProgress: schedules?.filter((s) => s.status === "IN_PROGRESS").length || 0,
     completed: schedules?.filter((s) => s.status === "COMPLETED").length || 0,
+    emergency: schedules?.filter((s) => s.status === "EMERGENCY").length || 0,
     cancelled: schedules?.filter((s) => s.status === "CANCELLED").length || 0,
   };
 
@@ -182,7 +244,43 @@ export default function DriverSchedulePage() {
               {stats.confirmed}
             </p>
             <p className="text-xs text-blue-600 mt-1 hidden sm:block">
-              Siap berangkat
+              Perlu konfirmasi
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-yellow-50 to-amber-100">
+          <CardContent className="py-4 sm:py-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs sm:text-sm font-medium text-amber-700">
+                Siap Start
+              </p>
+              <div className="p-1.5 sm:p-2 bg-amber-200 rounded-lg flex-shrink-0">
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-amber-700" />
+              </div>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-amber-600">
+              {stats.waitingConfirmation}
+            </p>
+            <p className="text-xs text-amber-600 mt-1 hidden sm:block">
+              Sudah dikonfirmasi
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-purple-50 to-indigo-100">
+          <CardContent className="py-4 sm:py-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs sm:text-sm font-medium text-purple-700">
+                Dalam Perjalanan
+              </p>
+              <div className="p-1.5 sm:p-2 bg-purple-200 rounded-lg flex-shrink-0">
+                <Play className="w-3 h-3 sm:w-4 sm:h-4 text-purple-700" />
+              </div>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-purple-600">
+              {stats.inProgress}
+            </p>
+            <p className="text-xs text-purple-600 mt-1 hidden sm:block">
+              Sedang berjalan
             </p>
           </CardContent>
         </Card>
@@ -201,24 +299,6 @@ export default function DriverSchedulePage() {
             </p>
             <p className="text-xs text-green-600 mt-1 hidden sm:block">
               Perjalanan selesai
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-red-50 to-rose-100">
-          <CardContent className="py-4 sm:py-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs sm:text-sm font-medium text-red-700">
-                Dibatalkan
-              </p>
-              <div className="p-1.5 sm:p-2 bg-red-200 rounded-lg flex-shrink-0">
-                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-red-700" />
-              </div>
-            </div>
-            <p className="text-2xl sm:text-3xl font-bold text-red-600">
-              {stats.cancelled}
-            </p>
-            <p className="text-xs text-red-600 mt-1 hidden sm:block">
-              Tidak jadi
             </p>
           </CardContent>
         </Card>
@@ -448,6 +528,62 @@ export default function DriverSchedulePage() {
           </div>
         )}
       </Modal>
+
+      {/* Pre-Departure Modal */}
+      {isPreDepartureModalOpen && selectedSchedule && (
+        <PreDepartureModal
+          scheduleId={selectedSchedule.scheduleId}
+          vehicleInfo={{
+            id: selectedSchedule.vehicleId,
+            plateNumber: selectedSchedule.vehiclePlate,
+            brand: selectedSchedule.vehicleBrand,
+            model: selectedSchedule.vehicleModel,
+            type: selectedSchedule.vehicleType,
+          }}
+          onClose={() => {
+            setIsPreDepartureModalOpen(false);
+            setSelectedSchedule(null);
+          }}
+          onEmergency={() => {
+            setIsPreDepartureModalOpen(false);
+            setIsEmergencyModalOpen(true);
+          }}
+        />
+      )}
+
+      {/* Start Journey Modal */}
+      {isStartJourneyModalOpen && selectedSchedule && (
+        <StartJourneyModal
+          schedule={selectedSchedule}
+          onClose={() => {
+            setIsStartJourneyModalOpen(false);
+            setSelectedSchedule(null);
+          }}
+        />
+      )}
+
+      {/* Emergency Modal */}
+      {isEmergencyModalOpen && selectedSchedule && (
+        <EmergencyModal
+          scheduleId={selectedSchedule.scheduleId}
+          onClose={() => {
+            setIsEmergencyModalOpen(false);
+            setSelectedSchedule(null);
+          }}
+          onBack={() => {
+            setIsEmergencyModalOpen(false);
+            setIsPreDepartureModalOpen(true);
+          }}
+        />
+      )}
+
+      {isCompleteJourneyModalOpen && (
+        <CompleteJourneyModal
+          isOpen={isCompleteJourneyModalOpen}
+          onClose={() => setIsCompleteJourneyModalOpen(false)}
+          schedule={selectedSchedule}
+        />
+      )}
     </div>
   );
 }

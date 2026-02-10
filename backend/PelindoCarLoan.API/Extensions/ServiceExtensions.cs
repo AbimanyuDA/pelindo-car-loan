@@ -113,6 +113,7 @@ namespace PelindoCarLoan.API.Extensions
             services.AddScoped<IVehicleRepository, VehicleRepository>();
 
             // Services
+            services.AddSingleton<INotificationService, NotificationService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ILoanRequestService, LoanRequestService>();
             services.AddScoped<IApprovalService, ApprovalService>();

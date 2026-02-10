@@ -1,6 +1,7 @@
 using PelindoCarLoan.API.Extensions;
 using PelindoCarLoan.API.Middleware;
 using PelindoCarLoan.API.Helpers;
+using PelindoCarLoan.API.Repositories;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,6 +69,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Initialize database constraints
+var dbContext = app.Services.GetRequiredService<IDbContext>();
+await dbContext.InitializeDatabaseAsync();
 
 Log.Information("Pelindo Car Loan API started successfully");
 

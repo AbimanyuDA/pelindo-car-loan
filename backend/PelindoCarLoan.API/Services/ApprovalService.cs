@@ -10,6 +10,7 @@ namespace PelindoCarLoan.API.Services
     public interface IApprovalService
     {
         Task<IEnumerable<PendingApprovalDto>> GetPendingApprovalsAsync(int level);
+        Task<IEnumerable<PendingApprovalDto>> GetEmergencyApprovalsAsync(int level);
         Task<ApprovalDto> ProcessApprovalL1Async(int approverId, ProcessApprovalDto dto);
         Task<ApprovalDto> ProcessApprovalL2Async(int approverId, ProcessApprovalDto dto);
         Task<IEnumerable<ApprovalDto>> GetApprovalHistoryAsync(int loanRequestId);
@@ -20,6 +21,7 @@ namespace PelindoCarLoan.API.Services
     {
         private readonly IApprovalRepository _approvalRepository;
         private readonly ILoanRequestRepository _loanRequestRepository;
+        private readonly IScheduleRepository _scheduleRepository;
         private readonly ISchedulingService _schedulingService;
         private readonly IUserRepository _userRepository;
         private readonly IDriverRepository _driverRepository;
@@ -30,6 +32,7 @@ namespace PelindoCarLoan.API.Services
         public ApprovalService(
             IApprovalRepository approvalRepository,
             ILoanRequestRepository loanRequestRepository,
+            IScheduleRepository scheduleRepository,
             ISchedulingService schedulingService,
             IUserRepository userRepository,
             IDriverRepository driverRepository,
@@ -39,6 +42,7 @@ namespace PelindoCarLoan.API.Services
         {
             _approvalRepository = approvalRepository;
             _loanRequestRepository = loanRequestRepository;
+            _scheduleRepository = scheduleRepository;
             _schedulingService = schedulingService;
             _userRepository = userRepository;
             _driverRepository = driverRepository;
@@ -79,6 +83,40 @@ namespace PelindoCarLoan.API.Services
             });
         }
 
+        public async Task<IEnumerable<PendingApprovalDto>> GetEmergencyApprovalsAsync(int level)
+        {
+            var loanRequests = await _loanRequestRepository.GetEmergencyForApprovalAsync(level);
+
+            return loanRequests.Select(lr => new PendingApprovalDto
+            {
+                LoanRequestId = lr.Id,
+                RequestNumber = lr.RequestNumber,
+                RequesterName = lr.User?.Name ?? "Unknown",
+                RequesterEmail = lr.User?.Email ?? "",
+                RequesterPhone = lr.User?.PhoneNumber,
+                RequesterDivision = lr.User?.Division ?? "Unknown",
+                RequesterUnitKerja = lr.User?.UnitKerja,
+                ServiceLetterBasis = lr.ServiceLetterBasis,
+                ServiceLetterFilePath = lr.ServiceLetterFilePath,
+                Purpose = lr.Purpose,
+                Destination = lr.Destination,
+                GuestList = lr.GuestList,
+                HotelAccommodation = lr.HotelAccommodation,
+                VehicleId = lr.VehicleId,
+                DriverId = lr.DriverId,
+                DriverName = lr.Driver?.User?.Name,
+                DriverPhone = lr.Driver?.User?.PhoneNumber,
+                StartDatetime = lr.StartDatetime,
+                EndDatetime = lr.EndDatetime,
+                Status = lr.Status,
+                Notes = lr.Notes,
+                CreatedAt = lr.CreatedAt,
+                RequiredApprovalLevel = level,
+                EmergencyReason = lr.Schedule?.EmergencyReason,
+                EmergencyType = lr.Schedule?.EmergencyType
+            });
+        }
+
         public async Task<ApprovalDto> ProcessApprovalL1Async(int approverId, ProcessApprovalDto dto)
         {
             return await ProcessApprovalAsync(approverId, dto, ApprovalLevel.Level1);
@@ -115,11 +153,32 @@ namespace PelindoCarLoan.API.Services
                 throw new ArgumentException("Loan request not found");
             }
 
+            // Get latest schedule to check if it's an emergency case
+            var schedules = await _scheduleRepository.GetAllByLoanRequestIdAsync(dto.LoanRequestId);
+            var latestSchedule = schedules?.OrderByDescending(s => s.Id).FirstOrDefault();
+            var emergencyType = latestSchedule?.EmergencyType;
+            var isEmergencyCase = latestSchedule?.Status == ScheduleStatus.Waiting ||
+                                  latestSchedule?.Status == ScheduleStatus.WaitingL2 ||
+                                  (latestSchedule?.Status == ScheduleStatus.Cancelled &&
+                                   !string.IsNullOrEmpty(latestSchedule?.EmergencyReason) &&
+                                   emergencyType == "MOGOK");
+
             // Validate loan request is in correct status for this approval level
             var expectedStatus = level == 1 ? LoanRequestStatus.Submitted : LoanRequestStatus.ApprovedL1;
             if (loanRequest.Status != expectedStatus)
             {
-                throw new InvalidOperationException($"Loan request is not in {expectedStatus} status");
+                if (level == 2 && isEmergencyCase &&
+                    (latestSchedule?.Status == ScheduleStatus.WaitingL2 ||
+                     (latestSchedule?.Status == ScheduleStatus.Cancelled && emergencyType == "MOGOK")))
+                {
+                    // Legacy emergency mogok data might still be SUBMITTED; normalize to APPROVED_L1
+                    await _loanRequestRepository.UpdateStatusAsync(dto.LoanRequestId, LoanRequestStatus.ApprovedL1);
+                    loanRequest.Status = LoanRequestStatus.ApprovedL1;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Loan request is not in {expectedStatus} status");
+                }
             }
 
             // Validate status value
@@ -130,46 +189,213 @@ namespace PelindoCarLoan.API.Services
 
             // Check if approval already exists for this level
             var existingApproval = await _approvalRepository.GetByLoanRequestAndLevelAsync(dto.LoanRequestId, level);
+            Approval approval;
             if (existingApproval != null)
             {
-                throw new InvalidOperationException($"Approval for level {level} already exists");
+                existingApproval.Status = dto.Status;
+                existingApproval.Notes = dto.Notes;
+                existingApproval.ApproverId = approverId;
+                existingApproval.ApprovedAt = DateTime.UtcNow;
+                await _approvalRepository.UpdateAsync(existingApproval);
+                approval = existingApproval;
+            }
+            else
+            {
+                // Create approval record
+                approval = new Approval
+                {
+                    LoanRequestId = dto.LoanRequestId,
+                    ApproverId = approverId,
+                    ApprovalLevel = level,
+                    Status = dto.Status,
+                    Notes = dto.Notes,
+                    ApprovedAt = DateTime.UtcNow
+                };
+
+                var approvalId = await _approvalRepository.CreateAsync(approval);
+                approval.Id = approvalId;
             }
 
-            // L1 dan L2 bisa assign/reassign vehicle dan driver
-            // Jika approver memberikan vehicle/driver baru, update loan request
-            if (dto.VehicleId.HasValue && dto.DriverId.HasValue)
+            // Handle emergency cases
+            if (isEmergencyCase && dto.Status == ApprovalStatus.Approved)
             {
-                loanRequest.VehicleId = dto.VehicleId;
-                loanRequest.DriverId = dto.DriverId;
-                await _loanRequestRepository.UpdateAsync(loanRequest);
-                _logger.LogInformation(
-                    "Vehicle and Driver assigned/reassigned for LoanRequest {LoanRequestId}: Vehicle={VehicleId}, Driver={DriverId} by Approver={ApproverId}",
-                    dto.LoanRequestId, dto.VehicleId, dto.DriverId, approverId);
+                if (level == 1)
+                {
+                    // L1 Emergency Logic
+                    if (emergencyType == "MOGOK")
+                    {
+                        // Mogok: Assign vehicle/driver and set status to WAITING_L2
+                        if (!dto.VehicleId.HasValue || !dto.DriverId.HasValue)
+                        {
+                            throw new InvalidOperationException("Mogok emergency requires vehicle and driver reassignment");
+                        }
+
+                        loanRequest.VehicleId = dto.VehicleId;
+                        loanRequest.DriverId = dto.DriverId;
+                        loanRequest.Status = LoanRequestStatus.ApprovedL1;
+                        await _loanRequestRepository.UpdateAsync(loanRequest);
+
+                        // Update schedule status to WAITING_L2
+                        if (latestSchedule != null)
+                        {
+                            latestSchedule.Status = ScheduleStatus.WaitingL2;
+                            await _scheduleRepository.UpdateAsync(latestSchedule);
+                        }
+
+                        _logger.LogInformation(
+                            "Mogok emergency approved by L1: LoanRequest={LoanRequestId}, NewVehicle={VehicleId}, NewDriver={DriverId}, Status=WAITING_L2",
+                            dto.LoanRequestId, dto.VehicleId, dto.DriverId);
+                    }
+                    else if (emergencyType == "LAINNYA")
+                    {
+                        // Alasan Lain:
+                        // L1 harus assign kendaraan/driver lalu lanjut ke L2 (status WAITING_L2)
+
+                        if (!dto.VehicleId.HasValue || !dto.DriverId.HasValue)
+                        {
+                            throw new InvalidOperationException("Alasan lain requires vehicle and driver assignment");
+                        }
+
+                        loanRequest.VehicleId = dto.VehicleId;
+                        loanRequest.DriverId = dto.DriverId;
+                        await _loanRequestRepository.UpdateAsync(loanRequest);
+
+                        // Update schedule with new assignment and set to WAITING_L2 (for L2 review)
+                        if (latestSchedule != null)
+                        {
+                            latestSchedule.VehicleId = dto.VehicleId.Value;
+                            latestSchedule.DriverId = dto.DriverId.Value;
+                            latestSchedule.AssignedAt = DateTime.UtcNow;
+                            latestSchedule.Status = ScheduleStatus.WaitingL2;
+                            await _scheduleRepository.UpdateAsync(latestSchedule);
+                        }
+
+                        // Update loan request status to APPROVED_L1 (for L2 review)
+                        await _loanRequestRepository.UpdateStatusAsync(dto.LoanRequestId, LoanRequestStatus.ApprovedL1);
+                        _logger.LogInformation(
+                            "Alasan lain emergency processed by L1: LoanRequest={LoanRequestId}, NewVehicle={VehicleId}, NewDriver={DriverId}, Status=WAITING_L2",
+                            dto.LoanRequestId, dto.VehicleId, dto.DriverId);
+
+                        return MapToApprovalDto(approval);
+                    }
+                }
+                else if (level == 2)
+                {
+                    // L2 Emergency Logic
+                    if (latestSchedule?.Status == ScheduleStatus.WaitingL2)
+                    {
+                        // Mogok case: Check if driver changed
+                        var oldDriverId = latestSchedule.DriverId;
+                        var newDriverId = dto.DriverId;
+
+                        if (newDriverId.HasValue && newDriverId.Value != oldDriverId)
+                        {
+                            // Driver changed: update existing schedule to new driver/vehicle
+                            latestSchedule.DriverId = newDriverId.Value;
+                            if (dto.VehicleId.HasValue)
+                            {
+                                latestSchedule.VehicleId = dto.VehicleId.Value;
+                            }
+                            latestSchedule.Status = ScheduleStatus.Confirmed;
+                            latestSchedule.AssignedAt = DateTime.UtcNow;
+                            await _scheduleRepository.UpdateAsync(latestSchedule);
+
+                            // Update loan request
+                            loanRequest.VehicleId = latestSchedule.VehicleId;
+                            loanRequest.DriverId = newDriverId.Value;
+                            loanRequest.Status = LoanRequestStatus.Scheduled;
+                            await _loanRequestRepository.UpdateAsync(loanRequest);
+
+                            _logger.LogInformation(
+                                "L2 approved mogok with driver change: LoanRequest={LoanRequestId}, OldDriver={OldDriverId}, NewDriver={NewDriverId}",
+                                dto.LoanRequestId, oldDriverId, newDriverId);
+                        }
+                        else
+                        {
+                            // Driver same or no change: keep L1 assignment, allow vehicle update, and confirm schedule
+                            if (dto.VehicleId.HasValue)
+                            {
+                                latestSchedule.VehicleId = dto.VehicleId.Value;
+                            }
+                            latestSchedule.Status = ScheduleStatus.Confirmed;
+                            await _scheduleRepository.UpdateAsync(latestSchedule);
+
+                            loanRequest.VehicleId = latestSchedule.VehicleId;
+                            loanRequest.DriverId = latestSchedule.DriverId;
+                            loanRequest.Status = LoanRequestStatus.Scheduled;
+                            await _loanRequestRepository.UpdateAsync(loanRequest);
+
+                            _logger.LogInformation(
+                                "L2 approved mogok with same driver: LoanRequest={LoanRequestId}, ConfirmedAsIs",
+                                dto.LoanRequestId);
+                        }
+                    }
+                    else if (latestSchedule?.Status == ScheduleStatus.Cancelled && emergencyType == "MOGOK")
+                    {
+                        // Legacy cancelled emergency mogok: revive assignment
+                        if (dto.VehicleId.HasValue)
+                        {
+                            latestSchedule.VehicleId = dto.VehicleId.Value;
+                        }
+                        if (dto.DriverId.HasValue)
+                        {
+                            latestSchedule.DriverId = dto.DriverId.Value;
+                        }
+
+                        latestSchedule.Status = ScheduleStatus.Confirmed;
+                        latestSchedule.AssignedAt = DateTime.UtcNow;
+                        await _scheduleRepository.UpdateAsync(latestSchedule);
+
+                        loanRequest.VehicleId = latestSchedule.VehicleId;
+                        loanRequest.DriverId = latestSchedule.DriverId;
+                        loanRequest.Status = LoanRequestStatus.Scheduled;
+                        await _loanRequestRepository.UpdateAsync(loanRequest);
+
+                        _logger.LogInformation(
+                            "L2 revived cancelled mogok schedule: LoanRequest={LoanRequestId}, Driver={DriverId}, Vehicle={VehicleId}",
+                            dto.LoanRequestId, latestSchedule.DriverId, latestSchedule.VehicleId);
+                    }
+                    else if (latestSchedule?.Status == ScheduleStatus.Waiting && emergencyType == "LAINNYA")
+                    {
+                        // Alasan Lain case: L2 tinggal approve (tidak boleh ganti driver)
+                        // L2 hanya approve dari assignment L1
+                        
+                        // Approve: Set schedule to CONFIRMED
+                        latestSchedule.Status = ScheduleStatus.Confirmed;
+                        await _scheduleRepository.UpdateAsync(latestSchedule);
+
+                        loanRequest.Status = LoanRequestStatus.Scheduled;
+                        await _loanRequestRepository.UpdateAsync(loanRequest);
+
+                        _logger.LogInformation(
+                            "L2 approved alasan lain emergency: LoanRequest={LoanRequestId}, ApprovedAsIs",
+                            dto.LoanRequestId);
+                    }
+                }
             }
-
-            // Validate that vehicle and driver are assigned before approving
-            if (dto.Status == ApprovalStatus.Approved && (!loanRequest.VehicleId.HasValue || !loanRequest.DriverId.HasValue))
+            else if (!isEmergencyCase)
             {
-                throw new InvalidOperationException("Cannot approve request without vehicle and driver assignment");
+                // Normal flow: L1 dan L2 bisa assign/reassign vehicle dan driver
+                if (dto.VehicleId.HasValue && dto.DriverId.HasValue)
+                {
+                    loanRequest.VehicleId = dto.VehicleId;
+                    loanRequest.DriverId = dto.DriverId;
+                    await _loanRequestRepository.UpdateAsync(loanRequest);
+                    _logger.LogInformation(
+                        "Vehicle and Driver assigned/reassigned for LoanRequest {LoanRequestId}: Vehicle={VehicleId}, Driver={DriverId} by Approver={ApproverId}",
+                        dto.LoanRequestId, dto.VehicleId, dto.DriverId, approverId);
+                }
+
+                // Validate that vehicle and driver are assigned before approving
+                if (dto.Status == ApprovalStatus.Approved && (!loanRequest.VehicleId.HasValue || !loanRequest.DriverId.HasValue))
+                {
+                    throw new InvalidOperationException("Cannot approve request without vehicle and driver assignment");
+                }
+
+                // Update loan request status
+                var newStatus = GetNewLoanRequestStatus(level, dto.Status);
+                await _loanRequestRepository.UpdateStatusAsync(dto.LoanRequestId, newStatus);
             }
-
-            // Create approval record
-            var approval = new Approval
-            {
-                LoanRequestId = dto.LoanRequestId,
-                ApproverId = approverId,
-                ApprovalLevel = level,
-                Status = dto.Status,
-                Notes = dto.Notes,
-                ApprovedAt = DateTime.UtcNow
-            };
-
-            var approvalId = await _approvalRepository.CreateAsync(approval);
-            approval.Id = approvalId;
-
-            // Update loan request status
-            var newStatus = GetNewLoanRequestStatus(level, dto.Status);
-            await _loanRequestRepository.UpdateStatusAsync(dto.LoanRequestId, newStatus);
 
             _logger.LogInformation(
                 "Approval processed: LoanRequest={LoanRequestId}, Level={Level}, Status={Status}, Approver={ApproverId}",
@@ -322,7 +548,7 @@ namespace PelindoCarLoan.API.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to send email notification for approval {ApprovalId}", approvalId);
+                    _logger.LogError(ex, "Failed to send email notification for approval {ApprovalId}", approval.Id);
                 }
             });
 
@@ -368,6 +594,20 @@ namespace PelindoCarLoan.API.Services
         public async Task<int> GetPendingCountAsync(int level)
         {
             return await _approvalRepository.GetPendingCountByLevelAsync(level);
+        }
+
+        private ApprovalDto MapToApprovalDto(Approval approval)
+        {
+            return new ApprovalDto
+            {
+                Id = approval.Id,
+                LoanRequestId = approval.LoanRequestId,
+                ApproverId = approval.ApproverId,
+                ApprovalLevel = approval.ApprovalLevel,
+                Status = approval.Status,
+                Notes = approval.Notes,
+                ApprovedAt = approval.ApprovedAt
+            };
         }
     }
 }

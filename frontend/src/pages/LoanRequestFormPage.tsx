@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -57,6 +57,7 @@ type LoanRequestFormData = z.infer<typeof loanRequestSchema>;
 
 export default function LoanRequestFormPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [selectionMode, setSelectionMode] = useState<"self" | "assigned">(
     "assigned"
@@ -93,49 +94,56 @@ export default function LoanRequestFormPage() {
   const endDatetime =
     returnDate && returnTime ? `${returnDate}T${returnTime}:00` : undefined;
 
-  // Fetch available vehicles based on selected dates
-  const { data: vehiclesData } = useQuery({
-    queryKey: ["vehicles", "available", startDatetime, endDatetime],
+  // Fetch all vehicles (always show) and available vehicles for selected dates
+  const { data: allVehicles } = useQuery({
+    queryKey: ["vehicles"],
     queryFn: async () => {
-      if (startDatetime && endDatetime) {
-        // Fetch with date filter to exclude vehicles already scheduled
-        const response = await vehicleService.getAvailable(
-          startDatetime,
-          endDatetime
-        );
-        return response.data;
-      } else {
-        // No dates selected, fetch all vehicles
-        const response = await vehicleService.getAll();
-        return response.data;
-      }
+      const response = await vehicleService.getAll();
+      return response.data || [];
     },
-    enabled: true,
   });
 
-  // Fetch available drivers based on selected dates
-  const { data: driversData } = useQuery({
+  const { data: availableVehicles } = useQuery({
+    queryKey: ["vehicles", "available", startDatetime, endDatetime],
+    queryFn: async () => {
+      const response = await vehicleService.getAvailable(
+        startDatetime as string,
+        endDatetime as string
+      );
+      return response.data || [];
+    },
+    enabled: !!startDatetime && !!endDatetime,
+  });
+
+  // Fetch all drivers (always show) and available drivers for selected dates
+  const { data: allDrivers } = useQuery({
+    queryKey: ["drivers"],
+    queryFn: async () => {
+      const response = await driverService.getAll();
+      return response.data || [];
+    },
+  });
+
+  const { data: availableDrivers } = useQuery({
     queryKey: ["drivers", "available", startDatetime, endDatetime],
     queryFn: async () => {
-      if (startDatetime && endDatetime) {
-        // Fetch with date filter to exclude drivers already scheduled
-        const response = await driverService.getAvailable(
-          startDatetime,
-          endDatetime
-        );
-        return response.data;
-      } else {
-        // No dates selected, fetch all drivers
-        const response = await driverService.getAll();
-        return response.data;
-      }
+      const response = await driverService.getAvailable(
+        startDatetime as string,
+        endDatetime as string
+      );
+      return response.data || [];
     },
-    enabled: true,
+    enabled: !!startDatetime && !!endDatetime,
   });
 
   const createMutation = useMutation({
     mutationFn: loanRequestService.create,
     onSuccess: () => {
+      // Refresh list immediately after submit
+      queryClient.invalidateQueries({ queryKey: ["my-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["all-loan-requests"] });
+      queryClient.refetchQueries({ queryKey: ["my-requests"] });
+
       navigate("/loan-requests");
     },
     onError: (err: unknown) => {
@@ -482,7 +490,7 @@ export default function LoanRequestFormPage() {
                       Pilih Kendaraan *
                     </label>
                     <span className="text-xs text-gray-500">
-                      Hanya yang tersedia bisa dipilih
+                      Yang booked akan nonaktif
                     </span>
                   </div>
                   <select
@@ -490,25 +498,32 @@ export default function LoanRequestFormPage() {
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm"
                   >
                     <option value="">Pilih kendaraan tersedia</option>
-                    {vehiclesData && vehiclesData.length > 0 ? (
-                      vehiclesData.map((vehicle, index) => {
+                    {allVehicles && allVehicles.length > 0 ? (
+                      allVehicles.map((vehicle, index) => {
                         const value = vehicle.id;
                         if (!value) return null; // skip items tanpa id
+                        const availableSet = new Set(
+                          (availableVehicles || []).map((v: any) => v.id)
+                        );
+                        const isBooked =
+                          startDatetime && endDatetime
+                            ? !availableSet.has(value)
+                            : false;
                         return (
                           <option
                             key={`vehicle-${value}-${index}`}
                             value={value}
+                            disabled={isBooked}
+                            className={isBooked ? "text-red-600" : ""}
                           >
                             {vehicle.brand} {vehicle.type} •{" "}
-                            {vehicle.plateNumber} — Tersedia
+                            {vehicle.plateNumber} — {isBooked ? "Booked" : "Tersedia"}
                           </option>
                         );
                       })
                     ) : (
                       <option disabled>
-                        {startDatetime && endDatetime
-                          ? "Tidak ada kendaraan tersedia di waktu yang dipilih"
-                          : "Pilih tanggal terlebih dahulu"}
+                        Tidak ada data kendaraan
                       </option>
                     )}
                   </select>
@@ -525,7 +540,7 @@ export default function LoanRequestFormPage() {
                       Pilih Driver *
                     </label>
                     <span className="text-xs text-gray-500">
-                      Hanya yang tersedia bisa dipilih
+                      Yang booked akan nonaktif
                     </span>
                   </div>
                   <select
@@ -533,28 +548,35 @@ export default function LoanRequestFormPage() {
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm"
                   >
                     <option value="">Pilih driver tersedia</option>
-                    {driversData && driversData.length > 0 ? (
-                      driversData.map((driver, index) => {
+                    {allDrivers && allDrivers.length > 0 ? (
+                      allDrivers.map((driver, index) => {
                         const value = driver.id;
                         if (!value) return null;
                         const displayName =
                           (driver as any).name ||
                           (driver as any).driverName ||
                           `Driver ${value}`;
+                        const availableSet = new Set(
+                          (availableDrivers || []).map((d: any) => d.id)
+                        );
+                        const isBooked =
+                          startDatetime && endDatetime
+                            ? !availableSet.has(value)
+                            : false;
                         return (
                           <option
                             key={`driver-${value}-${index}`}
                             value={value}
+                            disabled={isBooked}
+                            className={isBooked ? "text-red-600" : ""}
                           >
-                            {displayName} — Tersedia
+                            {displayName} — {isBooked ? "Booked" : "Tersedia"}
                           </option>
                         );
                       })
                     ) : (
                       <option disabled>
-                        {startDatetime && endDatetime
-                          ? "Tidak ada driver tersedia di waktu yang dipilih"
-                          : "Pilih tanggal terlebih dahulu"}
+                        Tidak ada data driver
                       </option>
                     )}
                   </select>

@@ -115,6 +115,20 @@ export const approvalService = {
     return response.data;
   },
 
+  getEmergencyL1: async (): Promise<ApiResponse<PendingApproval[]>> => {
+    const response = await api.get<ApiResponse<PendingApproval[]>>(
+      "/approvals/emergency/l1"
+    );
+    return response.data;
+  },
+
+  getEmergencyL2: async (): Promise<ApiResponse<PendingApproval[]>> => {
+    const response = await api.get<ApiResponse<PendingApproval[]>>(
+      "/approvals/emergency/l2"
+    );
+    return response.data;
+  },
+
   processL1: async (data: ProcessApproval): Promise<ApiResponse<Approval>> => {
     const response = await api.post<ApiResponse<Approval>>(
       "/approvals/process/l1",
@@ -230,6 +244,74 @@ export const scheduleService = {
     const response = await api.post<ApiResponse<void>>(
       `/schedules/${scheduleId}/cancel`,
       data
+    );
+    return response.data;
+  },
+
+  // Driver pre-departure and journey management
+  reportEmergency: async (
+    scheduleId: number,
+    data: { emergencyReason: string; driverMessage?: string }
+  ): Promise<ApiResponse<void>> => {
+    const response = await api.post<ApiResponse<void>>(
+      `/schedules/${scheduleId}/emergency`,
+      data
+    );
+    return response.data;
+  },
+
+  driverConfirmation: async (
+    scheduleId: number,
+    data: {
+      actualVehicleId?: number;
+      fuelCondition?: string;
+    }
+  ): Promise<ApiResponse<void>> => {
+    const response = await api.post<ApiResponse<void>>(
+      `/schedules/${scheduleId}/confirm`,
+      data
+    );
+    return response.data;
+  },
+
+  startJourney: async (
+    scheduleId: number,
+    data: {
+      actualStartTime: string;
+    }
+  ): Promise<ApiResponse<void>> => {
+    const response = await api.post<ApiResponse<void>>(
+      `/schedules/${scheduleId}/start`,
+      data
+    );
+    return response.data;
+  },
+
+  completeJourney: async (
+    scheduleId: number,
+    data: FormData | { actualEndTime: string; notes?: string }
+  ): Promise<ApiResponse<void>> => {
+    const response = await api.post<ApiResponse<void>>(
+      `/schedules/${scheduleId}/complete`,
+      data
+    );
+    return response.data;
+  },
+
+  uploadKmPhoto: async (
+    scheduleId: number,
+    file: File
+  ): Promise<ApiResponse<{ filePath: string }>> => {
+    const formData = new FormData();
+    formData.append("photo", file);
+    const response = await api.post<ApiResponse<{ filePath: string }>>(
+      `/schedules/${scheduleId}/upload-km`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return response.data;
   },

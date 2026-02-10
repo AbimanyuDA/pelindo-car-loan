@@ -21,6 +21,11 @@ namespace PelindoCarLoan.API.Services
         Task<bool> RetrySchedulingAsync(int loanRequestId);
         Task<int> GetScheduledCountAsync();
         Task<bool> CancelScheduleAsync(int scheduleId, int userId, string cancellationReason);
+        Task<bool> ReportEmergencyAsync(int scheduleId, int userId, EmergencyReportDto dto);
+        Task<bool> DriverConfirmationAsync(int scheduleId, int userId, DriverConfirmationDto dto);
+        Task<ScheduleDto?> StartJourneyAsync(int scheduleId, int userId, StartJourneyDto dto);
+        Task<ScheduleDto?> CompleteJourneyAsync(int scheduleId, int userId, CompleteJourneyDto dto, string? refuelReceiptPath = null);
+        Task<string?> UploadKmPhotoAsync(int scheduleId, int userId, IFormFile file);
     }
 
     public class SchedulingService : ISchedulingService
@@ -408,11 +413,18 @@ namespace PelindoCarLoan.API.Services
                 HotelName = schedule.LoanRequest?.HotelAccommodation,
                 StartDatetime = schedule.LoanRequest?.StartDatetime ?? DateTime.MinValue,
                 EndDatetime = schedule.LoanRequest?.EndDatetime ?? DateTime.MinValue,
+                VehicleId = schedule.VehicleId ?? 0,
                 VehiclePlate = schedule.Vehicle?.PlateNumber ?? "",
                 VehicleBrand = schedule.Vehicle?.Brand ?? "",
+                VehicleModel = schedule.Vehicle?.Model ?? "",
                 VehicleType = schedule.Vehicle?.Type ?? "",
                 Status = schedule.Status,
-                Notes = schedule.Notes
+                Notes = schedule.Notes,
+                ActualVehicleId = schedule.ActualVehicleId,
+                FuelCondition = schedule.FuelCondition,
+                ActualStartTime = schedule.ActualStartTime,
+                ActualEndTime = schedule.ActualEndTime,
+                EmergencyReason = schedule.EmergencyReason
             };
         }
 
@@ -438,6 +450,159 @@ namespace PelindoCarLoan.API.Services
             }
 
             return result;
+        }
+
+        public async Task<bool> ReportEmergencyAsync(int scheduleId, int userId, EmergencyReportDto dto)
+        {
+            var schedule = await _scheduleRepository.GetByIdWithDetailsAsync(scheduleId);
+            if (schedule == null) return false;
+
+            // Verify driver owns this schedule
+            var driver = await _driverRepository.GetByUserIdAsync(userId);
+            if (driver == null || schedule.DriverId != driver.Id) return false;
+
+            // Only allow emergency report if schedule is CONFIRMED
+            if (schedule.Status != ScheduleStatus.Confirmed) return false;
+
+            // Store emergency info in schedule
+            schedule.EmergencyReason = dto.EmergencyReason;
+            schedule.DriverMessage = dto.DriverMessage;
+            
+            // Detect emergency type - check for vehicle/mogok related keywords
+            var reason = dto.EmergencyReason?.ToLower() ?? "";
+            if (reason.Contains("[mogok]") || 
+                reason.Contains("mogok") || 
+                reason.Contains("mobil bermasalah") || 
+                reason.Contains("kendaraan bermasalah") ||
+                reason.Contains("ban pecah") ||
+                reason.Contains("mesin mati") ||
+                reason.Contains("kerusakan"))
+            {
+                schedule.EmergencyType = "MOGOK";
+            }
+            else
+            {
+                schedule.EmergencyType = "LAINNYA";
+            }
+            
+            // Set status to WAITING (not immediately CANCELLED)
+            schedule.Status = ScheduleStatus.Waiting;
+
+            await _scheduleRepository.UpdateAsync(schedule);
+
+            // Return loan request to SUBMITTED status (back to L1 approval for review)
+            await _loanRequestRepository.UpdateStatusAsync(schedule.LoanRequestId, LoanRequestStatus.Submitted);
+
+            return true;
+        }
+
+        public async Task<bool> DriverConfirmationAsync(int scheduleId, int userId, DriverConfirmationDto dto)
+        {
+            var schedule = await _scheduleRepository.GetByIdWithDetailsAsync(scheduleId);
+            if (schedule == null) return false;
+
+            // Verify driver owns this schedule
+            var driver = await _driverRepository.GetByUserIdAsync(userId);
+            if (driver == null || schedule.DriverId != driver.Id) return false;
+
+            // Only allow confirmation if schedule is CONFIRMED
+            if (schedule.Status != ScheduleStatus.Confirmed) return false;
+
+            // Update with pre-departure data
+            schedule.ActualVehicleId = dto.ActualVehicleId;
+            schedule.FuelCondition = dto.FuelCondition;
+            schedule.Status = ScheduleStatus.DriverConfirmed;
+
+            await _scheduleRepository.UpdateAsync(schedule);
+
+            return true;
+        }
+
+        public async Task<ScheduleDto?> StartJourneyAsync(int scheduleId, int userId, StartJourneyDto dto)
+        {
+            var schedule = await _scheduleRepository.GetByIdWithDetailsAsync(scheduleId);
+            if (schedule == null) return null;
+
+            // Verify driver owns this schedule
+            var driver = await _driverRepository.GetByUserIdAsync(userId);
+            if (driver == null || schedule.DriverId != driver.Id) return null;
+
+            // Only allow start if schedule is DRIVER_CONFIRMED
+            if (schedule.Status != ScheduleStatus.DriverConfirmed) return null;
+
+            // Record actual start time
+            schedule.ActualStartTime = dto.ActualStartTime;
+            schedule.Status = ScheduleStatus.InProgress;
+
+            await _scheduleRepository.UpdateAsync(schedule);
+
+            // Update loan request status
+            await _loanRequestRepository.UpdateStatusAsync(schedule.LoanRequestId, LoanRequestStatus.InProgress);
+
+            return MapToDto(schedule);
+        }
+
+        public async Task<ScheduleDto?> CompleteJourneyAsync(int scheduleId, int userId, CompleteJourneyDto dto, string? refuelReceiptPath = null)
+        {
+            var schedule = await _scheduleRepository.GetByIdWithDetailsAsync(scheduleId);
+            if (schedule == null) return null;
+
+            // Verify driver owns this schedule
+            var driver = await _driverRepository.GetByUserIdAsync(userId);
+            if (driver == null || schedule.DriverId != driver.Id) return null;
+
+            // Only allow complete if schedule is IN_PROGRESS
+            if (schedule.Status != ScheduleStatus.InProgress) return null;
+
+            // Update schedule with actual end time, final fuel condition, and refuel info
+            schedule.ActualEndTime = dto.ActualEndTime;
+            schedule.FinalFuelCondition = dto.FinalFuelCondition;
+            schedule.IsRefueled = dto.IsRefueled;
+            schedule.RefuelAmount = dto.RefuelAmount;
+            schedule.RefuelReceiptPath = refuelReceiptPath;
+            schedule.Status = ScheduleStatus.Completed;
+            if (!string.IsNullOrWhiteSpace(dto.Notes))
+            {
+                schedule.Notes = dto.Notes;
+            }
+
+            await _scheduleRepository.UpdateAsync(schedule);
+
+            // Update loan request status
+            await _loanRequestRepository.UpdateStatusAsync(schedule.LoanRequestId, LoanRequestStatus.Completed);
+
+            return MapToDto(schedule);
+        }
+
+        public async Task<string?> UploadKmPhotoAsync(int scheduleId, int userId, IFormFile file)
+        {
+            var schedule = await _scheduleRepository.GetByIdAsync(scheduleId);
+            if (schedule == null) return null;
+
+            // Verify driver owns this schedule
+            var driver = await _driverRepository.GetByUserIdAsync(userId);
+            if (driver == null || schedule.DriverId != driver.Id) return null;
+
+            // Only allow upload if schedule is CONFIRMED
+            if (schedule.Status != ScheduleStatus.Confirmed) return null;
+
+            // Save file (simplified - in production use proper storage)
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "km-photos");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = $"{scheduleId}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var relativePath = $"km-photos/{uniqueFileName}";
+            schedule.KmPhotoPath = relativePath;
+            await _scheduleRepository.UpdateAsync(schedule);
+
+            return relativePath;
         }
     }
 }

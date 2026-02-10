@@ -123,7 +123,7 @@ function PemohonDashboard() {
                       {request.purpose}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {formatDate(request.departureDate)} •{" "}
+                      {request.departureDate && formatDate(request.departureDate)} •{" "}
                       {request.destination}
                     </p>
                   </div>
@@ -216,10 +216,10 @@ function ApprovalDashboard({ role }: { role: string }) {
                       {approval.purpose}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {approval.requesterName} • {approval.department}
+                      {approval.requesterName} • {approval.department || "-"}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {formatDate(approval.departureDate)} •{" "}
+                      {approval.departureDate && formatDate(approval.departureDate)} •{" "}
                       {approval.destination}
                     </p>
                   </div>
@@ -317,7 +317,7 @@ function DriverDashboard() {
                       {schedule.purpose}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {formatDate(schedule.departureDate)} •{" "}
+                      {schedule.departureDate && formatDate(schedule.departureDate)} •{" "}
                       {schedule.destination}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -461,7 +461,7 @@ function AdminDashboard() {
                         {schedule.destination}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {schedule.vehiclePlateNumber} • {schedule.driverName}
+                        {schedule.vehiclePlate} • {schedule.requesterName}
                       </p>
                     </div>
                     <Badge status={schedule.status} />

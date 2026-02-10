@@ -29,6 +29,50 @@ namespace PelindoCarLoan.API.DTOs
     }
 
     /// <summary>
+    /// Pre-departure preparation DTO
+    /// </summary>
+    public class PreDepartureDto
+    {
+        public int? ActualVehicleId { get; set; }
+        public string? FuelCondition { get; set; }
+    }
+
+    /// <summary>
+    /// Emergency report DTO
+    /// </summary>
+    public class EmergencyReportDto
+    {
+        public string EmergencyReason { get; set; } = string.Empty;
+        public string? DriverMessage { get; set; }
+    }
+
+    /// <summary>
+    /// Start journey DTO
+    /// </summary>
+    public class DriverConfirmationDto
+    {
+        public int? ActualVehicleId { get; set; }
+        public string? FuelCondition { get; set; }
+    }
+
+    public class StartJourneyDto
+    {
+        public DateTime ActualStartTime { get; set; }
+    }
+
+    /// <summary>
+    /// Complete journey DTO
+    /// </summary>
+    public class CompleteJourneyDto
+    {
+        public DateTime ActualEndTime { get; set; }
+        public string? FinalFuelCondition { get; set; }
+        public bool IsRefueled { get; set; }
+        public decimal? RefuelAmount { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    /// <summary>
     /// Schedule response DTO
     /// </summary>
     public class ScheduleDto
@@ -41,10 +85,22 @@ namespace PelindoCarLoan.API.DTOs
         public string Status { get; set; } = string.Empty;
         public string? Notes { get; set; }
         
+        // Pre-departure & actual journey
+        public int? ActualVehicleId { get; set; }
+        public string? FuelCondition { get; set; }
+        public string? KmPhotoPath { get; set; }
+        public DateTime? ActualStartTime { get; set; }
+        public DateTime? ActualEndTime { get; set; }
+        
+        // Emergency
+        public string? EmergencyReason { get; set; }
+        public string? DriverMessage { get; set; }
+        
         // Related data
         public LoanRequestDto? LoanRequest { get; set; }
         public DriverDto? Driver { get; set; }
         public VehicleDto? Vehicle { get; set; }
+        public VehicleDto? ActualVehicle { get; set; }
     }
 
     /// <summary>
@@ -64,10 +120,19 @@ namespace PelindoCarLoan.API.DTOs
         public string? HotelName { get; set; }
         public DateTime StartDatetime { get; set; }
         public DateTime EndDatetime { get; set; }
+        public int VehicleId { get; set; }
         public string VehiclePlate { get; set; } = string.Empty;
         public string VehicleBrand { get; set; } = string.Empty;
+        public string VehicleModel { get; set; } = string.Empty;
         public string VehicleType { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string? Notes { get; set; }
+        
+        // Actual journey data
+        public int? ActualVehicleId { get; set; }
+        public string? FuelCondition { get; set; }
+        public DateTime? ActualStartTime { get; set; }
+        public DateTime? ActualEndTime { get; set; }
+        public string? EmergencyReason { get; set; }
     }
 }

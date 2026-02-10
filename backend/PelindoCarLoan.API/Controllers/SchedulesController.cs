@@ -203,5 +203,136 @@ namespace PelindoCarLoan.API.Controllers
 
             return Ok(ApiResponse<object>.SuccessResponse(null, "Schedule cancelled successfully"));
         }
+
+        /// <summary>
+        /// Report emergency (Driver only)
+        /// </summary>
+        /// <param name="scheduleId">Schedule ID</param>
+        /// <param name="request">Emergency report</param>
+        /// <returns>Success status</returns>
+        [HttpPost("{scheduleId}/emergency")]
+        [Authorize(Roles = "DRIVER")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ReportEmergency(int scheduleId, [FromBody] EmergencyReportDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.EmergencyReason))
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("Emergency reason is required"));
+            }
+
+            var result = await _schedulingService.ReportEmergencyAsync(scheduleId, CurrentUserId, request);
+            
+            if (!result)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("Schedule not found or you don't have permission"));
+            }
+
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Emergency reported. Request returned to L1 approval"));
+        }
+
+        /// <summary>
+        /// Driver confirmation with pre-departure data (Driver only)
+        /// </summary>
+        /// <param name="scheduleId">Schedule ID</param>
+        /// <param name="request">Pre-departure data</param>
+        /// <returns>Success status</returns>
+        [HttpPost("{scheduleId}/confirm")]
+        [Authorize(Roles = "DRIVER")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DriverConfirmation(int scheduleId, [FromBody] DriverConfirmationDto request)
+        {
+            var result = await _schedulingService.DriverConfirmationAsync(scheduleId, CurrentUserId, request);
+            
+            if (!result)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("Schedule not found or not in CONFIRMED status"));
+            }
+
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Pre-departure data confirmed successfully"));
+        }
+
+        /// <summary>
+        /// Start journey (Driver only)
+        /// </summary>
+        /// <param name="scheduleId">Schedule ID</param>
+        /// <param name="request">Start journey data</param>
+        /// <returns>Success status</returns>
+        [HttpPost("{scheduleId}/start")]
+        [Authorize(Roles = "DRIVER")]
+        [ProducesResponseType(typeof(ApiResponse<ScheduleDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> StartJourney(int scheduleId, [FromBody] StartJourneyDto request)
+        {
+            var schedule = await _schedulingService.StartJourneyAsync(scheduleId, CurrentUserId, request);
+            
+            if (schedule == null)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("Schedule not found or you don't have permission"));
+            }
+
+            return Ok(ApiResponse<ScheduleDto>.SuccessResponse(schedule, "Journey started"));
+        }
+
+        /// <summary>
+        /// Complete journey (Driver only)
+        /// </summary>
+        /// <param name="scheduleId">Schedule ID</param>
+        /// <param name="request">Complete journey data with final fuel condition</param>
+        /// <returns>Success status</returns>
+        [HttpPost("{scheduleId}/complete")]
+        [Authorize(Roles = "DRIVER")]
+        [ProducesResponseType(typeof(ApiResponse<ScheduleDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CompleteJourney(int scheduleId, [FromForm] CompleteJourneyDto request, IFormFile? refuelReceipt)
+        {
+            // Handle file upload if provided
+            string? refuelReceiptPath = null;
+            if (refuelReceipt != null)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "refuel-receipts");
+                Directory.CreateDirectory(uploadsFolder);
+                var uniqueFileName = $"{scheduleId}_{Guid.NewGuid()}{Path.GetExtension(refuelReceipt.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await refuelReceipt.CopyToAsync(stream);
+                }
+                
+                refuelReceiptPath = $"/uploads/refuel-receipts/{uniqueFileName}";
+            }
+            
+            var result = await _schedulingService.CompleteJourneyAsync(scheduleId, CurrentUserId, request, refuelReceiptPath);
+            
+            if (result == null)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("Schedule not found or you don't have permission"));
+            }
+
+            return Ok(ApiResponse<ScheduleDto>.SuccessResponse(result, "Perjalanan selesai"));
+        }
+
+        /// <summary>
+        /// Upload KM photo (Driver only)
+        /// </summary>
+        /// <param name="scheduleId">Schedule ID</param>
+        /// <param name="file">KM photo file</param>
+        /// <returns>File path</returns>
+        [HttpPost("{scheduleId}/upload-km")]
+        [Authorize(Roles = "DRIVER")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadKmPhoto(int scheduleId, IFormFile file)
+        {
+            var filePath = await _schedulingService.UploadKmPhotoAsync(scheduleId, CurrentUserId, file);
+            
+            if (filePath == null)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("Schedule not found or you don't have permission"));
+            }
+
+            return Ok(ApiResponse<string>.SuccessResponse(filePath, "KM photo uploaded"));
+        }
     }
 }

@@ -57,5 +57,7 @@ namespace PelindoCarLoan.API.DTOs
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
         public int RequiredApprovalLevel { get; set; }
+        public string? EmergencyReason { get; set; }
+        public string? EmergencyType { get; set; }
     }
 }

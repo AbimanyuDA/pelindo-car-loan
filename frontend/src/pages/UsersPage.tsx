@@ -8,7 +8,6 @@ import {
   Upload,
   Download,
   Search,
-  X,
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -16,7 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { Alert } from "@/components/ui/Alert";
 import { PageLoading } from "@/components/ui/Loading";
-import { Badge } from "@/components/ui/Badge";
 import {
   userService,
   type UserType,
@@ -59,8 +57,8 @@ export default function UsersPage() {
     queryKey: ["users"],
     queryFn: async () => {
       const response = await userService.getAll();
-      // Backend returns ApiResponse<User[]>, so data is nested
-      return response.data?.data || [];
+      // Backend returns ApiResponse<User[]>, so data might be double-nested
+      return response.data || [];
     },
   });
 
@@ -103,7 +101,7 @@ export default function UsersPage() {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       // Backend returns ApiResponse<BulkImportResult>
-      setImportResult(response.data?.data || null);
+      setImportResult(response.data || null);
       setShowImportModal(false);
       setShowImportResult(true);
       setSelectedFile(null);
@@ -206,7 +204,7 @@ export default function UsersPage() {
   };
 
   const filteredUsers = users?.filter(
-    (user) =>
+    (user: UserType) =>
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
@@ -327,7 +325,7 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredUsers?.map((user) => (
+                {filteredUsers?.map((user: UserType) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <div className="font-medium text-gray-900">
@@ -354,15 +352,15 @@ export default function UsersPage() {
                       {user.phoneNumber || "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <Badge
+                      <div
                         className={
                           user.isActive
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-green-100 text-green-700 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            : "bg-red-100 text-red-700 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                         }
                       >
                         {user.isActive ? "Aktif" : "Nonaktif"}
-                      </Badge>
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">

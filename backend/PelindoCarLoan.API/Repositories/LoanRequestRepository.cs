@@ -12,6 +12,7 @@ namespace PelindoCarLoan.API.Repositories
         Task<LoanRequest?> GetByIdWithDetailsAsync(int id);
         Task<IEnumerable<LoanRequest>> GetAllAsync(int? userId = null, string? status = null);
         Task<IEnumerable<LoanRequest>> GetPendingForApprovalAsync(int approvalLevel);
+        Task<IEnumerable<LoanRequest>> GetEmergencyForApprovalAsync(int approvalLevel);
         Task<IEnumerable<LoanRequest>> GetByStatusAsync(string status);
         Task<int> CreateAsync(LoanRequest loanRequest);
         Task<bool> UpdateAsync(LoanRequest loanRequest);
@@ -144,6 +145,17 @@ namespace PelindoCarLoan.API.Repositories
                 LEFT JOIN drivers d ON lr.driver_id = d.driver_id
                 LEFT JOIN users du ON d.user_id = du.user_id
                 WHERE lr.status = :Status
+                  AND NOT EXISTS (
+                    SELECT 1 FROM schedules s 
+                    WHERE s.loan_request_id = lr.loan_request_id 
+                                        AND s.schedule_id = (
+                                                SELECT MAX(s2.schedule_id) 
+                                                FROM schedules s2 
+                                                WHERE s2.loan_request_id = lr.loan_request_id
+                                        )
+                                                                                AND s.status IN ('WAITING', 'WAITING_L2')
+                                        AND s.emergency_reason IS NOT NULL
+                  )
                 ORDER BY lr.created_at ASC";
 
             using var connection = _dbContext.CreateConnection();
@@ -161,6 +173,57 @@ namespace PelindoCarLoan.API.Repositories
                 },
                 new { Status = status },
                 splitOn: "Id,Id,Id"
+            );
+
+            return result;
+        }
+
+        public async Task<IEnumerable<LoanRequest>> GetEmergencyForApprovalAsync(int approvalLevel)
+        {
+            var scheduleStatus = approvalLevel == 1 ? ScheduleStatus.Waiting : ScheduleStatus.WaitingL2;
+
+            const string sql = @"
+                SELECT lr.loan_request_id AS Id, lr.user_id AS UserId, NULL AS RequestNumber, 
+                       lr.service_letter_basis AS ServiceLetterBasis, lr.service_letter_file_path AS ServiceLetterFilePath,
+                       lr.purpose, lr.destination, lr.guest_list AS GuestList,
+                       lr.hotel_accommodation AS HotelAccommodation,
+                       lr.vehicle_id AS VehicleId, lr.driver_id AS DriverId,
+                       lr.start_datetime AS StartDatetime, lr.end_datetime AS EndDatetime, 
+                       lr.status, lr.notes AS Notes, lr.created_at AS CreatedAt, lr.updated_at AS UpdatedAt,
+                       u.user_id AS Id, u.full_name AS Name, u.email, u.phone_number AS PhoneNumber, u.role, u.division, u.unit_kerja AS UnitKerja,
+                       d.driver_id AS Id, d.user_id AS UserId,
+                       du.user_id AS Id, du.full_name AS Name, du.email, du.phone_number AS PhoneNumber,
+                       s.schedule_id AS Id, s.emergency_reason AS EmergencyReason, s.emergency_type AS EmergencyType
+                FROM loan_requests lr
+                INNER JOIN users u ON lr.user_id = u.user_id
+                LEFT JOIN drivers d ON lr.driver_id = d.driver_id
+                LEFT JOIN users du ON d.user_id = du.user_id
+                INNER JOIN schedules s ON lr.loan_request_id = s.loan_request_id
+                WHERE s.schedule_id = (
+                        SELECT MAX(s2.schedule_id) 
+                        FROM schedules s2 
+                        WHERE s2.loan_request_id = lr.loan_request_id
+                    )
+                    AND s.status = :ScheduleStatus
+                    AND s.emergency_reason IS NOT NULL
+                ORDER BY s.assigned_at DESC";
+
+            using var connection = _dbContext.CreateConnection();
+            var result = await connection.QueryAsync<LoanRequest, User, Driver, User, Schedule, LoanRequest>(
+                sql,
+                (lr, u, d, du, schedule) =>
+                {
+                    lr.User = u;
+                    if (d != null && du != null)
+                    {
+                        d.User = du;
+                        lr.Driver = d;
+                    }
+                    lr.Schedule = schedule;
+                    return lr;
+                },
+                new { ScheduleStatus = scheduleStatus },
+                splitOn: "Id,Id,Id,Id"
             );
 
             return result;

@@ -101,14 +101,19 @@ namespace PelindoCarLoan.API.Repositories
                 LEFT JOIN users u ON d.user_id = u.user_id
                 WHERE d.status = 'AVAILABLE'
                   AND d.license_expiry > :EndTime
-                  AND NOT EXISTS (
-                      SELECT 1 FROM schedules s
-                      INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
-                      WHERE s.driver_id = d.driver_id
-                        AND s.status NOT IN ('COMPLETED', 'CANCELLED')
-                        AND lr.start_datetime < :EndTime
-                        AND lr.end_datetime > :StartTime
-                  )
+                                    AND NOT EXISTS (
+                                            SELECT 1 FROM schedules s
+                                            INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
+                                            WHERE s.driver_id = d.driver_id
+                                                AND (
+                                                    s.status IN ('DRIVER_CONFIRMED', 'IN_PROGRESS', 'WAITING', 'WAITING_L2', 'EMERGENCY')
+                                                    OR (
+                                                        s.status IN ('CONFIRMED', 'WAITING_DRIVER')
+                                                        AND lr.start_datetime < :EndTime
+                                                        AND lr.end_datetime > :StartTime
+                                                    )
+                                                )
+                                    )
                 ORDER BY u.full_name";
 
             using var connection = _dbContext.CreateConnection();

@@ -116,13 +116,17 @@ namespace PelindoCarLoan.API.Repositories
         {
             const string sql = @"
                 UPDATE approvals
-                SET status = :Status, notes = :Notes, approved_at = :ApprovedAt
+                SET approver_id = :ApproverId,
+                    status = :Status,
+                    notes = :Notes,
+                    approved_at = :ApprovedAt
                 WHERE approval_id = :Id";
 
             using var connection = _dbContext.CreateConnection();
             var rowsAffected = await connection.ExecuteAsync(sql, new
             {
                 approval.Id,
+                approval.ApproverId,
                 approval.Status,
                 approval.Notes,
                 approval.ApprovedAt

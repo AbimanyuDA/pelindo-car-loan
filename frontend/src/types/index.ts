@@ -71,6 +71,7 @@ export interface LoanRequestListItem {
   driverId?: number;
   startDatetime: string;
   endDatetime: string;
+  departureDate?: string;
   status: LoanRequestStatus;
   createdAt: string;
 }
@@ -90,10 +91,14 @@ export interface CreateLoanRequest {
 
 export type LoanRequestStatus =
   | "SUBMITTED"
+  | "PENDING"
+  | "PENDING_L1"
   | "APPROVED_L1"
   | "REJECTED_L1"
   | "APPROVED_L2"
   | "REJECTED_L2"
+  | "APPROVED"
+  | "REJECTED"
   | "SCHEDULED"
   | "WAITING_RESOURCE"
   | "IN_PROGRESS"
@@ -119,6 +124,7 @@ export interface PendingApproval {
   requesterEmail: string;
   requesterPhone?: string;
   requesterDivision: string;
+  department?: string;
   requesterUnitKerja?: string;
   serviceLetterBasis?: string;
   serviceLetterFilePath?: string;
@@ -132,10 +138,13 @@ export interface PendingApproval {
   driverPhone?: string;
   startDatetime: string;
   endDatetime: string;
+  departureDate?: string;
   status: LoanRequestStatus;
   notes?: string;
   createdAt: string;
   requiredApprovalLevel: number;
+  emergencyReason?: string;
+  emergencyType?: "MOGOK" | "LAINNYA";
 }
 
 export interface ProcessApproval {
@@ -164,9 +173,20 @@ export interface Schedule {
   driver?: Driver;
   vehicle?: Vehicle;
   assignedByName?: string;
+  vehiclePlateNumber?: string;
+  vehicleModel?: string;
+  driverName?: string;
+  // Driver pre-departure and journey tracking
+  actualVehicleId?: number;
+  actualVehicle?: Vehicle;
+  fuelCondition?: string;
+  kmPhotoPath?: string;
+  emergencyReason?: string;
+  driverMessage?: string;
 }
 
 export interface DriverSchedule {
+  id?: number;
   scheduleId: number;
   requestNumber: string;
   requesterName: string;
@@ -179,11 +199,21 @@ export interface DriverSchedule {
   hotelName?: string;
   startDatetime: string;
   endDatetime: string;
+  departureDate?: string;
+  vehicleId: number;
   vehiclePlate: string;
   vehicleBrand: string;
+  vehicleModel: string;
   vehicleType: string;
   status: string;
   notes?: string;
+  // Driver pre-departure and journey tracking
+  actualVehicleId?: number;
+  actualVehiclePlate?: string;
+  fuelCondition?: string;
+  actualStartTime?: string;
+  actualEndTime?: string;
+  emergencyReason?: string;
 }
 
 export interface AssignSchedule {
@@ -202,9 +232,14 @@ export interface UpdateScheduleStatus {
 
 export type ScheduleStatus =
   | "ASSIGNED"
+  | "CONFIRMED"
+  | "PENDING"
+  | "WAITING_DRIVER"
+  | "DRIVER_CONFIRMED"
   | "IN_PROGRESS"
   | "COMPLETED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "EMERGENCY";
 
 // Vehicle Types
 export interface Vehicle {
@@ -234,12 +269,14 @@ export type VehicleStatus = "AVAILABLE" | "IN_USE" | "MAINTENANCE" | "RETIRED";
 export interface Driver {
   id: number;
   userId?: number;
+  name?: string;
   driverName?: string;
   phoneNumber?: string;
   licenseNumber: string;
   licenseExpiry: string;
   status: DriverStatus;
   isActive: boolean;
+  user?: { name: string };
 }
 
 export interface CreateDriver {
@@ -260,6 +297,8 @@ export interface DashboardStats {
   availableVehicles: number;
   availableDrivers: number;
   waitingResources: number;
+  todaySchedules?: number;
+  activeSchedules?: number;
 }
 
 export interface RecentActivity {
@@ -276,6 +315,7 @@ export interface Dashboard {
   recentActivities: RecentActivity[];
   myRecentRequests: LoanRequestListItem[];
   upcomingSchedules: DriverSchedule[];
+  todaySchedulesList?: DriverSchedule[];
 }
 
 // API Response Types

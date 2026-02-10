@@ -78,14 +78,19 @@ namespace PelindoCarLoan.API.Repositories
                        v.last_maintenance, v.next_maintenance, v.created_at, v.updated_at
                 FROM vehicles v
                 WHERE v.status = 'AVAILABLE'
-                  AND NOT EXISTS (
-                      SELECT 1 FROM schedules s
-                      INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
-                      WHERE s.vehicle_id = v.vehicle_id
-                        AND s.status NOT IN ('COMPLETED', 'CANCELLED')
-                        AND lr.start_datetime < :EndTime
-                        AND lr.end_datetime > :StartTime
-                  )
+                                    AND NOT EXISTS (
+                                            SELECT 1 FROM schedules s
+                                            INNER JOIN loan_requests lr ON s.loan_request_id = lr.loan_request_id
+                                            WHERE s.vehicle_id = v.vehicle_id
+                                                AND (
+                                                    s.status IN ('DRIVER_CONFIRMED', 'IN_PROGRESS', 'WAITING', 'WAITING_L2', 'EMERGENCY')
+                                                    OR (
+                                                        s.status IN ('CONFIRMED', 'WAITING_DRIVER')
+                                                        AND lr.start_datetime < :EndTime
+                                                        AND lr.end_datetime > :StartTime
+                                                    )
+                                                )
+                                    )
                 ORDER BY v.license_plate";
 
             using var connection = _dbContext.CreateConnection();

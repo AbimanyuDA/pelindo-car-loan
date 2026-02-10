@@ -7,17 +7,25 @@ const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || "/api";
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    // Don't set Content-Type globally - let axios/browser auto-detect
+    // When FormData is sent, browser sets multipart/form-data
+    // When JSON is sent, we set it explicitly in the request
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and Content-Type
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Set Content-Type for non-FormData requests
+    if (config.data && !(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
+    
     return config;
   },
   (error) => {

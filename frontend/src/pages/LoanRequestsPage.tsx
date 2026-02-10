@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { PageLoading } from "@/components/ui/Loading";
 import { Alert } from "@/components/ui/Alert";
+import { useRealTimeUpdates } from "@/hooks/useRealTimeUpdates";
 import { loanRequestService } from "@/services";
 import { formatDate } from "@/lib/utils";
 import type { LoanRequestListItem } from "@/types";
@@ -16,6 +17,9 @@ import type { LoanRequestListItem } from "@/types";
 export default function LoanRequestsPage() {
   const queryClient = useQueryClient();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  // Subscribe to real-time loan request updates
+  useRealTimeUpdates("/loanrequests/subscribe", ["my-requests"]);
 
   const {
     data: requests,
